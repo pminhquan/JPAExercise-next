@@ -1,0 +1,8 @@
+﻿IF DB_ID(N'jakartaJPA') IS NULL
+BEGIN
+    CREATE DATABASE jakartaJPA;
+END
+GO
+
+USE jakartaJPA;
+GO
