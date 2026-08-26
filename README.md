@@ -5,7 +5,7 @@ Category CRUD web application using Jakarta Servlet, JSP, JPA/Hibernate and Micr
 ## Technologies
 
 - Java 21
-- Maven 3.9+
+- Maven Wrapper (included)
 - Jakarta Servlet 6.0
 - JPA / Hibernate 6.6.1.Final
 - JSP / JSTL
@@ -66,11 +66,17 @@ Default configuration:
 - Username: sa
 - Password: 123
 
-Before running the application, execute database.sql.
+Before running the application, open `database.sql` in SQL Server Management
+Studio and execute it. The script creates `jakartaJPA` only when it does not
+already exist.
 
 If SQL Server on another machine uses different connection information, update:
 
 src/main/resources/META-INF/persistence.xml
+
+Use SQL Server Authentication. Update the JDBC URL, username, and password in
+`persistence.xml` to match the local SQL Server instance before building or
+running the JPA tests.
 
 Hibernate uses:
 
@@ -84,13 +90,21 @@ jdbc:sqlserver://localhost:1433;databaseName=jakartaJPA;encrypt=true;trustServer
 
 ## Build
 
-Run tests:
+On Windows, use the included Maven Wrapper (no separate Maven installation is
+required):
 
-mvn clean test
+```powershell
+.\mvnw.cmd clean test
+```
 
 Build WAR:
 
-mvn clean package
+```powershell
+.\mvnw.cmd clean package
+```
+
+If Maven is installed globally, `mvn clean test` and `mvn clean package` are
+equivalent.
 
 Generated WAR:
 
@@ -104,7 +118,14 @@ Apache Tomcat 10.1
 
 Deploy artifact:
 
-JPAExercise:war exploded
+Copy `target/JPAExercise.war` to `<TOMCAT_HOME>/webapps/`, then start Tomcat.
+Tomcat deploys the WAR with context path `/JPAExercise`.
+
+On Windows, start Tomcat with:
+
+```powershell
+<TOMCAT_HOME>\bin\startup.bat
+```
 
 Application context:
 
@@ -140,7 +161,9 @@ Current tests:
 
 Run all tests:
 
-mvn clean test
+```powershell
+.\mvnw.cmd clean test
+```
 
 ## Notes
 
