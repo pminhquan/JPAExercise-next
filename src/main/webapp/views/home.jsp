@@ -63,7 +63,9 @@
                             <c:out value="${product.productid}" />
                         </td>
                         <td>
-                            <c:out value="${product.productname}" />
+                            <a href="${pageContext.request.contextPath}/products/detail?id=${fn:escapeXml(product.productid)}">
+                                <c:out value="${product.productname}" />
+                            </a>
                         </td>
                         <td>
                             <c:out value="${product.description}" />

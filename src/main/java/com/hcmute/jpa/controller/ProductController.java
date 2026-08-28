@@ -15,7 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet(urlPatterns = {"/products", "/product", "/products/add", "/products/edit", "/products/delete"})
+@WebServlet(urlPatterns = {"/products", "/product", "/products/add", "/products/edit", "/products/delete", "/products/detail"})
 public class ProductController extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
@@ -56,6 +56,8 @@ public class ProductController extends HttpServlet {
                 showAddForm(request, response);
             } else if ("/products/edit".equals(path)) {
                 showEditForm(request, response);
+            } else if ("/products/detail".equals(path)) {
+                showDetail(request, response);
             } else if ("/products".equals(path) || "/product".equals(path)) {
                 listProducts(request, response);
             } else if ("/products/delete".equals(path)) {
@@ -127,6 +129,44 @@ public class ProductController extends HttpServlet {
         } catch (Exception e) {
             response.sendRedirect(request.getContextPath() + "/products");
         }
+    }
+
+    private void showDetail(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String idStr = request.getParameter("id");
+        if (idStr == null || idStr.trim().isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            request.setAttribute("error", "Product ID is missing.");
+            request.getRequestDispatcher("/views/product-detail.jsp").forward(request, response);
+            return;
+        }
+
+        int id;
+        try {
+            id = Integer.parseInt(idStr.trim());
+        } catch (NumberFormatException e) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            request.setAttribute("error", "Invalid Product ID format.");
+            request.getRequestDispatcher("/views/product-detail.jsp").forward(request, response);
+            return;
+        }
+
+        Product product = null;
+        try {
+            product = productService.getProductById(id);
+        } catch (Exception e) {
+            // handle database exception safely
+        }
+
+        if (product == null) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            request.setAttribute("error", "Product not found.");
+            request.getRequestDispatcher("/views/product-detail.jsp").forward(request, response);
+            return;
+        }
+
+        request.setAttribute("product", product);
+        request.getRequestDispatcher("/views/product-detail.jsp").forward(request, response);
     }
 
     private void showAddForm(HttpServletRequest request, HttpServletResponse response)
