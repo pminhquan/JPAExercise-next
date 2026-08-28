@@ -3,6 +3,8 @@ package com.hcmute.jpa.entity;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.ArrayList;
 
 @Entity
 @Table(name = "categories")
@@ -34,6 +36,9 @@ public class Category implements Serializable {
 
     @Column(name = "Status")
     private int status;
+
+    @OneToMany(mappedBy = "category", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, fetch = FetchType.LAZY)
+    private List<Product> products = new ArrayList<>();
 
     public Category() {
     }
@@ -85,6 +90,14 @@ public class Category implements Serializable {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public List<Product> getProducts() {
+        return products;
+    }
+
+    public void setProducts(List<Product> products) {
+        this.products = products;
     }
 
     @Override

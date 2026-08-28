@@ -63,10 +63,11 @@ public class CategoryDao implements ICategoryDao {
     }
 
     @Override
-    public void delete(int id) {
+    public boolean delete(int id) {
 
         EntityManager entityManager = JpaConfig.getEntityManager();
         EntityTransaction transaction = entityManager.getTransaction();
+        boolean deleted = false;
 
         try {
             transaction.begin();
@@ -76,9 +77,11 @@ public class CategoryDao implements ICategoryDao {
 
             if (category != null) {
                 entityManager.remove(category);
+                deleted = true;
             }
 
             transaction.commit();
+            return deleted;
 
         } catch (Exception e) {
 
@@ -120,6 +123,20 @@ public class CategoryDao implements ICategoryDao {
 
             return query.getResultList();
 
+        } finally {
+            entityManager.close();
+        }
+     }
+
+    @Override
+    public boolean isCategoryInUse(int categoryId) {
+        EntityManager entityManager = JpaConfig.getEntityManager();
+        try {
+            String jpql = "SELECT COUNT(p) FROM Product p WHERE p.category.categoryid = :categoryId";
+            Long count = entityManager.createQuery(jpql, Long.class)
+                    .setParameter("categoryId", categoryId)
+                    .getSingleResult();
+            return count > 0;
         } finally {
             entityManager.close();
         }

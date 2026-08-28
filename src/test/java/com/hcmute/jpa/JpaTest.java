@@ -43,7 +43,6 @@ public class JpaTest {
         } finally {
 
             entityManager.close();
-            JpaConfig.close();
         }
     }
 }

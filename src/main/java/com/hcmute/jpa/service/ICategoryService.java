@@ -10,9 +10,11 @@ public interface ICategoryService {
 
     void update(Category category);
 
-    void delete(int id);
+    boolean delete(int id);
 
     Category findById(int id);
 
     List<Category> findAll();
+
+    boolean isCategoryInUse(int categoryId);
 }

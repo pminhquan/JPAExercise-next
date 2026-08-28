@@ -25,8 +25,8 @@ public class CategoryServiceImpl implements ICategoryService {
     }
 
     @Override
-    public void delete(int id) {
-        categoryDao.delete(id);
+    public boolean delete(int id) {
+        return categoryDao.delete(id);
     }
 
     @Override
@@ -37,5 +37,10 @@ public class CategoryServiceImpl implements ICategoryService {
     @Override
     public List<Category> findAll() {
         return categoryDao.findAll();
+    }
+
+    @Override
+    public boolean isCategoryInUse(int categoryId) {
+        return categoryDao.isCategoryInUse(categoryId);
     }
 }
