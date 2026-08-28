@@ -15,7 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet(urlPatterns = {"/products", "/products/add", "/products/edit", "/products/delete"})
+@WebServlet(urlPatterns = {"/products", "/product", "/products/add", "/products/edit", "/products/delete"})
 public class ProductController extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
@@ -56,7 +56,7 @@ public class ProductController extends HttpServlet {
                 showAddForm(request, response);
             } else if ("/products/edit".equals(path)) {
                 showEditForm(request, response);
-            } else if ("/products".equals(path)) {
+            } else if ("/products".equals(path) || "/product".equals(path)) {
                 listProducts(request, response);
             } else if ("/products/delete".equals(path)) {
                 response.sendRedirect(request.getContextPath() + "/products");
@@ -94,8 +94,35 @@ public class ProductController extends HttpServlet {
     private void listProducts(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            List<Product> products = productService.getAllProducts();
+            int limit = 6;
+            int page = 1;
+            String pageStr = request.getParameter("page");
+            if (pageStr != null && !pageStr.trim().isEmpty()) {
+                try {
+                    page = Integer.parseInt(pageStr.trim());
+                    if (page <= 0) {
+                        page = 1;
+                    }
+                } catch (NumberFormatException e) {
+                    page = 1;
+                }
+            }
+
+            long totalProducts = productService.countAllProducts();
+            int totalPages = (int) Math.ceil((double) totalProducts / limit);
+
+            if (totalPages > 0 && page > totalPages) {
+                page = totalPages;
+            }
+
+            int offset = (page - 1) * limit;
+            List<Product> products = productService.getProductsPage(offset, limit);
+
             request.setAttribute("products", products);
+            request.setAttribute("currentPage", page);
+            request.setAttribute("totalPages", totalPages);
+            request.setAttribute("totalProducts", totalProducts);
+
             request.getRequestDispatcher("/views/product-list.jsp").forward(request, response);
         } catch (Exception e) {
             response.sendRedirect(request.getContextPath() + "/products");

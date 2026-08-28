@@ -94,10 +94,17 @@
                         <td>
                             <c:choose>
                                 <c:when test="${not empty product.images}">
-                                    <c:out value="${product.images}" />
+                                    <c:choose>
+                                        <c:when test="${fn:startsWith(product.images, 'http://') or fn:startsWith(product.images, 'https://')}">
+                                            <img src="${fn:escapeXml(product.images)}" alt="${fn:escapeXml(product.productname)}" style="max-height: 50px; max-width: 100px;" class="img-thumbnail" />
+                                        </c:when>
+                                        <c:otherwise>
+                                            <img src="${pageContext.request.contextPath}/uploads/${fn:escapeXml(product.images)}" alt="${fn:escapeXml(product.productname)}" style="max-height: 50px; max-width: 100px;" class="img-thumbnail" />
+                                        </c:otherwise>
+                                    </c:choose>
                                 </c:when>
                                 <c:otherwise>
-                                    No image
+                                    <span class="text-muted">No image</span>
                                 </c:otherwise>
                             </c:choose>
                         </td>
@@ -138,6 +145,25 @@
                 </c:if>
                 </tbody>
             </table>
+
+            <!-- Pagination Controls -->
+            <c:if test="${totalPages > 1}">
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
+                            <a class="page-link" href="${pageContext.request.contextPath}/product?page=${currentPage - 1}">Previous</a>
+                        </li>
+                        <c:forEach var="i" begin="1" end="${totalPages}">
+                            <li class="page-item ${currentPage == i ? 'active' : ''}">
+                                <a class="page-link" href="${pageContext.request.contextPath}/product?page=${i}">${i}</a>
+                            </li>
+                        </c:forEach>
+                        <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
+                            <a class="page-link" href="${pageContext.request.contextPath}/product?page=${currentPage + 1}">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            </c:if>
         </div>
     </div>
 </div>

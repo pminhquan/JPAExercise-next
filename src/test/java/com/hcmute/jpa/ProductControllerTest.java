@@ -96,6 +96,16 @@ public class ProductControllerTest {
                 int id = (Integer) args[0];
                 productsDb.removeIf(prod -> prod.getProductid() == id);
                 return null;
+            } else if (name.equals("getProductsPage")) {
+                int offset = (Integer) args[0];
+                int limit = (Integer) args[1];
+                int toIndex = Math.min(offset + limit, productsDb.size());
+                if (offset > productsDb.size()) {
+                    return new ArrayList<Product>();
+                }
+                return productsDb.subList(offset, toIndex);
+            } else if (name.equals("countAllProducts")) {
+                return (long) productsDb.size();
             }
             return null;
         });
@@ -518,5 +528,46 @@ public class ProductControllerTest {
         assertTrue(ctx.forwarded);
         assertEquals("/views/product-add.jsp", ctx.forwardedPath);
         assertNotNull(ctx.attributes.get("error"));
+    }
+
+    @Test
+    public void testGetProductsListPagination() throws Exception {
+        Category c1 = categoriesDb.get(0);
+        for (int i = 1; i <= 10; i++) {
+            Product p = new Product("Prod " + i, "Desc " + i, 10.0, "img.jpg", 1, c1);
+            p.setProductid(200 + i);
+            productsDb.add(p);
+        }
+
+        ProductController controller = new ProductController(mockProductService, mockCategoryService);
+
+        MockHttpContext ctx1 = new MockHttpContext("/product");
+        ctx1.parameters.put("page", "1");
+        controller.doGet(ctx1.request, ctx1.response);
+
+        assertTrue(ctx1.forwarded);
+        assertEquals("/views/product-list.jsp", ctx1.forwardedPath);
+        assertEquals(1, ctx1.attributes.get("currentPage"));
+        assertEquals(2, ctx1.attributes.get("totalPages"));
+        assertEquals(11L, ctx1.attributes.get("totalProducts"));
+        List<Product> page1Products = (List<Product>) ctx1.attributes.get("products");
+        assertEquals(6, page1Products.size());
+
+        MockHttpContext ctx2 = new MockHttpContext("/product");
+        ctx2.parameters.put("page", "2");
+        controller.doGet(ctx2.request, ctx2.response);
+        assertEquals(2, ctx2.attributes.get("currentPage"));
+        List<Product> page2Products = (List<Product>) ctx2.attributes.get("products");
+        assertEquals(5, page2Products.size());
+
+        MockHttpContext ctx3 = new MockHttpContext("/product");
+        ctx3.parameters.put("page", "999");
+        controller.doGet(ctx3.request, ctx3.response);
+        assertEquals(2, ctx3.attributes.get("currentPage"));
+
+        MockHttpContext ctx4 = new MockHttpContext("/product");
+        ctx4.parameters.put("page", "invalid");
+        controller.doGet(ctx4.request, ctx4.response);
+        assertEquals(1, ctx4.attributes.get("currentPage"));
     }
 }
