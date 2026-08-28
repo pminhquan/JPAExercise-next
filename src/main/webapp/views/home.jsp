@@ -30,6 +30,20 @@
             <h5 class="mb-0">Up to 10 Newest Products</h5>
         </div>
         <div class="card-body">
+            <c:set var="count" value="${fn:length(newestProducts)}" />
+            <div class="mb-3">
+                <c:choose>
+                    <c:when test="${count == 0}">
+                        <span class="badge bg-secondary">Showing 0 products</span>
+                    </c:when>
+                    <c:when test="${count < 10}">
+                        <span class="badge bg-info">Showing <c:out value="${count}"/> products</span>
+                    </c:when>
+                    <c:otherwise>
+                        <span class="badge bg-success">Showing exactly 10 products</span>
+                    </c:otherwise>
+                </c:choose>
+            </div>
             <table class="table table-hover align-middle">
                 <thead class="table-dark">
                 <tr>
@@ -49,9 +63,7 @@
                             <c:out value="${product.productid}" />
                         </td>
                         <td>
-                            <a href="${pageContext.request.contextPath}/products/detail?id=${fn:escapeXml(product.productid)}">
-                                <c:out value="${product.productname}" />
-                            </a>
+                            <c:out value="${product.productname}" />
                         </td>
                         <td>
                             <c:out value="${product.description}" />
@@ -62,10 +74,17 @@
                         <td>
                             <c:choose>
                                 <c:when test="${not empty product.images}">
-                                    <c:out value="${product.images}" />
+                                    <c:choose>
+                                        <c:when test="${fn:startsWith(product.images, 'http://') or fn:startsWith(product.images, 'https://')}">
+                                            <img src="${fn:escapeXml(product.images)}" alt="${fn:escapeXml(product.productname)}" style="max-height: 50px; max-width: 100px;" class="img-thumbnail" />
+                                        </c:when>
+                                        <c:otherwise>
+                                            <img src="${pageContext.request.contextPath}/uploads/${fn:escapeXml(product.images)}" alt="${fn:escapeXml(product.productname)}" style="max-height: 50px; max-width: 100px;" class="img-thumbnail" />
+                                        </c:otherwise>
+                                    </c:choose>
                                 </c:when>
                                 <c:otherwise>
-                                    No image
+                                    <span class="text-muted">No image</span>
                                 </c:otherwise>
                             </c:choose>
                         </td>
