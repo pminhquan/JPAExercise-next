@@ -570,4 +570,61 @@ public class ProductControllerTest {
         controller.doGet(ctx4.request, ctx4.response);
         assertEquals(1, ctx4.attributes.get("currentPage"));
     }
+
+    @Test
+    public void testGetProductDetailSuccess() throws Exception {
+        ProductController controller = new ProductController(mockProductService, mockCategoryService);
+        MockHttpContext ctx = new MockHttpContext("/products/detail");
+        ctx.parameters.put("id", "101");
+
+        controller.doGet(ctx.request, ctx.response);
+
+        assertTrue(ctx.forwarded);
+        assertEquals("/views/product-detail.jsp", ctx.forwardedPath);
+        assertNotNull(ctx.attributes.get("product"));
+        Product detail = (Product) ctx.attributes.get("product");
+        assertEquals(101, detail.getProductid());
+        assertNull(ctx.attributes.get("error"));
+    }
+
+    @Test
+    public void testGetProductDetailNotFound() throws Exception {
+        ProductController controller = new ProductController(mockProductService, mockCategoryService);
+        MockHttpContext ctx = new MockHttpContext("/products/detail");
+        ctx.parameters.put("id", "999");
+
+        controller.doGet(ctx.request, ctx.response);
+
+        assertTrue(ctx.forwarded);
+        assertEquals("/views/product-detail.jsp", ctx.forwardedPath);
+        assertNull(ctx.attributes.get("product"));
+        assertEquals("Product not found.", ctx.attributes.get("error"));
+    }
+
+    @Test
+    public void testGetProductDetailInvalidId() throws Exception {
+        ProductController controller = new ProductController(mockProductService, mockCategoryService);
+        MockHttpContext ctx = new MockHttpContext("/products/detail");
+        ctx.parameters.put("id", "invalid-id");
+
+        controller.doGet(ctx.request, ctx.response);
+
+        assertTrue(ctx.forwarded);
+        assertEquals("/views/product-detail.jsp", ctx.forwardedPath);
+        assertNull(ctx.attributes.get("product"));
+        assertEquals("Invalid Product ID format.", ctx.attributes.get("error"));
+    }
+
+    @Test
+    public void testGetProductDetailMissingId() throws Exception {
+        ProductController controller = new ProductController(mockProductService, mockCategoryService);
+        MockHttpContext ctx = new MockHttpContext("/products/detail");
+
+        controller.doGet(ctx.request, ctx.response);
+
+        assertTrue(ctx.forwarded);
+        assertEquals("/views/product-detail.jsp", ctx.forwardedPath);
+        assertNull(ctx.attributes.get("product"));
+        assertEquals("Product ID is missing.", ctx.attributes.get("error"));
+    }
 }
