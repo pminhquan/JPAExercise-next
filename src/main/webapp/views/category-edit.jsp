@@ -1,4 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 
 <!DOCTYPE html>
 <html>
@@ -28,13 +30,11 @@
 
                 <div class="card-body">
 
-                    <% if (request.getAttribute("error") != null) { %>
-
-                    <div class="alert alert-danger">
-                        <%= request.getAttribute("error") %>
-                    </div>
-
-                    <% } %>
+                    <c:if test="${not empty error}">
+                        <div class="alert alert-danger">
+                            <c:out value="${error}"/>
+                        </div>
+                    </c:if>
 
                     <form
                             action="${pageContext.request.contextPath}/categories?action=update"
@@ -43,7 +43,7 @@
                         <input
                                 type="hidden"
                                 name="categoryid"
-                                value="${category.categoryid}">
+                                value="${fn:escapeXml(category.categoryid)}">
 
                         <div class="mb-3">
 
@@ -54,7 +54,7 @@
                             <input
                                     type="text"
                                     class="form-control"
-                                    value="${category.categoryid}"
+                                    value="${fn:escapeXml(category.categoryid)}"
                                     disabled>
 
                         </div>
@@ -69,7 +69,7 @@
                                     type="text"
                                     name="categoryname"
                                     class="form-control"
-                                    value="${category.categoryname}"
+                                    value="${fn:escapeXml(category.categoryname)}"
                                     required>
 
                         </div>
@@ -84,7 +84,7 @@
                                     type="text"
                                     name="images"
                                     class="form-control"
-                                    value="${category.images}">
+                                    value="${fn:escapeXml(category.images)}">
 
                         </div>
 

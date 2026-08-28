@@ -25,7 +25,7 @@ public class CategoryController extends HttpServlet {
     }
 
     @Override
-    protected void doGet(
+    public void doGet(
             HttpServletRequest request,
             HttpServletResponse response
     ) throws ServletException, IOException {
@@ -52,7 +52,9 @@ public class CategoryController extends HttpServlet {
                     break;
 
                 case "delete":
-                    deleteCategory(request, response);
+                    response.sendRedirect(
+                            request.getContextPath() + "/categories"
+                    );
                     break;
 
                 default:
@@ -66,7 +68,7 @@ public class CategoryController extends HttpServlet {
     }
 
     @Override
-    protected void doPost(
+    public void doPost(
             HttpServletRequest request,
             HttpServletResponse response
     ) throws ServletException, IOException {
@@ -93,6 +95,10 @@ public class CategoryController extends HttpServlet {
 
                 case "update":
                     updateCategory(request, response);
+                    break;
+
+                case "delete":
+                    deleteCategory(request, response);
                     break;
 
                 default:
@@ -140,9 +146,16 @@ public class CategoryController extends HttpServlet {
             HttpServletResponse response
     ) throws ServletException, IOException {
 
-        int id = Integer.parseInt(
-                request.getParameter("id")
-        );
+        String idStr = request.getParameter("id");
+        int id;
+        try {
+            id = Integer.parseInt(idStr);
+        } catch (NumberFormatException e) {
+            response.sendRedirect(
+                    request.getContextPath() + "/categories"
+            );
+            return;
+        }
 
         Category category =
                 categoryService.findById(id);
@@ -176,10 +189,21 @@ public class CategoryController extends HttpServlet {
         String images =
                 request.getParameter("images");
 
-        int status =
-                Integer.parseInt(
-                        request.getParameter("status")
-                );
+        String statusStr = request.getParameter("status");
+        int status;
+        try {
+            status = Integer.parseInt(statusStr);
+        } catch (NumberFormatException e) {
+            request.setAttribute(
+                    "error",
+                    "Invalid status value."
+            );
+
+            request.getRequestDispatcher(
+                    "/views/category-add.jsp"
+            ).forward(request, response);
+            return;
+        }
 
         if (categoryname == null
                 || categoryname.trim().isEmpty()) {
@@ -223,9 +247,16 @@ public class CategoryController extends HttpServlet {
             HttpServletResponse response
     ) throws IOException, ServletException {
 
-        int id = Integer.parseInt(
-                request.getParameter("categoryid")
-        );
+        String idStr = request.getParameter("categoryid");
+        int id;
+        try {
+            id = Integer.parseInt(idStr);
+        } catch (NumberFormatException e) {
+            response.sendRedirect(
+                    request.getContextPath() + "/categories"
+            );
+            return;
+        }
 
         String categoryname =
                 request.getParameter("categoryname");
@@ -233,10 +264,29 @@ public class CategoryController extends HttpServlet {
         String images =
                 request.getParameter("images");
 
-        int status =
-                Integer.parseInt(
-                        request.getParameter("status")
-                );
+        String statusStr = request.getParameter("status");
+        int status;
+        try {
+            status = Integer.parseInt(statusStr);
+        } catch (NumberFormatException e) {
+            Category category =
+                    categoryService.findById(id);
+
+            request.setAttribute(
+                    "category",
+                    category
+            );
+
+            request.setAttribute(
+                    "error",
+                    "Invalid status value."
+            );
+
+            request.getRequestDispatcher(
+                    "/views/category-edit.jsp"
+            ).forward(request, response);
+            return;
+        }
 
         if (categoryname == null
                 || categoryname.trim().isEmpty()) {
@@ -297,15 +347,70 @@ public class CategoryController extends HttpServlet {
             HttpServletResponse response
     ) throws IOException {
 
-        int id = Integer.parseInt(
-                request.getParameter("id")
-        );
+        String idStr = request.getParameter("id");
+        if (idStr == null || idStr.trim().isEmpty()) {
+            response.sendRedirect(
+                    request.getContextPath() + "/categories?error=invalid_id"
+            );
+            return;
+        }
 
-        categoryService.delete(id);
+        int id;
+        try {
+            id = Integer.parseInt(idStr.trim());
+        } catch (NumberFormatException e) {
+            response.sendRedirect(
+                    request.getContextPath() + "/categories?error=invalid_id"
+            );
+            return;
+        }
 
-        response.sendRedirect(
-                request.getContextPath()
-                        + "/categories?message=delete_success"
-        );
+        Category category;
+        try {
+            category = categoryService.findById(id);
+        } catch (Exception e) {
+            response.sendRedirect(
+                    request.getContextPath() + "/categories?error=delete_failed"
+            );
+            return;
+        }
+
+        if (category == null) {
+            response.sendRedirect(
+                    request.getContextPath() + "/categories?error=not_found"
+            );
+            return;
+        }
+
+        try {
+            if (categoryService.isCategoryInUse(id)) {
+                response.sendRedirect(
+                        request.getContextPath() + "/categories?error=in_use"
+                );
+                return;
+            }
+        } catch (Exception e) {
+            response.sendRedirect(
+                    request.getContextPath() + "/categories?error=delete_failed"
+            );
+            return;
+        }
+
+        try {
+            boolean success = categoryService.delete(id);
+            if (success) {
+                response.sendRedirect(
+                        request.getContextPath() + "/categories?message=delete_success"
+                );
+            } else {
+                response.sendRedirect(
+                        request.getContextPath() + "/categories?error=not_found"
+                );
+            }
+        } catch (Exception e) {
+            response.sendRedirect(
+                    request.getContextPath() + "/categories?error=delete_failed"
+            );
+        }
     }
 }

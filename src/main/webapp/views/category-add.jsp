@@ -1,4 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 
 <!DOCTYPE html>
 <html>
@@ -28,13 +30,11 @@
 
                 <div class="card-body">
 
-                    <% if (request.getAttribute("error") != null) { %>
-
-                    <div class="alert alert-danger">
-                        <%= request.getAttribute("error") %>
-                    </div>
-
-                    <% } %>
+                    <c:if test="${not empty error}">
+                        <div class="alert alert-danger">
+                            <c:out value="${error}"/>
+                        </div>
+                    </c:if>
 
                     <form
                             action="${pageContext.request.contextPath}/categories?action=insert"
@@ -50,7 +50,7 @@
                                     type="text"
                                     name="categoryname"
                                     class="form-control"
-                                    value="${param.categoryname}"
+                                    value="${fn:escapeXml(param.categoryname)}"
                                     required>
 
                         </div>
@@ -65,7 +65,7 @@
                                     type="text"
                                     name="images"
                                     class="form-control"
-                                    value="${param.images}"
+                                    value="${fn:escapeXml(param.images)}"
                                     placeholder="Example: laptop.jpg">
 
                         </div>

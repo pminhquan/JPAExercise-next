@@ -11,6 +11,7 @@
                       transaction-type="RESOURCE_LOCAL">
 
         <class>com.hcmute.jpa.entity.Category</class>
+        <class>com.hcmute.jpa.entity.Product</class>
 
         <properties>
 
@@ -18,15 +19,6 @@
             <property name="jakarta.persistence.jdbc.driver"
                       value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
 
-            <!-- Database connection -->
-            <property name="jakarta.persistence.jdbc.url"
-                      value="jdbc:sqlserver://localhost:1433;databaseName=jakartaJPA;encrypt=true;trustServerCertificate=true"/>
-
-            <property name="jakarta.persistence.jdbc.user"
-                      value="sa"/>
-
-            <property name="jakarta.persistence.jdbc.password"
-                      value="123"/>
 
             <!-- Hibernate automatically creates/updates tables -->
             <property name="hibernate.hbm2ddl.auto"
