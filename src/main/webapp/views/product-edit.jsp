@@ -168,7 +168,7 @@
                                     required>
 
                                 <c:set var="selectedCategoryId"
-                                       value="${param.categoryid != null ? param.categoryid : (product.category != null ? product.category.categoryid : '')}"/>
+                                       value="${param.categoryid != null ? fn:escapeXml(param.categoryid) : (product.category != null ? product.category.categoryid : '')}"/>
 
                                 <c:forEach var="cat" items="${categories}">
                                     <option value="${cat.categoryid}"
@@ -192,7 +192,7 @@
                             </label>
 
                             <c:set var="selectedStatus"
-                                   value="${param.status != null ? param.status : product.status}"/>
+                                   value="${param.status != null ? fn:escapeXml(param.status) : product.status}"/>
 
                             <select
                                     id="status"

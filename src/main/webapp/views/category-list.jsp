@@ -23,7 +23,15 @@
         <div class="page-header__text">
             <h1 class="page-header__title">Category Management</h1>
             <p class="page-header__subtitle">
-                ${fn:length(categories)} categories in total
+                <c:set var="catCount" value="${fn:length(categories)}" />
+                <c:choose>
+                    <c:when test="${catCount == 1}">
+                        1 category in total
+                    </c:when>
+                    <c:otherwise>
+                        ${catCount} categories in total
+                    </c:otherwise>
+                </c:choose>
             </p>
         </div>
 

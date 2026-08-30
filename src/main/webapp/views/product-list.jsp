@@ -24,7 +24,14 @@
         <div class="page-header__text">
             <h1 class="page-header__title">Product Management</h1>
             <p class="page-header__subtitle">
-                ${totalProducts} products in total
+                <c:choose>
+                    <c:when test="${totalProducts == 1}">
+                        1 product in total
+                    </c:when>
+                    <c:otherwise>
+                        ${totalProducts} products in total
+                    </c:otherwise>
+                </c:choose>
             </p>
         </div>
 
@@ -142,7 +149,7 @@
 
                         <td>
                             <span class="cell-price">
-                                $<fmt:formatNumber value="${product.price}" pattern="#,##0.00"/>
+                                <fmt:formatNumber value="${product.price}" pattern="#,##0"/> ₫
                             </span>
                         </td>
 

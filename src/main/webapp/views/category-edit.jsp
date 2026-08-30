@@ -88,7 +88,7 @@
                                     id="categoryname"
                                     name="categoryname"
                                     class="form-control"
-                                    value="${fn:escapeXml(category.categoryname)}"
+                                    value="${fn:escapeXml(param.categoryname != null ? param.categoryname : category.categoryname)}"
                                     required>
 
                             <span class="form-hint">
@@ -108,7 +108,7 @@
                                     id="images"
                                     name="images"
                                     class="form-control"
-                                    value="${fn:escapeXml(category.images)}">
+                                    value="${fn:escapeXml(param.images != null ? param.images : category.images)}">
 
                             <span class="form-hint">
                                 Optional. File name or URL of the category image.
@@ -122,6 +122,9 @@
                                 Status
                             </label>
 
+                            <c:set var="selectedStatus"
+                                   value="${param.status != null ? param.status : category.status}"/>
+
                             <select
                                     id="status"
                                     name="status"
@@ -129,13 +132,13 @@
 
                                 <option
                                         value="1"
-                                        ${category.status == 1 ? 'selected' : ''}>
+                                        ${selectedStatus == 1 || selectedStatus == '1' ? 'selected' : ''}>
                                     Active
                                 </option>
 
                                 <option
                                         value="0"
-                                        ${category.status == 0 ? 'selected' : ''}>
+                                        ${selectedStatus == 0 || selectedStatus == '0' ? 'selected' : ''}>
                                     Inactive
                                 </option>
 

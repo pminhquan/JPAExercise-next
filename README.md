@@ -431,6 +431,13 @@ localhost:1433
 
 # Build
 
+> [!WARNING]
+> Before running `.\mvnw.cmd clean package` or `.\mvnw.cmd clean test`, configure the database password and ensure SQL Server/database are running:
+>
+> ```powershell
+> $env:DB_PASSWORD="your-sql-server-password"
+> ```
+
 On Windows:
 
 ```powershell
@@ -643,7 +650,7 @@ GET  /JPAExercise/categories?action=add
 POST /JPAExercise/categories?action=insert
 GET  /JPAExercise/categories?action=edit&id={id}
 POST /JPAExercise/categories?action=update
-GET  /JPAExercise/categories?action=delete&id={id}
+POST /JPAExercise/categories?action=delete&id={id}
 ```
 
 ---
