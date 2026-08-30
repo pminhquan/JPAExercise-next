@@ -12,6 +12,8 @@
 
         <class>com.hcmute.jpa.entity.Category</class>
         <class>com.hcmute.jpa.entity.Product</class>
+        <class>com.hcmute.jpa.entity.User</class>
+        <class>com.hcmute.jpa.entity.OtpToken</class>
 
         <properties>
 

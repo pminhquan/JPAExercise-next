@@ -13,33 +13,44 @@ public class UserDao implements IUserDao {
     public void create(User user) {
         EntityManager entityManager = JpaConfig.getEntityManager();
         EntityTransaction transaction = entityManager.getTransaction();
+        boolean ownsTransaction = !JpaConfig.isTransactionActive();
         try {
-            transaction.begin();
+            if (ownsTransaction) {
+                transaction.begin();
+            }
             entityManager.persist(user);
-            transaction.commit();
+            if (ownsTransaction) {
+                transaction.commit();
+            }
         } catch (Exception e) {
-            if (transaction.isActive()) {
+            if (ownsTransaction && transaction.isActive()) {
                 transaction.rollback();
             }
             throw e;
         } finally {
-            entityManager.close();
+            if (ownsTransaction) {
+                entityManager.close();
+            }
         }
     }
 
     @Override
     public User findById(int id) {
         EntityManager entityManager = JpaConfig.getEntityManager();
+        boolean ownsEntityManager = !JpaConfig.isTransactionActive();
         try {
             return entityManager.find(User.class, id);
         } finally {
-            entityManager.close();
+            if (ownsEntityManager) {
+                entityManager.close();
+            }
         }
     }
 
     @Override
     public User findByEmail(String email) {
         EntityManager entityManager = JpaConfig.getEntityManager();
+        boolean ownsEntityManager = !JpaConfig.isTransactionActive();
         try {
             TypedQuery<User> query = entityManager.createNamedQuery("User.findByEmail", User.class);
             query.setParameter("email", email);
@@ -47,13 +58,16 @@ public class UserDao implements IUserDao {
         } catch (NoResultException e) {
             return null;
         } finally {
-            entityManager.close();
+            if (ownsEntityManager) {
+                entityManager.close();
+            }
         }
     }
 
     @Override
     public User findByUsername(String username) {
         EntityManager entityManager = JpaConfig.getEntityManager();
+        boolean ownsEntityManager = !JpaConfig.isTransactionActive();
         try {
             TypedQuery<User> query = entityManager.createNamedQuery("User.findByUsername", User.class);
             query.setParameter("username", username);
@@ -61,33 +75,41 @@ public class UserDao implements IUserDao {
         } catch (NoResultException e) {
             return null;
         } finally {
-            entityManager.close();
+            if (ownsEntityManager) {
+                entityManager.close();
+            }
         }
     }
 
     @Override
     public boolean existsByEmail(String email) {
         EntityManager entityManager = JpaConfig.getEntityManager();
+        boolean ownsEntityManager = !JpaConfig.isTransactionActive();
         try {
             TypedQuery<Long> query = entityManager.createQuery(
                 "SELECT COUNT(u) FROM User u WHERE u.email = :email", Long.class);
             query.setParameter("email", email);
             return query.getSingleResult() > 0;
         } finally {
-            entityManager.close();
+            if (ownsEntityManager) {
+                entityManager.close();
+            }
         }
     }
 
     @Override
     public boolean existsByUsername(String username) {
         EntityManager entityManager = JpaConfig.getEntityManager();
+        boolean ownsEntityManager = !JpaConfig.isTransactionActive();
         try {
             TypedQuery<Long> query = entityManager.createQuery(
                 "SELECT COUNT(u) FROM User u WHERE u.username = :username", Long.class);
             query.setParameter("username", username);
             return query.getSingleResult() > 0;
         } finally {
-            entityManager.close();
+            if (ownsEntityManager) {
+                entityManager.close();
+            }
         }
     }
 
@@ -95,17 +117,24 @@ public class UserDao implements IUserDao {
     public void update(User user) {
         EntityManager entityManager = JpaConfig.getEntityManager();
         EntityTransaction transaction = entityManager.getTransaction();
+        boolean ownsTransaction = !JpaConfig.isTransactionActive();
         try {
-            transaction.begin();
+            if (ownsTransaction) {
+                transaction.begin();
+            }
             entityManager.merge(user);
-            transaction.commit();
+            if (ownsTransaction) {
+                transaction.commit();
+            }
         } catch (Exception e) {
-            if (transaction.isActive()) {
+            if (ownsTransaction && transaction.isActive()) {
                 transaction.rollback();
             }
             throw e;
         } finally {
-            entityManager.close();
+            if (ownsTransaction) {
+                entityManager.close();
+            }
         }
     }
 }

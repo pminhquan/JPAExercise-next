@@ -98,7 +98,8 @@ public class ForgotPasswordController extends HttpServlet {
         try {
             String otp = otpService.generateOtp(user, OtpPurpose.FORGOT_PASSWORD);
             if (!emailService.sendOtpEmail(email, otp, OtpPurpose.FORGOT_PASSWORD)) {
-                request.setAttribute("error", "Unable to send reset email. Please try again.");
+                request.getSession().setAttribute("pendingResetEmail", email);
+                request.setAttribute("message", successMsg);
                 request.getRequestDispatcher("/views/forgot-password.jsp").forward(request, response);
                 return;
             }

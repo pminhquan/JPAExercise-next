@@ -1,5 +1,6 @@
 package com.hcmute.jpa.controller;
 
+import com.hcmute.jpa.config.JpaConfig;
 import com.hcmute.jpa.entity.OtpPurpose;
 import com.hcmute.jpa.entity.User;
 import com.hcmute.jpa.service.IOtpService;
@@ -21,16 +22,24 @@ public class VerifyOtpController extends HttpServlet {
 
     private IUserService userService;
     private IOtpService otpService;
+    private TransactionBoundary transactionBoundary;
 
     @Override
     public void init() {
         this.userService = new UserServiceImpl();
         this.otpService = new OtpServiceImpl();
+        this.transactionBoundary = new JpaTransactionBoundary();
     }
 
     public VerifyOtpController(IUserService userService, IOtpService otpService) {
+        this(userService, otpService, new JpaTransactionBoundary());
+    }
+
+    public VerifyOtpController(IUserService userService, IOtpService otpService,
+                               TransactionBoundary transactionBoundary) {
         this.userService = userService;
         this.otpService = otpService;
+        this.transactionBoundary = transactionBoundary;
     }
 
     public VerifyOtpController() {
@@ -71,20 +80,66 @@ public class VerifyOtpController extends HttpServlet {
             return;
         }
 
-        boolean verified = otpService.verifyOtp(user, OtpPurpose.REGISTER, otp);
+        transactionBoundary.begin();
+        try {
+            boolean verified = otpService.verifyOtp(user, OtpPurpose.REGISTER, otp);
 
-        if (verified) {
-            boolean activated = userService.activateUser(user.getId());
-            if (activated) {
-                request.getSession().removeAttribute("pendingVerifyEmail");
-                request.setAttribute("success", "Your account has been successfully verified and activated!");
+            if (verified) {
+                boolean activated = userService.activateUser(user.getId());
+                if (activated) {
+                    transactionBoundary.commit();
+                    request.getSession().removeAttribute("pendingVerifyEmail");
+                    request.setAttribute("success", "Your account has been successfully verified and activated!");
+                } else {
+                    transactionBoundary.rollback();
+                    request.setAttribute("error", "Failed to activate user account.");
+                }
             } else {
-                request.setAttribute("error", "Failed to activate user account.");
+                transactionBoundary.commit();
+                request.setAttribute("error", "Invalid, expired, or blocked verification code.");
             }
-        } else {
-            request.setAttribute("error", "Invalid, expired, or blocked verification code.");
+        } catch (Exception e) {
+            transactionBoundary.rollback();
+            throw e;
+        } finally {
+            transactionBoundary.end();
         }
 
         request.getRequestDispatcher("/views/verify-otp.jsp").forward(request, response);
     }
+
+    public interface TransactionBoundary {
+
+        void begin();
+
+        void commit();
+
+        void rollback();
+
+        void end();
+    }
+
+    private static final class JpaTransactionBoundary implements TransactionBoundary {
+
+        @Override
+        public void begin() {
+            JpaConfig.beginTransaction();
+        }
+
+        @Override
+        public void commit() {
+            JpaConfig.commitTransaction();
+        }
+
+        @Override
+        public void rollback() {
+            JpaConfig.rollbackTransaction();
+        }
+
+        @Override
+        public void end() {
+            JpaConfig.endTransaction();
+        }
+    }
+
 }

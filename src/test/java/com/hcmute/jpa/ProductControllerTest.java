@@ -78,6 +78,9 @@ public class ProductControllerTest {
                 return productsDb;
             } else if (name.equals("getProductById")) {
                 int id = (Integer) args[0];
+                if (id == 500) {
+                    throw new RuntimeException("Database error simulation");
+                }
                 return productsDb.stream().filter(p -> p.getProductid() == id).findFirst().orElse(null);
             } else if (name.equals("createProduct")) {
                 createProductCalled = true;
@@ -127,6 +130,7 @@ public class ProductControllerTest {
         boolean forwarded = false;
         String forwardedPath = null;
         String servletPath = "/products";
+        int status = 200;
 
         HttpServletRequest request;
         HttpServletResponse response;
@@ -171,6 +175,9 @@ public class ProductControllerTest {
                     redirectUrl = (String) args[0];
                     return null;
                 } else if (methodName.equals("setCharacterEncoding")) {
+                    return null;
+                } else if (methodName.equals("setStatus")) {
+                    status = (Integer) args[0];
                     return null;
                 }
                 return null;
@@ -585,6 +592,7 @@ public class ProductControllerTest {
         Product detail = (Product) ctx.attributes.get("product");
         assertEquals(101, detail.getProductid());
         assertNull(ctx.attributes.get("error"));
+        assertEquals(200, ctx.status);
     }
 
     @Test
@@ -599,6 +607,7 @@ public class ProductControllerTest {
         assertEquals("/views/product-detail.jsp", ctx.forwardedPath);
         assertNull(ctx.attributes.get("product"));
         assertEquals("Product not found.", ctx.attributes.get("error"));
+        assertEquals(404, ctx.status);
     }
 
     @Test
@@ -613,6 +622,7 @@ public class ProductControllerTest {
         assertEquals("/views/product-detail.jsp", ctx.forwardedPath);
         assertNull(ctx.attributes.get("product"));
         assertEquals("Invalid Product ID format.", ctx.attributes.get("error"));
+        assertEquals(404, ctx.status);
     }
 
     @Test
@@ -626,5 +636,21 @@ public class ProductControllerTest {
         assertEquals("/views/product-detail.jsp", ctx.forwardedPath);
         assertNull(ctx.attributes.get("product"));
         assertEquals("Product ID is missing.", ctx.attributes.get("error"));
+        assertEquals(404, ctx.status);
+    }
+
+    @Test
+    public void testGetProductDetailDatabaseException() throws Exception {
+        ProductController controller = new ProductController(mockProductService, mockCategoryService);
+        MockHttpContext ctx = new MockHttpContext("/products/detail");
+        ctx.parameters.put("id", "500"); // Simulated database exception trigger
+
+        controller.doGet(ctx.request, ctx.response);
+
+        assertTrue(ctx.forwarded);
+        assertEquals("/views/product-detail.jsp", ctx.forwardedPath);
+        assertNull(ctx.attributes.get("product"));
+        assertEquals("An internal database or server error occurred.", ctx.attributes.get("error"));
+        assertEquals(500, ctx.status);
     }
 }

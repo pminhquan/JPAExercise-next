@@ -199,6 +199,30 @@ public class ForgotPasswordFlowTest {
     }
 
     @Test
+    public void testEmailFailureResponseMatchesUnknownEmailResponse() throws Exception {
+        IEmailService failingEmailService = (to, otp, purpose) -> false;
+        ForgotPasswordController forgotController = new ForgotPasswordController(userService, otpService, failingEmailService);
+
+        MockHttpContext failureCtx = new MockHttpContext();
+        failureCtx.parameters.put("action", "request");
+        failureCtx.parameters.put("email", testUser.getEmail());
+        forgotController.doPost(failureCtx.request, failureCtx.response);
+
+        MockHttpContext unknownCtx = new MockHttpContext();
+        unknownCtx.parameters.put("action", "request");
+        unknownCtx.parameters.put("email", "unknown_user_email@example.com");
+        new ForgotPasswordController(userService, otpService, emailStub)
+                .doPost(unknownCtx.request, unknownCtx.response);
+
+        assertEquals(unknownCtx.attributes.get("message"), failureCtx.attributes.get("message"));
+        assertEquals(unknownCtx.attributes.get("error"), failureCtx.attributes.get("error"));
+        assertEquals(unknownCtx.forwarded, failureCtx.forwarded);
+        assertEquals(unknownCtx.forwardedPath, failureCtx.forwardedPath);
+        assertEquals(testUser.getEmail(), failureCtx.session.get("pendingResetEmail"));
+        assertEquals("unknown_user_email@example.com", unknownCtx.session.get("pendingResetEmail"));
+    }
+
+    @Test
     public void testIncorrectOtpRejects() throws Exception {
         ForgotPasswordController forgotController = new ForgotPasswordController(userService, otpService, emailStub);
 

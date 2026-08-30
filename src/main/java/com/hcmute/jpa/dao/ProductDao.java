@@ -101,7 +101,7 @@ public class ProductDao implements IProductDao {
         EntityManager entityManager = JpaConfig.getEntityManager();
         try {
             TypedQuery<Product> query = entityManager.createQuery(
-                "SELECT p FROM Product p JOIN FETCH p.category ORDER BY p.productid DESC", Product.class);
+                "SELECT p FROM Product p JOIN FETCH p.category ORDER BY p.createdAt DESC, p.productid DESC", Product.class);
             query.setMaxResults(limit);
             return query.getResultList();
         } finally {

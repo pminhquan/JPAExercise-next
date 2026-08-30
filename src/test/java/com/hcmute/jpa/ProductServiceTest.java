@@ -41,7 +41,7 @@ public class ProductServiceTest {
         if (testCategory != null) {
             categoryDao.delete(testCategory.getCategoryid());
         }
-        JpaConfig.close();
+
     }
 
     @AfterEach
@@ -368,5 +368,33 @@ public class ProductServiceTest {
             productIdsToCleanup.remove((Integer) valid.getProductid());
             categoryDao.delete(secondCategory.getCategoryid());
         }
+    }
+
+    @Test
+    @Order(10)
+    public void testFindNewestOrdersByCreatedAt() {
+        Product pA = new Product("A", "Desc", 10.0, "img.jpg", 1, testCategory);
+        Product pB = new Product("B", "Desc", 20.0, "img.jpg", 1, testCategory);
+
+        java.sql.Timestamp now = new java.sql.Timestamp(System.currentTimeMillis());
+        pA.setCreatedAt(new java.sql.Timestamp(now.getTime() + 120000));
+        pB.setCreatedAt(new java.sql.Timestamp(now.getTime() + 60000));
+
+        productService.createProduct(pA);
+        productIdsToCleanup.add(pA.getProductid());
+
+        productService.createProduct(pB);
+        productIdsToCleanup.add(pB.getProductid());
+
+        List<Product> newest = productService.getNewestProducts(2);
+
+        assertEquals(pA.getProductid(), newest.get(0).getProductid(), "Product with later createdAt must be first");
+        assertEquals(pB.getProductid(), newest.get(1).getProductid(), "Product with earlier createdAt must be second");
+
+        productService.deleteProduct(pA.getProductid());
+        productIdsToCleanup.remove((Integer) pA.getProductid());
+
+        productService.deleteProduct(pB.getProductid());
+        productIdsToCleanup.remove((Integer) pB.getProductid());
     }
 }

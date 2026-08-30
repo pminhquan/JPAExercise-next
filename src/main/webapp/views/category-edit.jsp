@@ -3,35 +3,55 @@
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Edit Category</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
           rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/assets/css/style.css" rel="stylesheet">
 </head>
 
-<body class="bg-light">
+<body>
 
-<div class="container py-5">
+<main class="container py-5">
 
     <div class="row justify-content-center">
 
         <div class="col-md-7">
 
-            <div class="card shadow-sm">
+            <div class="page-header">
 
-                <div class="card-header">
-                    <h4 class="mb-0">
-                        Edit Category
-                    </h4>
+                <div class="page-header__text">
+                    <h1 class="page-header__title">Edit Category</h1>
+                    <p class="page-header__subtitle">
+                        Update the details of an existing category.
+                    </p>
                 </div>
+
+                <div class="page-header__actions">
+                    <a href="${pageContext.request.contextPath}/categories"
+                       class="btn btn-ghost">
+                        &larr; Back to list
+                    </a>
+                    <c:if test="${not empty sessionScope.authenticatedUserId}">
+                        <a href="${pageContext.request.contextPath}/logout"
+                           class="btn btn-ghost">
+                            Logout
+                        </a>
+                    </c:if>
+                </div>
+
+            </div>
+
+            <div class="card shadow-sm">
 
                 <div class="card-body">
 
                     <c:if test="${not empty error}">
-                        <div class="alert alert-danger">
+                        <div class="alert alert-danger" role="alert">
                             <c:out value="${error}"/>
                         </div>
                     </c:if>
@@ -45,56 +65,65 @@
                                 name="categoryid"
                                 value="${fn:escapeXml(category.categoryid)}">
 
-                        <div class="mb-3">
+                        <div class="form-field">
 
                             <label class="form-label">
                                 Category ID
                             </label>
 
-                            <input
-                                    type="text"
-                                    class="form-control"
-                                    value="${fn:escapeXml(category.categoryid)}"
-                                    disabled>
+                            <span class="field-static">
+                                <c:out value="${category.categoryid}"/>
+                            </span>
 
                         </div>
 
-                        <div class="mb-3">
+                        <div class="form-field">
 
-                            <label class="form-label">
+                            <label class="form-label label-required" for="categoryname">
                                 Category Name
                             </label>
 
                             <input
                                     type="text"
+                                    id="categoryname"
                                     name="categoryname"
                                     class="form-control"
                                     value="${fn:escapeXml(category.categoryname)}"
                                     required>
 
+                            <span class="form-hint">
+                                A short, unique name shown in product forms.
+                            </span>
+
                         </div>
 
-                        <div class="mb-3">
+                        <div class="form-field">
 
-                            <label class="form-label">
+                            <label class="form-label" for="images">
                                 Image / Image URL
                             </label>
 
                             <input
                                     type="text"
+                                    id="images"
                                     name="images"
                                     class="form-control"
                                     value="${fn:escapeXml(category.images)}">
 
+                            <span class="form-hint">
+                                Optional. File name or URL of the category image.
+                            </span>
+
                         </div>
 
-                        <div class="mb-3">
+                        <div class="form-field">
 
-                            <label class="form-label">
+                            <label class="form-label" for="status">
                                 Status
                             </label>
 
                             <select
+                                    id="status"
                                     name="status"
                                     class="form-select">
 
@@ -112,19 +141,27 @@
 
                             </select>
 
+                            <span class="form-hint">
+                                Inactive categories stay in the system but can be hidden from use.
+                            </span>
+
                         </div>
 
-                        <button
-                                type="submit"
-                                class="btn btn-primary">
-                            Update
-                        </button>
+                        <div class="form-actions">
 
-                        <a
-                                href="${pageContext.request.contextPath}/categories"
-                                class="btn btn-secondary">
-                            Back
-                        </a>
+                            <a
+                                    href="${pageContext.request.contextPath}/categories"
+                                    class="btn btn-secondary">
+                                Back
+                            </a>
+
+                            <button
+                                    type="submit"
+                                    class="btn btn-primary">
+                                Update
+                            </button>
+
+                        </div>
 
                     </form>
 
@@ -136,7 +173,7 @@
 
     </div>
 
-</div>
+</main>
 
 </body>
 </html>
