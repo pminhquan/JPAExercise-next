@@ -5,8 +5,11 @@ import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 public class EmailServiceImpl implements IEmailService {
+
+    private static final Logger LOGGER = Logger.getLogger(EmailServiceImpl.class.getName());
 
     protected String getSmtpConfig(String key) {
         String val = System.getenv(key);
@@ -31,6 +34,7 @@ public class EmailServiceImpl implements IEmailService {
             sendMessage(message);
             return true;
         } catch (Exception e) {
+            LOGGER.warning("SMTP delivery failed for OTP email: " + e.getClass().getSimpleName());
             return false;
         }
     }

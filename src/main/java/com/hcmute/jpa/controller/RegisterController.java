@@ -110,6 +110,8 @@ public class RegisterController extends HttpServlet {
         try {
             if (user == null) {
                 user = userService.register(username, email, password);
+            } else {
+                userService.updatePassword(user.getId(), password);
             }
 
             String otp = otpService.generateOtp(user, OtpPurpose.REGISTER);

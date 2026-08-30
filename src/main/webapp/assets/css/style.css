@@ -1,0 +1,1143 @@
+/* 
+ * Shared Custom Theme for JPAExercise-next
+ * Phase 1: Custom styles overriding/extending Bootstrap and styling base HTML elements.
+ */
+
+:root {
+  /* Color Tokens - Tinted Slate and Deep Indigo/Teal */
+  --font-family-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-family-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  
+  --bg-app: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-surface-hover: #f1f5f9;
+  
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #475569;
+  --color-text-muted: #64748b;
+  
+  --color-primary: #4f46e5;
+  --color-primary-hover: #4338ca;
+  --color-primary-light: #e0e7ff;
+  
+  --color-success: #10b981;
+  --color-success-hover: #047857;
+  --color-success-light: #d1fae5;
+  
+  --color-danger: #dc2626;
+  --color-danger-hover: #b91c1c;
+  --color-danger-light: #fee2e2;
+
+  --border-color: #cbd5e1;
+  --border-color-focus: #818cf8;
+  
+  /* Border/Radius/Elevation Primitives */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  
+  /* Spacing Scale */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-8: 3rem;
+}
+
+/* Global Typography Hierarchy & Base Styles */
+body {
+  font-family: var(--font-family-sans);
+  background-color: var(--bg-app);
+  color: var(--color-text-primary);
+  line-height: 1.5;
+  font-size: 1rem;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-family-sans);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  line-height: 1.25;
+  margin-bottom: var(--space-4);
+}
+
+h1 { font-size: clamp(2rem, 3.5vw, 2.75rem); }
+h2 { font-size: clamp(1.5rem, 2.5vw, 2rem); }
+h3 { font-size: clamp(1.25rem, 2vw, 1.625rem); }
+h4 { font-size: clamp(1.1rem, 1.5vw, 1.25rem); }
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color 0.15s ease-in-out;
+}
+a:hover {
+  color: var(--color-primary-hover);
+  text-decoration: underline;
+}
+
+/* Buttons (Base and Overrides) */
+button,
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-family-sans);
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Bootstrap button color overrides */
+.btn-primary {
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  color: #ffffff !important;
+}
+.btn-primary:hover {
+  background-color: var(--color-primary-hover) !important;
+  border-color: var(--color-primary-hover) !important;
+  text-decoration: none;
+}
+
+.btn-secondary {
+  background-color: #ffffff !important;
+  border-color: var(--border-color) !important;
+  color: var(--color-text-secondary) !important;
+}
+.btn-secondary:hover {
+  background-color: var(--bg-surface-hover) !important;
+  color: var(--color-text-primary) !important;
+  text-decoration: none;
+}
+
+.btn-danger {
+  background-color: var(--color-danger) !important;
+  border-color: var(--color-danger) !important;
+  color: #ffffff !important;
+}
+.btn-danger:hover {
+  background-color: var(--color-danger-hover) !important;
+  border-color: var(--color-danger-hover) !important;
+}
+
+/* Form Controls & Basic Inputs */
+form {
+  margin-bottom: var(--space-6);
+}
+
+form > div {
+  margin-bottom: var(--space-4);
+}
+
+label,
+.form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-2);
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+select,
+textarea,
+.form-control,
+.form-select {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-family: var(--font-family-sans);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-text-primary);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  box-sizing: border-box;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+.form-control:focus,
+.form-select:focus {
+  outline: none;
+  border-color: var(--border-color-focus) !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2) !important;
+}
+
+/* Surface card */
+.card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-md) !important;
+  padding: var(--space-6);
+  max-width: 500px;
+  margin: var(--space-8) auto;
+}
+
+.container .card {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+.card-body {
+  padding: var(--space-5) !important;
+}
+
+/* Alerts & Messages */
+.alert {
+  padding: 0.75rem 1rem;
+  margin-bottom: var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  border: 1px solid transparent;
+}
+
+.alert-success {
+  background-color: var(--color-success-light) !important;
+  border-color: var(--color-success) !important;
+  color: var(--color-success-hover) !important;
+}
+
+.alert-danger {
+  background-color: var(--color-danger-light) !important;
+  border-color: var(--color-danger) !important;
+  color: var(--color-danger-hover) !important;
+}
+
+/* Table Primitives */
+table,
+.table {
+  width: 100%;
+  margin-bottom: var(--space-4);
+  color: var(--color-text-primary);
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.table thead th {
+  background-color: var(--bg-app) !important;
+  color: var(--color-text-primary) !important;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid var(--border-color) !important;
+  text-align: left;
+}
+
+.table-hover tbody tr:hover {
+  background-color: var(--bg-surface-hover) !important;
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  border-radius: 9999px;
+  text-transform: capitalize;
+}
+
+.bg-success {
+  background-color: var(--color-success-light) !important;
+  color: var(--color-success-hover) !important;
+}
+
+.bg-secondary {
+  background-color: #f1f5f9 !important;
+  color: var(--color-text-secondary) !important;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  padding-left: 0;
+  list-style: none;
+  gap: var(--space-1);
+}
+
+.page-item .page-link {
+  color: var(--color-text-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 0.375rem 0.75rem;
+  transition: all 0.15s ease-in-out;
+}
+
+.page-item.active .page-link {
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  color: #ffffff;
+}
+
+.page-item.disabled .page-link {
+  color: var(--color-text-muted);
+  pointer-events: none;
+  background-color: var(--bg-app);
+  border-color: var(--border-color);
+}
+
+/* Mobile layout adjustments (shared 640px breakpoint with later phases).
+   Tables scroll inside their own .table-wrap wrapper; no table-level rule. */
+@media (max-width: 640px) {
+  body {
+    padding: var(--space-4);
+  }
+
+  .card {
+    margin: var(--space-4) auto;
+  }
+}
+
+/*
+ * Phase 2: Page primitives (page header, data table, badges, empty state,
+ * form layout, actions, focus visibility). Additive only; Phase 1 rules above
+ * remain the base layer. Class names are generic so later phases reuse them.
+ */
+
+/* Accessibility: shared visible focus ring for interactive elements */
+a:focus-visible,
+.btn:focus-visible,
+button:focus-visible,
+.page-link:focus-visible,
+.cell-truncate:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.35) !important;
+  border-radius: var(--radius-md);
+}
+
+/* Page header: title/subtitle on the left, actions on the right */
+.page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-5);
+}
+
+.page-header__text {
+  min-width: 0;
+}
+
+.page-header__title {
+  margin: 0;
+  /* Rendered at the former <h2> scale; the element is an <h1> for the
+     document outline but keeps the established visual size. */
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+}
+
+.page-header__subtitle {
+  margin: var(--space-1) 0 0;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.page-header__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+/* Tertiary/low-emphasis button. Scoped to .btn/a so it beats the raw
+   `button` element rule from Phase 1. */
+.btn.btn-ghost,
+a.btn-ghost {
+  background-color: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none;
+  color: var(--color-text-secondary) !important;
+}
+
+.btn.btn-ghost:hover,
+a.btn-ghost:hover {
+  background-color: var(--bg-surface-hover) !important;
+  color: var(--color-text-primary) !important;
+  text-decoration: none;
+}
+
+/* Card variants: table sits edge-to-edge inside the card */
+.card--flush .card-body {
+  padding: 0 !important;
+}
+
+/* Data table wrapper: own scroll container on narrow screens */
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table--data {
+  margin-bottom: 0;
+}
+
+.table--data th,
+.table--data td {
+  vertical-align: middle;
+}
+
+.table--data thead th {
+  white-space: nowrap;
+}
+
+.table--data .col-actions {
+  width: 12rem;
+}
+
+/* Cell presentations */
+.cell-id {
+  font-family: var(--font-family-mono);
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+.cell-strong {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.cell-truncate {
+  display: block;
+  max-width: 16rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* D-7: keyboard users Tab to a truncated cell to unwrap and read the full
+   text in place; the native title tooltip still serves mouse hover. */
+.cell-truncate:focus-visible {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  word-break: break-word;
+}
+
+.text-empty {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+/* Status badges with leading dot. Compose with existing bg-success /
+   bg-secondary restyling from Phase 1. */
+.badge-status::before {
+  content: "";
+  display: inline-block;
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 9999px;
+  margin-right: 0.375rem;
+  background-color: currentColor;
+}
+
+/* Row actions */
+.table-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: nowrap;
+}
+
+.table-actions .btn {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.8125rem;
+}
+
+/* Inline form inside a table row: neutralize Phase 1's global
+   `form { margin-bottom }` and `form > div` spacing. */
+.form-inline {
+  display: inline;
+  margin: 0 !important;
+}
+
+.form-inline > * {
+  margin: 0;
+}
+
+/* Empty state inside a table row */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-6) var(--space-4);
+  text-align: center;
+}
+
+.empty-state__title {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.empty-state__text {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+/* Form layout */
+.form-field {
+  margin-bottom: var(--space-4) !important;
+}
+
+.form-hint {
+  display: block;
+  margin-top: var(--space-1);
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.label-required::after {
+  content: " *";
+  color: var(--color-primary);
+}
+
+.field-static {
+  padding: 0.5rem 0.75rem;
+  background-color: var(--bg-app);
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  font-family: var(--font-family-mono);
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+/* Form action row: right-aligned buttons, stacked full-width on mobile */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin-top: var(--space-5);
+}
+
+.form-actions .btn {
+  min-width: 6rem;
+}
+
+/* Responsive adjustments for Phase 2 primitives */
+@media (max-width: 640px) {
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .page-header__actions .btn {
+    width: 100%;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .form-actions .btn {
+    width: 100%;
+  }
+
+  .cell-truncate {
+    max-width: 10rem;
+  }
+
+  /* Keep the empty state readable inside a horizontally scrolling table:
+     pin it to the visible scroll area on narrow screens. */
+  .table--data .empty-state {
+    position: sticky;
+    left: 0;
+    width: min(85vw, 480px);
+    align-items: flex-start;
+    text-align: left;
+    padding-left: var(--space-4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  a,
+  .btn,
+  button,
+  .form-control,
+  .form-select,
+  .page-link,
+  .product-card {
+    transition: none !important;
+  }
+
+  .product-card:hover {
+    transform: none;
+  }
+}
+
+/*
+ * Phase 3: Product screens. Reuses Phase 1/2 primitives and tokens; adds
+ * small product thumbnails, price cells, a pagination bar inside a flush
+ * card, and a detail layout. Class names stay generic so later phases can
+ * reuse them.
+ */
+
+/* Small square thumbnail used in data table image cells */
+.thumb {
+  display: block;
+  width: 3rem;
+  height: 3rem;
+  object-fit: cover;
+  background-color: var(--bg-app);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+}
+
+/* Monospaced, semibold price cell */
+.cell-price {
+  font-family: var(--font-family-mono);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+
+/* Pagination bar pinned below a flush data table */
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  padding: var(--space-3) var(--space-5);
+  border-top: 1px solid var(--border-color);
+  background-color: var(--bg-surface);
+}
+
+.pagination-info {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.pagination-bar .pagination {
+  margin-bottom: 0;
+}
+
+/* Detail layout: media column beside facts column */
+.detail-grid {
+  display: grid;
+  grid-template-columns: 16rem minmax(0, 1fr);
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.detail-media__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 20rem;
+  object-fit: contain;
+  background-color: var(--bg-app);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+}
+
+.detail-media__empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 12rem;
+  background-color: var(--bg-app);
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-md);
+}
+
+.detail-titlebar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.detail-title {
+  margin: 0;
+  /* Rendered at the former <h3> scale; the element is an <h2> so the
+     detail heading sits directly under the page <h1>. */
+  font-size: clamp(1.25rem, 2vw, 1.625rem);
+}
+
+.detail-price {
+  margin: var(--space-2) 0 0;
+  font-size: 1.375rem;
+  font-weight: 700;
+  font-family: var(--font-family-mono);
+  color: var(--color-text-primary);
+}
+
+.detail-facts {
+  margin-top: var(--space-4);
+  border-top: 1px solid var(--border-color);
+}
+
+.detail-fact {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.detail-fact__label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.detail-fact__value {
+  font-size: 0.9375rem;
+  color: var(--color-text-primary);
+  text-align: right;
+}
+
+.detail-section {
+  margin-top: var(--space-4);
+}
+
+.detail-section__title {
+  margin: 0 0 var(--space-1);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.detail-description {
+  margin: 0;
+  color: var(--color-text-primary);
+  white-space: pre-line;
+}
+
+.detail-description--empty {
+  color: var(--color-text-muted);
+}
+
+/* Detail footer: back on the left, primary action on the right */
+.detail-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-top: var(--space-5);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-color);
+}
+
+.detail-actions--center {
+  justify-content: center;
+  margin-top: var(--space-4);
+  padding-top: 0;
+  border-top: none;
+}
+
+@media (max-width: 640px) {
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-media__empty {
+    min-height: 9rem;
+  }
+
+  .pagination-bar {
+    flex-direction: column;
+  }
+
+  .detail-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .detail-actions .btn {
+    width: 100%;
+  }
+}
+
+/*
+ * Phase 4: Home product grid and product cards. Reuses Phase 1-3 tokens and
+ * primitives (text-empty, badge-status); adds a reusable responsive card
+ * grid with media area, metadata, and price row.
+ */
+
+/* Responsive product card grid: 1 column on phones, up to 5 on wide screens */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: var(--space-5);
+}
+
+.product-card {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: box-shadow 0.15s ease-in-out, transform 0.15s ease-in-out,
+    border-color 0.15s ease-in-out;
+}
+
+.product-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+/* Keyboard focus on any link inside the card lifts the whole card */
+.product-card:focus-within {
+  border-color: var(--border-color-focus);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2), var(--shadow-sm);
+}
+
+/* Media area: fixed 4:3 ratio, neutral placeholder when no image exists */
+a.product-card__media {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 4 / 3;
+  background-color: var(--bg-app);
+  border-bottom: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+a.product-card__media:hover {
+  text-decoration: none;
+}
+
+.product-card__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.product-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  flex: 1;
+}
+
+.product-card__category {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+}
+
+.product-card__name {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--color-text-primary);
+}
+
+a.product-card__name {
+  text-decoration: none;
+}
+
+a.product-card__name:hover {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+/* Short muted description, clamped to two lines */
+.product-card__desc {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+/* Price and status pinned to the card bottom */
+.product-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-top: auto;
+  padding-top: var(--space-2);
+}
+
+.product-card__price {
+  font-family: var(--font-family-mono);
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--color-text-primary);
+}
+
+/*
+ * Phase 5: Authentication screens (login, register, verify OTP, forgot
+ * password, reset password). Reuses Phase 1-4 tokens and primitives (form
+ * controls, .btn, .alert, .form-field, .form-hint, .label-required). Adds a
+ * shared auth shell, a password show/hide treatment, and the six-digit OTP
+ * visual. The OTP boxes are presentation only: both OTP forms still submit a
+ * single `otp` request parameter.
+ */
+
+/* Shared centered auth column used by all five screens */
+.auth-shell {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-sizing: border-box;
+  max-width: 26rem;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-4);
+}
+
+.auth-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+}
+
+.auth-brand:hover {
+  color: var(--color-text-primary);
+  text-decoration: none;
+}
+
+.auth-brand__mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: var(--radius-md);
+  background-color: var(--color-primary);
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.auth-header {
+  margin-bottom: var(--space-5);
+}
+
+.auth-header__title {
+  margin: 0;
+  font-size: 1.75rem;
+}
+
+.auth-header__subtitle {
+  margin: var(--space-2) 0 0;
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary);
+}
+
+/* Form area: neutralize the global form bottom margin inside the shell */
+.auth-form {
+  margin-bottom: 0;
+}
+
+.auth-actions {
+  margin-top: var(--space-5);
+}
+
+.auth-actions .btn {
+  width: 100%;
+  padding: 0.625rem 1rem;
+  font-size: 0.9375rem;
+}
+
+/* Secondary navigation below the form, separated by a subtle divider */
+.auth-links {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-top: var(--space-5);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-color);
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.auth-links--center {
+  justify-content: center;
+}
+
+/* Stage indicator for multi-stage flows (forgot password) */
+.auth-steps {
+  margin: 0 0 var(--space-4);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.auth-steps__current {
+  color: var(--color-primary);
+}
+
+/* Password field with show/hide toggle. Progressive enhancement only: the
+   toggle stays hidden until JS enables it, so no-JS submission is intact. */
+.password-field {
+  position: relative;
+}
+
+.password-field input {
+  padding-right: 3.5rem;
+}
+
+.password-field .password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 0.5rem;
+  transform: translateY(-50%);
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-secondary) !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.password-field .password-toggle:hover {
+  background-color: var(--bg-surface-hover) !important;
+  color: var(--color-text-primary) !important;
+}
+
+.password-field .password-toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.35) !important;
+  border-radius: var(--radius-sm);
+}
+
+/* Six-digit OTP. One real <input name="otp"> plus a decorative overlay of
+   six digit boxes. Without JavaScript the plain input is shown and the boxes
+   stay hidden; JS adds .otp-field--enhanced to switch to the visual boxes. */
+.otp-field .otp-real {
+  text-align: center;
+  font-family: var(--font-family-mono);
+  font-size: 1.125rem;
+  letter-spacing: 0.3em;
+}
+
+.otp-boxes {
+  position: relative;
+}
+
+.otp-input {
+  display: none;
+  gap: var(--space-2);
+}
+
+.otp-digit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-width: 0;
+  height: 3.25rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-surface);
+  box-shadow: var(--shadow-sm);
+  font-family: var(--font-family-mono);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.otp-field--error .otp-real {
+  border-color: var(--color-danger);
+}
+
+/* Enhanced mode: the real input becomes a transparent overlay covering the
+   boxes and keeps native focus, caret, backspace, arrow keys, and paste. */
+.otp-field--enhanced .otp-input {
+  display: flex;
+}
+
+.otp-field--enhanced .otp-real {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: none;
+  font-size: 1rem;
+  letter-spacing: normal;
+  box-shadow: none;
+  opacity: 0;
+  cursor: default;
+}
+
+.otp-field--enhanced:focus-within .otp-digit {
+  border-color: var(--border-color-focus);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.otp-field--enhanced .otp-digit--active {
+  border-color: var(--color-primary);
+}
+
+/* Error state, driven by the existing backend `error` attribute */
+.otp-field--error .otp-digit {
+  border-color: var(--color-danger);
+}
+
+.otp-field--error.otp-field--enhanced:focus-within .otp-digit {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+@media (max-width: 420px) {
+  .otp-input {
+    gap: var(--space-1);
+  }
+
+  .otp-digit {
+    height: 3rem;
+    font-size: 1.125rem;
+  }
+}

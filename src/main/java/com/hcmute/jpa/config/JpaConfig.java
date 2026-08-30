@@ -7,6 +7,7 @@ import jakarta.persistence.Persistence;
 public class JpaConfig {
 
     private static final EntityManagerFactory ENTITY_MANAGER_FACTORY;
+    private static final ThreadLocal<EntityManager> CURRENT_ENTITY_MANAGER = new ThreadLocal<>();
 
     static {
         try {
@@ -55,7 +56,64 @@ public class JpaConfig {
     }
 
     public static EntityManager getEntityManager() {
-        return ENTITY_MANAGER_FACTORY.createEntityManager();
+        EntityManager currentEntityManager = CURRENT_ENTITY_MANAGER.get();
+        return currentEntityManager != null
+                ? currentEntityManager
+                : ENTITY_MANAGER_FACTORY.createEntityManager();
+    }
+
+    public static boolean isTransactionActive() {
+        EntityManager currentEntityManager = CURRENT_ENTITY_MANAGER.get();
+        return currentEntityManager != null
+                && currentEntityManager.getTransaction().isActive();
+    }
+
+    public static void beginTransaction() {
+        if (CURRENT_ENTITY_MANAGER.get() != null) {
+            throw new IllegalStateException("A transaction is already active on this thread");
+        }
+
+        EntityManager entityManager = ENTITY_MANAGER_FACTORY.createEntityManager();
+        try {
+            entityManager.getTransaction().begin();
+            CURRENT_ENTITY_MANAGER.set(entityManager);
+        } catch (RuntimeException e) {
+            entityManager.close();
+            throw e;
+        }
+    }
+
+    public static void commitTransaction() {
+        requireCurrentEntityManager().getTransaction().commit();
+    }
+
+    public static void rollbackTransaction() {
+        EntityManager entityManager = CURRENT_ENTITY_MANAGER.get();
+        if (entityManager != null
+                && entityManager.getTransaction().isActive()) {
+            entityManager.getTransaction().rollback();
+        }
+    }
+
+    public static void endTransaction() {
+        EntityManager entityManager = CURRENT_ENTITY_MANAGER.get();
+        if (entityManager != null) {
+            try {
+                if (entityManager.isOpen()) {
+                    entityManager.close();
+                }
+            } finally {
+                CURRENT_ENTITY_MANAGER.remove();
+            }
+        }
+    }
+
+    private static EntityManager requireCurrentEntityManager() {
+        EntityManager entityManager = CURRENT_ENTITY_MANAGER.get();
+        if (entityManager == null) {
+            throw new IllegalStateException("No transaction is active on this thread");
+        }
+        return entityManager;
     }
 
     public static void close() {

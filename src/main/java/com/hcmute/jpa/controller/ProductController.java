@@ -18,6 +18,7 @@ import java.util.List;
 @WebServlet(urlPatterns = {"/products", "/product", "/products/add", "/products/edit", "/products/delete", "/products/detail"})
 public class ProductController extends HttpServlet {
     private static final long serialVersionUID = 1L;
+    private static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ProductController.class.getName());
 
     private IProductService productService;
     private ICategoryService categoryService;
@@ -155,7 +156,11 @@ public class ProductController extends HttpServlet {
         try {
             product = productService.getProductById(id);
         } catch (Exception e) {
-            // handle database exception safely
+            LOGGER.log(java.util.logging.Level.SEVERE, "Database or server error showing product details for ID: " + id, e);
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            request.setAttribute("error", "An internal database or server error occurred.");
+            request.getRequestDispatcher("/views/product-detail.jsp").forward(request, response);
+            return;
         }
 
         if (product == null) {

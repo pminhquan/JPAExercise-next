@@ -64,19 +64,23 @@ Default configuration:
 - Port: 1433
 - Database: jakartaJPA
 - Username: sa
-- Password: 123
+
+The database password is not stored anywhere in the repository. `persistence.xml`
+contains no credentials. The password is supplied externally at runtime and the
+application and the JPA tests fail fast with a configuration error when it is
+missing. Provide it either as:
+
+- the `DB_PASSWORD` environment variable (for example `DB_PASSWORD=<your-db-password>`), or
+- the `jakarta.persistence.jdbc.password` Java system property
 
 Before running the application, open `database.sql` in SQL Server Management
 Studio and execute it. The script creates `jakartaJPA` only when it does not
 already exist.
 
-If SQL Server on another machine uses different connection information, update:
-
-src/main/resources/META-INF/persistence.xml
-
-Use SQL Server Authentication. Update the JDBC URL, username, and password in
-`persistence.xml` to match the local SQL Server instance before building or
-running the JPA tests.
+If SQL Server uses different connection information, supply `DB_URL` and
+`DB_USER` (or the `jakarta.persistence.jdbc.url` / `jakarta.persistence.jdbc.user`
+system properties) in the same way. SQL Server Authentication is used. Do not
+put credentials into `persistence.xml` or any source file.
 
 Hibernate uses:
 
@@ -170,5 +174,5 @@ Run all tests:
 - The project uses Jakarta packages instead of javax packages.
 - Tomcat 10.1 is used with Jakarta Servlet 6.0.
 - SQL Server must be running and TCP port 1433 must be accessible.
-- If SQL Server configuration differs, update persistence.xml.
+- If SQL Server configuration differs, supply `DB_URL`, `DB_USER`, and `DB_PASSWORD` externally; credentials never go into `persistence.xml` or the source tree.
 - Hibernate manages the categories table automatically.

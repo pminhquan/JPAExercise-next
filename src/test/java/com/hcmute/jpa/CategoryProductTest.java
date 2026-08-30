@@ -16,19 +16,22 @@ public class CategoryProductTest {
     public void testCategoryProductRelationship() {
         EntityManager em = JpaConfig.getEntityManager();
         EntityTransaction tx = em.getTransaction();
+        Category category = null;
+        Product product = null;
+        Throwable mainException = null;
 
         try {
             tx.begin();
 
             // Create Category
-            Category category = new Category();
+            category = new Category();
             category.setCategoryname("Test Category");
             category.setImages("test_cat.jpg");
             category.setStatus(1);
             em.persist(category);
 
             // Create Product
-            Product product = new Product();
+            product = new Product();
             product.setProductname("Test Product");
             product.setDescription("Test Description");
             product.setPrice(99.99);
@@ -60,13 +63,78 @@ public class CategoryProductTest {
             assertNotNull(foundProduct.getCategory());
             assertEquals("Test Category", foundProduct.getCategory().getCategoryname());
 
-        } catch (Exception e) {
+        } catch (Throwable e) {
+            mainException = e;
             if (tx.isActive()) {
                 tx.rollback();
             }
             throw e;
         } finally {
-            em.close();
+            if (category != null && category.getCategoryid() > 0) {
+                int catId = category.getCategoryid();
+                int prodId = (product != null) ? product.getProductid() : 0;
+                EntityTransaction cleanupTx = em.getTransaction();
+                try {
+                    // Prep: clear EntityManager and ensure any preparation errors are propagated
+                    em.clear();
+
+                    cleanupTx.begin();
+
+                    // 1. Delete only the captured product ID
+                    if (prodId > 0) {
+                        Product toRemoveProduct = em.find(Product.class, prodId);
+                        if (toRemoveProduct != null) {
+                            em.remove(toRemoveProduct);
+                        }
+                    }
+
+                    // 2. Check if any OTHER products remain for the category
+                    long count = em.createQuery("SELECT COUNT(p) FROM Product p WHERE p.category.categoryid = :catId AND p.productid <> :prodId", Long.class)
+                                   .setParameter("catId", catId)
+                                   .setParameter("prodId", prodId)
+                                   .getSingleResult();
+                    if (count > 0) {
+                        throw new IllegalStateException("Cleanup failed: Category has unexpected referencing products: " + count);
+                    }
+
+                    // 3. Delete category
+                    Category toRemoveCategory = em.find(Category.class, catId);
+                    if (toRemoveCategory != null) {
+                        em.remove(toRemoveCategory);
+                    }
+                    cleanupTx.commit();
+
+                    // Verification: prove that the rows are absent from DB
+                    em.clear();
+                    if (prodId > 0) {
+                        assertNull(em.find(Product.class, prodId), "Product should be deleted after test cleanup");
+                    }
+                    assertNull(em.find(Category.class, catId), "Category should be deleted after test cleanup");
+
+                } catch (Throwable ex) {
+                    if (cleanupTx.isActive()) {
+                        try {
+                            cleanupTx.rollback();
+                        } catch (Exception rex) {
+                            ex.addSuppressed(rex);
+                        }
+                    }
+                    if (mainException != null) {
+                        mainException.addSuppressed(ex);
+                    } else {
+                        if (ex instanceof RuntimeException) {
+                            throw (RuntimeException) ex;
+                        } else if (ex instanceof Error) {
+                            throw (Error) ex;
+                        } else {
+                            throw new RuntimeException("Cleanup verification failed", ex);
+                        }
+                    }
+                }
+            }
+            if (em.isOpen()) {
+                em.close();
+            }
         }
     }
 
@@ -78,6 +146,7 @@ public class CategoryProductTest {
 
         Category category = null;
         Product product = null;
+        Throwable mainException = null;
 
         try {
             tx.begin();
@@ -118,45 +187,78 @@ public class CategoryProductTest {
             assertNotNull(stillCategory);
             assertNotNull(stillProduct);
 
-            // Cleanup test data to maintain transaction isolation/no leftover data.
-            // We must delete the product first, then the category.
-            EntityTransaction cleanupTx = em.getTransaction();
-            cleanupTx.begin();
-            Product loadedProd = em.find(Product.class, prodId);
-            if (loadedProd != null) {
-                em.remove(loadedProd);
-            }
-            Category loadedCat = em.find(Category.class, catId);
-            if (loadedCat != null) {
-                em.remove(loadedCat);
-            }
-            cleanupTx.commit();
-
-        } catch (Exception e) {
+        } catch (Throwable e) {
+            mainException = e;
             if (tx.isActive()) {
                 tx.rollback();
             }
-            // Cleanup in case of failure
+            throw e;
+        } finally {
             if (category != null && category.getCategoryid() > 0) {
+                int catId = category.getCategoryid();
+                int prodId = (product != null) ? product.getProductid() : 0;
+                EntityTransaction cleanupTx = em.getTransaction();
                 try {
-                    EntityTransaction cleanupTx = em.getTransaction();
+                    // Prep: clear EntityManager and ensure any preparation errors are propagated
+                    em.clear();
+
                     cleanupTx.begin();
-                    Product loadedProd = em.find(Product.class, product.getProductid());
-                    if (loadedProd != null) {
-                        em.remove(loadedProd);
+
+                    // 1. Delete only the captured product ID
+                    if (prodId > 0) {
+                        Product loadedProd = em.find(Product.class, prodId);
+                        if (loadedProd != null) {
+                            em.remove(loadedProd);
+                        }
                     }
-                    Category loadedCat = em.find(Category.class, category.getCategoryid());
+
+                    // 2. Check if any OTHER products remain for the category
+                    long count = em.createQuery("SELECT COUNT(p) FROM Product p WHERE p.category.categoryid = :catId AND p.productid <> :prodId", Long.class)
+                                   .setParameter("catId", catId)
+                                   .setParameter("prodId", prodId)
+                                   .getSingleResult();
+                    if (count > 0) {
+                        throw new IllegalStateException("Cleanup failed: Category has unexpected referencing products: " + count);
+                    }
+
+                    // 3. Delete category
+                    Category loadedCat = em.find(Category.class, catId);
                     if (loadedCat != null) {
                         em.remove(loadedCat);
                     }
                     cleanupTx.commit();
-                } catch (Exception ex) {
-                    // Ignore cleanup failure in exception handler
+
+                    // Verification: prove that the rows are absent from DB
+                    em.clear();
+                    if (prodId > 0) {
+                        assertNull(em.find(Product.class, prodId), "Product should be deleted after test cleanup");
+                    }
+                    assertNull(em.find(Category.class, catId), "Category should be deleted after test cleanup");
+
+                } catch (Throwable ex) {
+                    if (cleanupTx.isActive()) {
+                        try {
+                            cleanupTx.rollback();
+                        } catch (Exception rex) {
+                            ex.addSuppressed(rex);
+                        }
+                    }
+                    if (mainException != null) {
+                        mainException.addSuppressed(ex);
+                    } else {
+                        if (ex instanceof RuntimeException) {
+                            throw (RuntimeException) ex;
+                        } else if (ex instanceof Error) {
+                            throw (Error) ex;
+                        } else {
+                            throw new RuntimeException("Cleanup verification failed", ex);
+                        }
+                    }
                 }
             }
-            throw e;
-        } finally {
-            em.close();
+            if (em.isOpen()) {
+                em.close();
+            }
         }
     }
 }

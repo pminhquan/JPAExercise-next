@@ -3,35 +3,55 @@
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Add Category</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
           rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/assets/css/style.css" rel="stylesheet">
 </head>
 
-<body class="bg-light">
+<body>
 
-<div class="container py-5">
+<main class="container py-5">
 
     <div class="row justify-content-center">
 
         <div class="col-md-7">
 
-            <div class="card shadow-sm">
+            <div class="page-header">
 
-                <div class="card-header">
-                    <h4 class="mb-0">
-                        Add Category
-                    </h4>
+                <div class="page-header__text">
+                    <h1 class="page-header__title">Add Category</h1>
+                    <p class="page-header__subtitle">
+                        Create a new product category.
+                    </p>
                 </div>
+
+                <div class="page-header__actions">
+                    <a href="${pageContext.request.contextPath}/categories"
+                       class="btn btn-ghost">
+                        &larr; Back to list
+                    </a>
+                    <c:if test="${not empty sessionScope.authenticatedUserId}">
+                        <a href="${pageContext.request.contextPath}/logout"
+                           class="btn btn-ghost">
+                            Logout
+                        </a>
+                    </c:if>
+                </div>
+
+            </div>
+
+            <div class="card shadow-sm">
 
                 <div class="card-body">
 
                     <c:if test="${not empty error}">
-                        <div class="alert alert-danger">
+                        <div class="alert alert-danger" role="alert">
                             <c:out value="${error}"/>
                         </div>
                     </c:if>
@@ -40,69 +60,90 @@
                             action="${pageContext.request.contextPath}/categories?action=insert"
                             method="post">
 
-                        <div class="mb-3">
+                        <div class="form-field">
 
-                            <label class="form-label">
+                            <label class="form-label label-required" for="categoryname">
                                 Category Name
                             </label>
 
                             <input
                                     type="text"
+                                    id="categoryname"
                                     name="categoryname"
                                     class="form-control"
                                     value="${fn:escapeXml(param.categoryname)}"
                                     required>
 
+                            <span class="form-hint">
+                                A short, unique name shown in product forms.
+                            </span>
+
                         </div>
 
-                        <div class="mb-3">
+                        <div class="form-field">
 
-                            <label class="form-label">
+                            <label class="form-label" for="images">
                                 Image / Image URL
                             </label>
 
                             <input
                                     type="text"
+                                    id="images"
                                     name="images"
                                     class="form-control"
                                     value="${fn:escapeXml(param.images)}"
                                     placeholder="Example: laptop.jpg">
 
+                            <span class="form-hint">
+                                Optional. File name or URL of the category image.
+                            </span>
+
                         </div>
 
-                        <div class="mb-3">
+                        <div class="form-field">
 
-                            <label class="form-label">
+                            <label class="form-label" for="status">
                                 Status
                             </label>
 
                             <select
+                                    id="status"
                                     name="status"
                                     class="form-select">
 
-                                <option value="1">
+                                <option value="1"
+                                        ${empty param.status or param.status == '1' ? 'selected' : ''}>
                                     Active
                                 </option>
 
-                                <option value="0">
+                                <option value="0"
+                                        ${param.status == '0' ? 'selected' : ''}>
                                     Inactive
                                 </option>
 
                             </select>
 
+                            <span class="form-hint">
+                                Inactive categories stay in the system but can be hidden from use.
+                            </span>
+
                         </div>
 
-                        <button
-                                type="submit"
-                                class="btn btn-primary">
-                            Save
-                        </button>
+                        <div class="form-actions">
 
-                        <a
-                                href="${pageContext.request.contextPath}/categories"
-                                class="btn btn-secondary">
-                            Back
-                        </a>
+                            <a
+                                    href="${pageContext.request.contextPath}/categories"
+                                    class="btn btn-secondary">
+                                Back
+                            </a>
+
+                            <button
+                                    type="submit"
+                                    class="btn btn-primary">
+                                Save
+                            </button>
+
+                        </div>
 
                     </form>
 
@@ -114,7 +155,7 @@
 
     </div>
 
-</div>
+</main>
 
 </body>
 </html>

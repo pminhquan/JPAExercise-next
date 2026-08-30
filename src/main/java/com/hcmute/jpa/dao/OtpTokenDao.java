@@ -16,17 +16,24 @@ public class OtpTokenDao implements IOtpTokenDao {
     public void create(OtpToken token) {
         EntityManager entityManager = JpaConfig.getEntityManager();
         EntityTransaction transaction = entityManager.getTransaction();
+        boolean ownsTransaction = !JpaConfig.isTransactionActive();
         try {
-            transaction.begin();
+            if (ownsTransaction) {
+                transaction.begin();
+            }
             entityManager.persist(token);
-            transaction.commit();
+            if (ownsTransaction) {
+                transaction.commit();
+            }
         } catch (Exception e) {
-            if (transaction.isActive()) {
+            if (ownsTransaction && transaction.isActive()) {
                 transaction.rollback();
             }
             throw e;
         } finally {
-            entityManager.close();
+            if (ownsTransaction) {
+                entityManager.close();
+            }
         }
     }
 
@@ -34,33 +41,44 @@ public class OtpTokenDao implements IOtpTokenDao {
     public void update(OtpToken token) {
         EntityManager entityManager = JpaConfig.getEntityManager();
         EntityTransaction transaction = entityManager.getTransaction();
+        boolean ownsTransaction = !JpaConfig.isTransactionActive();
         try {
-            transaction.begin();
+            if (ownsTransaction) {
+                transaction.begin();
+            }
             entityManager.merge(token);
-            transaction.commit();
+            if (ownsTransaction) {
+                transaction.commit();
+            }
         } catch (Exception e) {
-            if (transaction.isActive()) {
+            if (ownsTransaction && transaction.isActive()) {
                 transaction.rollback();
             }
             throw e;
         } finally {
-            entityManager.close();
+            if (ownsTransaction) {
+                entityManager.close();
+            }
         }
     }
 
     @Override
     public OtpToken findById(int id) {
         EntityManager entityManager = JpaConfig.getEntityManager();
+        boolean ownsEntityManager = !JpaConfig.isTransactionActive();
         try {
             return entityManager.find(OtpToken.class, id);
         } finally {
-            entityManager.close();
+            if (ownsEntityManager) {
+                entityManager.close();
+            }
         }
     }
 
     @Override
     public OtpToken findLatestValidByUserAndPurpose(User user, OtpPurpose purpose) {
         EntityManager entityManager = JpaConfig.getEntityManager();
+        boolean ownsEntityManager = !JpaConfig.isTransactionActive();
         try {
             TypedQuery<OtpToken> query = entityManager.createNamedQuery("OtpToken.findLatestValid", OtpToken.class);
             query.setParameter("user", user);
@@ -70,7 +88,9 @@ public class OtpTokenDao implements IOtpTokenDao {
             List<OtpToken> results = query.getResultList();
             return results.isEmpty() ? null : results.get(0);
         } finally {
-            entityManager.close();
+            if (ownsEntityManager) {
+                entityManager.close();
+            }
         }
     }
 
@@ -78,21 +98,28 @@ public class OtpTokenDao implements IOtpTokenDao {
     public void invalidateExistingByUserAndPurpose(User user, OtpPurpose purpose) {
         EntityManager entityManager = JpaConfig.getEntityManager();
         EntityTransaction transaction = entityManager.getTransaction();
+        boolean ownsTransaction = !JpaConfig.isTransactionActive();
         try {
-            transaction.begin();
+            if (ownsTransaction) {
+                transaction.begin();
+            }
             entityManager.createQuery(
                 "UPDATE OtpToken t SET t.used = true WHERE t.user = :user AND t.purpose = :purpose AND t.used = false")
                 .setParameter("user", user)
                 .setParameter("purpose", purpose)
                 .executeUpdate();
-            transaction.commit();
+            if (ownsTransaction) {
+                transaction.commit();
+            }
         } catch (Exception e) {
-            if (transaction.isActive()) {
+            if (ownsTransaction && transaction.isActive()) {
                 transaction.rollback();
             }
             throw e;
         } finally {
-            entityManager.close();
+            if (ownsTransaction) {
+                entityManager.close();
+            }
         }
     }
 }

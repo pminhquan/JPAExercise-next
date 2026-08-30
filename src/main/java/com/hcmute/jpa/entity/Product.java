@@ -43,7 +43,18 @@ public class Product implements Serializable {
     @JoinColumn(name = "CategoryId", nullable = false)
     private Category category;
 
+    @Column(name = "CreatedAt", nullable = true, updatable = false)
+    private java.sql.Timestamp createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null) {
+            createdAt = new java.sql.Timestamp(System.currentTimeMillis());
+        }
+    }
+
     public Product() {
+        this.createdAt = new java.sql.Timestamp(System.currentTimeMillis());
     }
 
     public Product(String productname, String description, double price, String images, int status, Category category) {
@@ -53,6 +64,7 @@ public class Product implements Serializable {
         this.images = images;
         this.status = status;
         this.category = category;
+        this.createdAt = new java.sql.Timestamp(System.currentTimeMillis());
     }
 
     public int getProductid() {
@@ -109,6 +121,14 @@ public class Product implements Serializable {
 
     public void setCategory(Category category) {
         this.category = category;
+    }
+
+    public java.sql.Timestamp getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(java.sql.Timestamp createdAt) {
+        this.createdAt = createdAt;
     }
 
     @Override
