@@ -138,7 +138,7 @@
                                     </div>
 
                                     <p class="detail-price">
-                                        $<fmt:formatNumber value="${product.price}" pattern="#,##0.00"/>
+                                        <fmt:formatNumber value="${product.price}" pattern="#,##0"/> ₫
                                     </p>
 
                                     <div class="detail-facts">

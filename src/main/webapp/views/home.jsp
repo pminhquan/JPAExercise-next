@@ -30,6 +30,9 @@
                     <c:when test="${count == 0}">
                         Showing 0 products
                     </c:when>
+                    <c:when test="${count == 1}">
+                        Showing 1 product
+                    </c:when>
                     <c:when test="${count < 10}">
                         Showing <c:out value="${count}"/> products
                     </c:when>
@@ -142,7 +145,7 @@
                             <div class="product-card__footer">
 
                                 <span class="product-card__price">
-                                    $<fmt:formatNumber value="${product.price}" pattern="#,##0.00"/>
+                                    <fmt:formatNumber value="${product.price}" pattern="#,##0"/> ₫
                                 </span>
 
                                 <c:choose>
