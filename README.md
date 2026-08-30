@@ -1,178 +1,699 @@
-﻿# JPAExercise
+﻿# JPAExercise-next
 
-Category CRUD web application using Jakarta Servlet, JSP, JPA/Hibernate and Microsoft SQL Server.
+A Java web application built with Jakarta Servlet, JSP, JPA/Hibernate, Maven, and Microsoft SQL Server.
+
+The project demonstrates a layered web architecture and includes authentication, OTP-based account flows, category management, product management, pagination, and database integration using JPA/Hibernate.
+
+## Author
+
+* **Name:** Phạm Minh Quân
+* **Student ID:** 24110311
+* **Class:** 241103A
+
+## Repository
+
+`https://github.com/pminhquan/JPAExercise-next`
+
+---
 
 ## Technologies
 
-- Java 21
-- Maven Wrapper (included)
-- Jakarta Servlet 6.0
-- JPA / Hibernate 6.6.1.Final
-- JSP / JSTL
-- Microsoft SQL Server
-- Apache Tomcat 10.1
+* Java 21
+* Maven Wrapper
+* Jakarta Servlet 6.0
+* JSP / JSTL
+* JPA
+* Hibernate ORM 6.6.1.Final
+* Microsoft SQL Server
+* Jakarta Mail
+* Apache Tomcat 10.1
+* JUnit 5
+
+---
 
 ## Project Architecture
 
 The project follows a layered architecture:
 
-Controller -> Service -> DAO -> JPA EntityManager -> Hibernate -> SQL Server
+```text
+JSP
+ ↓
+Controller
+ ↓
+Service
+ ↓
+DAO
+ ↓
+JPA EntityManager
+ ↓
+Hibernate
+ ↓
+Microsoft SQL Server
+```
 
-## Project Structure
+Main packages:
 
+```text
 src/main/java/com/hcmute/jpa
-- config/JpaConfig.java
-- controller/CategoryController.java
-- dao/CategoryDao.java
-- dao/ICategoryDao.java
-- entity/Category.java
-- service/CategoryServiceImpl.java
-- service/ICategoryService.java
+├── config
+├── controller
+├── dao
+├── entity
+├── filter
+└── service
+```
 
 JPA configuration:
 
+```text
 src/main/resources/META-INF/persistence.xml
+```
+
+Web configuration:
+
+```text
+src/main/webapp/WEB-INF/web.xml
+```
 
 Views:
 
-src/main/webapp/views/category-list.jsp
-src/main/webapp/views/category-add.jsp
-src/main/webapp/views/category-edit.jsp
+```text
+src/main/webapp/views
+```
 
-## Features
+---
 
-- Create Category
-- View Category list
-- Update Category
-- Delete Category
+# Main Features
 
-JPA operations used:
+## Authentication
 
-- persist() for INSERT
-- find() for finding an entity by ID
-- merge() for UPDATE
-- remove() for DELETE
-- JPQL / NamedQuery for retrieving Category list
+* User registration
+* Login
+* Logout
+* Authentication filter
+* Account activation
+* OTP verification
+* Forgot password
+* Reset password
 
-## Database
+## Category Management
 
-The project uses Microsoft SQL Server.
+* Create category
+* View category list
+* Update category
+* Delete category
+
+## Product Management
+
+* Create product
+* View product list
+* View product details
+* Update product
+* Delete product
+* Product pagination
+* Category–Product relationship
+
+## OTP
+
+OTP is used for:
+
+* Account registration verification
+* Forgot password
+* Password reset
+
+OTP information is persisted through the `OtpToken` JPA entity.
+
+---
+
+# Project Structure
+
+Important backend files:
+
+```text
+src/main/java/com/hcmute/jpa
+
+config/
+└── JpaConfig.java
+
+controller/
+├── CategoryController.java
+├── ForgotPasswordController.java
+├── HomeController.java
+├── LoginController.java
+├── LogoutController.java
+├── ProductController.java
+├── RegisterController.java
+├── ResetPasswordController.java
+└── VerifyOtpController.java
+
+dao/
+├── CategoryDao.java
+├── ICategoryDao.java
+├── IOtpTokenDao.java
+├── IProductDao.java
+├── IUserDao.java
+├── OtpTokenDao.java
+├── ProductDao.java
+└── UserDao.java
+
+entity/
+├── Category.java
+├── OtpPurpose.java
+├── OtpToken.java
+├── Product.java
+└── User.java
+
+filter/
+└── AuthenticationFilter.java
+
+service/
+├── CategoryServiceImpl.java
+├── EmailServiceImpl.java
+├── ICategoryService.java
+├── IEmailService.java
+├── IOtpService.java
+├── IProductService.java
+├── IUserService.java
+├── OtpServiceImpl.java
+├── ProductServiceImpl.java
+└── UserServiceImpl.java
+```
+
+Frontend:
+
+```text
+src/main/webapp
+├── assets/
+│   ├── css/
+│   └── js/
+│
+├── views/
+│   ├── category-add.jsp
+│   ├── category-edit.jsp
+│   ├── category-list.jsp
+│   ├── error-404.jsp
+│   ├── forgot-password.jsp
+│   ├── home.jsp
+│   ├── login.jsp
+│   ├── product-add.jsp
+│   ├── product-detail.jsp
+│   ├── product-edit.jsp
+│   ├── product-list.jsp
+│   ├── register.jsp
+│   ├── reset-password.jsp
+│   └── verify-otp.jsp
+│
+└── WEB-INF/
+    └── web.xml
+```
+
+---
+
+# JPA Entities
+
+The application uses the following main JPA entities:
+
+* `Category`
+* `Product`
+* `User`
+* `OtpToken`
+
+Common JPA operations used in the project include:
+
+* `persist()` for INSERT
+* `find()` for retrieving entities by ID
+* `merge()` for UPDATE
+* `remove()` for DELETE
+* JPQL for querying entities
+
+---
+
+# Database Setup
+
+The application uses Microsoft SQL Server.
 
 Default configuration:
 
-- Server: localhost
-- Port: 1433
-- Database: jakartaJPA
-- Username: sa
+```text
+Server   : localhost
+Port     : 1433
+Database : jakartaJPA
+Username : sa
+```
 
-The database password is not stored anywhere in the repository. `persistence.xml`
-contains no credentials. The password is supplied externally at runtime and the
-application and the JPA tests fail fast with a configuration error when it is
-missing. Provide it either as:
+Database credentials are not stored in the repository.
 
-- the `DB_PASSWORD` environment variable (for example `DB_PASSWORD=<your-db-password>`), or
-- the `jakarta.persistence.jdbc.password` Java system property
+## Step 1 — Create the Database
 
-Before running the application, open `database.sql` in SQL Server Management
-Studio and execute it. The script creates `jakartaJPA` only when it does not
-already exist.
+Open:
 
-If SQL Server uses different connection information, supply `DB_URL` and
-`DB_USER` (or the `jakarta.persistence.jdbc.url` / `jakarta.persistence.jdbc.user`
-system properties) in the same way. SQL Server Authentication is used. Do not
-put credentials into `persistence.xml` or any source file.
+```text
+database.sql
+```
 
-Hibernate uses:
+in SQL Server Management Studio and execute it.
 
-hibernate.hbm2ddl.auto = update
+The script creates the `jakartaJPA` database if it does not already exist.
 
-Therefore Hibernate automatically creates or updates the categories table based on the Category entity.
+```sql
+IF DB_ID(N'jakartaJPA') IS NULL
+BEGIN
+    CREATE DATABASE jakartaJPA;
+END
+GO
+
+USE jakartaJPA;
+GO
+```
+
+`database.sql` only creates the database.
+
+Application tables are created or updated automatically by Hibernate after the application successfully connects to SQL Server.
+
+---
+
+# Hibernate Schema Management
+
+The JPA configuration contains:
+
+```xml
+<property name="hibernate.hbm2ddl.auto"
+          value="update"/>
+```
+
+Hibernate therefore creates or updates the application schema based on the JPA entities.
+
+The schema includes tables corresponding to:
+
+```text
+Category
+Product
+User
+OtpToken
+```
+
+---
+
+# Database Connection
+
+Database configuration is handled by:
+
+```text
+src/main/java/com/hcmute/jpa/config/JpaConfig.java
+```
 
 Default JDBC URL:
 
+```text
 jdbc:sqlserver://localhost:1433;databaseName=jakartaJPA;encrypt=true;trustServerCertificate=true
-
-## Build
-
-On Windows, use the included Maven Wrapper (no separate Maven installation is
-required):
-
-```powershell
-.\mvnw.cmd clean test
 ```
 
-Build WAR:
+Default username:
+
+```text
+sa
+```
+
+The database password must be provided externally.
+
+## Windows PowerShell
+
+Before running the application:
+
+```powershell
+$env:DB_PASSWORD="your-sql-server-password"
+```
+
+If the SQL Server username is different:
+
+```powershell
+$env:DB_USER="your-sql-server-user"
+```
+
+If SQL Server uses another server, instance, port, or database:
+
+```powershell
+$env:DB_URL="jdbc:sqlserver://localhost:1433;databaseName=jakartaJPA;encrypt=true;trustServerCertificate=true"
+```
+
+Example:
+
+```powershell
+$env:DB_URL="jdbc:sqlserver://localhost:1433;databaseName=jakartaJPA;encrypt=true;trustServerCertificate=true"
+$env:DB_USER="sa"
+$env:DB_PASSWORD="your-sql-server-password"
+```
+
+Do not commit real database passwords into:
+
+```text
+persistence.xml
+JpaConfig.java
+README.md
+```
+
+---
+
+# Email / SMTP Configuration
+
+The application uses Jakarta Mail to send OTP emails for:
+
+* Account registration verification
+* Forgot password
+* Password reset
+
+SMTP credentials are not stored in the repository.
+
+The application reads:
+
+| Variable        | Description                |
+| --------------- | -------------------------- |
+| `SMTP_HOST`     | SMTP server hostname       |
+| `SMTP_PORT`     | SMTP server port           |
+| `SMTP_USERNAME` | SMTP username              |
+| `SMTP_PASSWORD` | SMTP password              |
+| `SMTP_AUTH`     | Enable SMTP authentication |
+| `SMTP_STARTTLS` | Enable STARTTLS            |
+
+If SMTP configuration is not provided, the application defaults to:
+
+```text
+SMTP_HOST = localhost
+SMTP_PORT = 25
+```
+
+This only works when a local SMTP server is available.
+
+Example PowerShell configuration:
+
+```powershell
+$env:SMTP_HOST="smtp.example.com"
+$env:SMTP_PORT="587"
+$env:SMTP_USERNAME="your-email@example.com"
+$env:SMTP_PASSWORD="your-smtp-password"
+$env:SMTP_AUTH="true"
+$env:SMTP_STARTTLS="true"
+```
+
+OTP email delivery requires a reachable and correctly configured SMTP server.
+
+The application generates 6-digit OTP codes for registration verification and password reset flows.
+
+---
+
+# Required Software
+
+To run the project, install:
+
+* JDK 21
+* Microsoft SQL Server
+* SQL Server Management Studio
+* Apache Tomcat 10.1
+
+For development, IntelliJ IDEA can be used with Tomcat 10.1.
+
+A separate Maven installation is not required because Maven Wrapper is included.
+
+SQL Server must:
+
+* be running
+* allow SQL Server Authentication
+* accept the configured SQL Server account
+* expose the configured TCP port
+
+The default configuration uses:
+
+```text
+localhost:1433
+```
+
+---
+
+# Build
+
+On Windows:
 
 ```powershell
 .\mvnw.cmd clean package
 ```
 
-If Maven is installed globally, `mvn clean test` and `mvn clean package` are
-equivalent.
-
 Generated WAR:
 
+```text
 target/JPAExercise.war
+```
 
-## Run
+To build without running tests:
 
-Application server:
+```powershell
+.\mvnw.cmd package -DskipTests
+```
 
+---
+
+# Run with IntelliJ IDEA and Tomcat
+
+This is the recommended development setup.
+
+## 1. Clone the repository
+
+```powershell
+git clone https://github.com/pminhquan/JPAExercise-next.git
+cd JPAExercise-next
+```
+
+## 2. Open the project
+
+Open the project folder in IntelliJ IDEA.
+
+Allow IntelliJ to import the Maven project from:
+
+```text
+pom.xml
+```
+
+Configure the project SDK as:
+
+```text
+Java 21
+```
+
+## 3. Prepare SQL Server
+
+Start Microsoft SQL Server.
+
+Execute:
+
+```text
+database.sql
+```
+
+using SQL Server Management Studio.
+
+## 4. Configure database credentials
+
+Set the required environment variables before starting the application.
+
+Example:
+
+```powershell
+$env:DB_USER="sa"
+$env:DB_PASSWORD="your-sql-server-password"
+```
+
+If necessary:
+
+```powershell
+$env:DB_URL="jdbc:sqlserver://localhost:1433;databaseName=jakartaJPA;encrypt=true;trustServerCertificate=true"
+```
+
+The same variables must be available to the Tomcat process launched from IntelliJ.
+
+## 5. Configure Tomcat
+
+Use:
+
+```text
 Apache Tomcat 10.1
+```
 
-Deploy artifact:
+Configure IntelliJ / SmartTomcat to deploy the application.
 
-Copy `target/JPAExercise.war` to `<TOMCAT_HOME>/webapps/`, then start Tomcat.
-Tomcat deploys the WAR with context path `/JPAExercise`.
+The application context is:
 
-On Windows, start Tomcat with:
+```text
+/JPAExercise
+```
+
+## 6. Start the application
+
+After Tomcat starts, open:
+
+```text
+http://localhost:8080/JPAExercise/
+```
+
+---
+
+# Alternative: Deploy WAR Manually
+
+The project does not require IntelliJ to run.
+
+Build the WAR:
+
+```powershell
+.\mvnw.cmd clean package
+```
+
+The generated file is:
+
+```text
+target/JPAExercise.war
+```
+
+Copy it into:
+
+```text
+<TOMCAT_HOME>/webapps/
+```
+
+Start Tomcat on Windows:
 
 ```powershell
 <TOMCAT_HOME>\bin\startup.bat
 ```
 
-Application context:
+Then open:
 
-/JPAExercise
-
-Open:
-
+```text
 http://localhost:8080/JPAExercise/
+```
 
-or:
+---
 
-http://localhost:8080/JPAExercise/categories
+# Testing
 
-## Category URLs
+JUnit tests are located in:
 
-- GET /JPAExercise/categories
-- GET /JPAExercise/categories?action=add
-- POST /JPAExercise/categories?action=insert
-- GET /JPAExercise/categories?action=edit&id={id}
-- POST /JPAExercise/categories?action=update
-- GET /JPAExercise/categories?action=delete&id={id}
-
-## Testing
-
-JUnit tests are located at:
-
+```text
 src/test/java/com/hcmute/jpa
+```
 
-Current tests:
+The test suite covers:
 
-- JpaTest.java
-- CategoryDaoTest.java
+* JPA integration
+* DAO behavior
+* Category CRUD
+* Category–Product relationships
+* Product services
+* Product controllers
+* Authentication
+* Login and logout
+* User services
+* Registration
+* OTP verification
+* Forgot password
+* Email service behavior
+* Security-related validation
 
-Run all tests:
+Important test classes include:
+
+```text
+AuditSpecificSecurityTests
+AuthenticationProductIntegrationTest
+CategoryDaoTest
+CategoryProductTest
+EmailServiceTest
+ForgotPasswordFlowTest
+HomeControllerTest
+JpaTest
+LoginAndLogoutFlowTest
+OtpServiceTest
+ProductControllerTest
+ProductServiceTest
+RegisterAndVerifyFlowTest
+UserServiceTest
+```
+
+Run tests:
 
 ```powershell
 .\mvnw.cmd clean test
 ```
 
-## Notes
+Database-dependent tests require a working SQL Server connection.
 
-- The project uses Jakarta packages instead of javax packages.
-- Tomcat 10.1 is used with Jakarta Servlet 6.0.
-- SQL Server must be running and TCP port 1433 must be accessible.
-- If SQL Server configuration differs, supply `DB_URL`, `DB_USER`, and `DB_PASSWORD` externally; credentials never go into `persistence.xml` or the source tree.
-- Hibernate manages the categories table automatically.
+At minimum:
+
+```powershell
+$env:DB_PASSWORD="your-sql-server-password"
+```
+
+must be configured.
+
+---
+
+# Category URLs
+
+Typical category endpoints:
+
+```text
+GET  /JPAExercise/categories
+GET  /JPAExercise/categories?action=add
+POST /JPAExercise/categories?action=insert
+GET  /JPAExercise/categories?action=edit&id={id}
+POST /JPAExercise/categories?action=update
+GET  /JPAExercise/categories?action=delete&id={id}
+```
+
+---
+
+# Authentication Flow
+
+Registration:
+
+```text
+Register
+   ↓
+Create User / OTP
+   ↓
+OTP Verification
+   ↓
+Account Activation
+   ↓
+Login
+```
+
+Forgot password:
+
+```text
+Forgot Password
+      ↓
+OTP Verification
+      ↓
+Reset Password
+      ↓
+Login
+```
+
+Protected access is handled by:
+
+```text
+AuthenticationFilter
+```
+
+---
+
+# Notes
+
+* The project uses `jakarta.*` instead of `javax.*`.
+* Tomcat 10.1 is used with Jakarta Servlet.
+* Maven Wrapper is included.
+* SQL Server Authentication is used.
+* Database credentials are not stored in the repository.
+* SMTP credentials are not stored in the repository.
+* `database.sql` creates the database.
+* Hibernate manages the application tables through `hibernate.hbm2ddl.auto=update`.
+* Integration tests require a valid SQL Server connection.
+* Category and Product integration tests clean up records created during testing.
+* If the local SQL Server configuration differs from the defaults, configure `DB_URL`, `DB_USER`, and `DB_PASSWORD` externally.
