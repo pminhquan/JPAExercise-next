@@ -34,7 +34,7 @@ public class CategoryProductTest {
             product = new Product();
             product.setProductname("Test Product");
             product.setDescription("Test Description");
-            product.setPrice(99.99);
+            product.setPrice(99);
             product.setImages("test_prod.jpg");
             product.setStatus(1);
             product.setCategory(category);

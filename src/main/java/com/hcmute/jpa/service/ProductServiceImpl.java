@@ -75,6 +75,9 @@ public class ProductServiceImpl implements IProductService {
         if (product.getPrice() <= 0 || !Double.isFinite(product.getPrice())) {
             throw new IllegalArgumentException("Price must be greater than 0");
         }
+        if (product.getPrice() != Math.rint(product.getPrice())) {
+            throw new IllegalArgumentException("Price must be a whole number");
+        }
         if (product.getCategory() == null) {
             throw new IllegalArgumentException("Category is required");
         }
@@ -98,6 +101,9 @@ public class ProductServiceImpl implements IProductService {
         }
         if (product.getPrice() <= 0 || !Double.isFinite(product.getPrice())) {
             throw new IllegalArgumentException("Price must be greater than 0");
+        }
+        if (product.getPrice() != Math.rint(product.getPrice())) {
+            throw new IllegalArgumentException("Price must be a whole number");
         }
 
         Product existingProduct = productDao.findById(product.getProductid());

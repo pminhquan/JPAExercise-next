@@ -239,20 +239,12 @@ public class ProductController extends HttpServlet {
             return;
         }
 
-        // Validation: price valid number and > 0
+        // Validation: positive whole-number VND price
         double price;
         try {
-            if (priceStr == null || priceStr.trim().isEmpty()) {
-                forwardWithError(request, response, "Price must be a valid number.", "/views/product-add.jsp");
-                return;
-            }
-            price = Double.parseDouble(priceStr.trim());
-            if (price <= 0 || Double.isNaN(price) || Double.isInfinite(price)) {
-                forwardWithError(request, response, "Price must be greater than 0.", "/views/product-add.jsp");
-                return;
-            }
-        } catch (NumberFormatException e) {
-            forwardWithError(request, response, "Price must be a valid number.", "/views/product-add.jsp");
+            price = parsePrice(priceStr);
+        } catch (IllegalArgumentException e) {
+            forwardWithError(request, response, e.getMessage(), "/views/product-add.jsp");
             return;
         }
 
@@ -347,23 +339,13 @@ public class ProductController extends HttpServlet {
             return;
         }
 
-        // Validation: price valid number and > 0
+        // Validation: positive whole-number VND price
         double price;
         try {
-            if (priceStr == null || priceStr.trim().isEmpty()) {
-                request.setAttribute("product", existingProduct);
-                forwardWithError(request, response, "Price must be a valid number.", "/views/product-edit.jsp");
-                return;
-            }
-            price = Double.parseDouble(priceStr.trim());
-            if (price <= 0 || Double.isNaN(price) || Double.isInfinite(price)) {
-                request.setAttribute("product", existingProduct);
-                forwardWithError(request, response, "Price must be greater than 0.", "/views/product-edit.jsp");
-                return;
-            }
-        } catch (NumberFormatException e) {
+            price = parsePrice(priceStr);
+        } catch (IllegalArgumentException e) {
             request.setAttribute("product", existingProduct);
-            forwardWithError(request, response, "Price must be a valid number.", "/views/product-edit.jsp");
+            forwardWithError(request, response, e.getMessage(), "/views/product-edit.jsp");
             return;
         }
 
@@ -416,6 +398,24 @@ public class ProductController extends HttpServlet {
         } catch (Exception e) {
             request.setAttribute("product", existingProduct);
             forwardWithError(request, response, "Failed to update product due to a database error.", "/views/product-edit.jsp");
+        }
+    }
+
+    private double parsePrice(String priceStr) {
+        if (priceStr == null || priceStr.trim().isEmpty()) {
+            throw new IllegalArgumentException("Price must be a valid number.");
+        }
+        try {
+            double price = Double.parseDouble(priceStr.trim());
+            if (price <= 0 || !Double.isFinite(price)) {
+                throw new IllegalArgumentException("Price must be greater than 0.");
+            }
+            if (price != Math.rint(price)) {
+                throw new IllegalArgumentException("Price must be a whole number.");
+            }
+            return price;
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Price must be a valid number.");
         }
     }
 
