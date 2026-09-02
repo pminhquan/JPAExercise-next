@@ -118,6 +118,19 @@ public class ProductServiceTest {
 
     @Test
     @Order(4)
+    public void testValidationFractionalPrice() {
+        Product product = new Product();
+        product.setProductname("Valid Name");
+        product.setPrice(19.99);
+        product.setCategory(testCategory);
+
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                () -> productService.createProduct(product));
+        assertEquals("Price must be a whole number", error.getMessage());
+    }
+
+    @Test
+    @Order(5)
     public void testValidationNonexistentCategory() {
         Category nonexistent = new Category();
         nonexistent.setCategoryid(999999);
@@ -131,7 +144,7 @@ public class ProductServiceTest {
     }
 
     @Test
-    @Order(5)
+    @Order(6)
     public void testUpdateProductAndPreserveCategory() {
         Product product = new Product();
         product.setProductname("Original Name");
@@ -160,7 +173,7 @@ public class ProductServiceTest {
     }
 
     @Test
-    @Order(6)
+    @Order(7)
     public void testFindAllNewestAndPagination() {
         Product p1 = new Product("A", "Desc", 10.0, "img.jpg", 1, testCategory);
         Product p2 = new Product("B", "Desc", 20.0, "img.jpg", 1, testCategory);
@@ -216,7 +229,7 @@ public class ProductServiceTest {
     }
 
     @Test
-    @Order(7)
+    @Order(8)
     public void testValidationNaNAndInfinities() {
         // Create validation
         Product product = new Product();
@@ -256,7 +269,7 @@ public class ProductServiceTest {
     }
 
     @Test
-    @Order(8)
+    @Order(9)
     public void testUpdateProductValidationCategory() {
         Product valid = new Product("Valid Update Cat", "Desc", 10.0, "img.jpg", 1, testCategory);
         productService.createProduct(valid);
@@ -299,7 +312,7 @@ public class ProductServiceTest {
     }
 
     @Test
-    @Order(9)
+    @Order(10)
     public void testExplicitAcceptanceCoverage() {
         // 1. create with null Category rejects
         Product pNullCat = new Product();
@@ -371,7 +384,7 @@ public class ProductServiceTest {
     }
 
     @Test
-    @Order(10)
+    @Order(11)
     public void testFindNewestOrdersByCreatedAt() {
         Product pA = new Product("A", "Desc", 10.0, "img.jpg", 1, testCategory);
         Product pB = new Product("B", "Desc", 20.0, "img.jpg", 1, testCategory);

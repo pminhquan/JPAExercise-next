@@ -216,7 +216,7 @@ public class ProductControllerTest {
         ProductController controller = new ProductController(mockProductService, mockCategoryService);
         MockHttpContext ctx = new MockHttpContext("/products/add");
         ctx.parameters.put("productname", "Smartphone");
-        ctx.parameters.put("price", "499.99");
+        ctx.parameters.put("price", "499");
         ctx.parameters.put("description", "A nice smartphone");
         ctx.parameters.put("images", "phone.jpg");
         ctx.parameters.put("categoryid", "10");
@@ -261,6 +261,21 @@ public class ProductControllerTest {
         assertTrue(ctx.forwarded);
         assertEquals("/views/product-add.jsp", ctx.forwardedPath);
         assertNotNull(ctx.attributes.get("error"));
+    }
+
+    @Test
+    public void testPostProductAddDecimalPriceValidation() throws Exception {
+        ProductController controller = new ProductController(mockProductService, mockCategoryService);
+        MockHttpContext ctx = new MockHttpContext("/products/add");
+        ctx.parameters.put("productname", "Smartphone");
+        ctx.parameters.put("price", "19.99");
+        ctx.parameters.put("categoryid", "10");
+
+        controller.doPost(ctx.request, ctx.response);
+
+        assertFalse(createProductCalled);
+        assertTrue(ctx.forwarded);
+        assertEquals("Price must be a whole number.", ctx.attributes.get("error"));
     }
 
     @Test

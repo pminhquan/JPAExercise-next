@@ -107,12 +107,12 @@
                                     id="price"
                                     name="price"
                                     class="form-control"
-                                    step="0.01"
+                                    step="1"
                                     value="${fn:escapeXml(param.price != null ? param.price : product.price)}"
                                     required>
 
                             <span class="form-hint">
-                                Must be a number greater than 0.
+                                Must be a whole number greater than 0.
                             </span>
 
                         </div>
