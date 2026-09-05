@@ -270,13 +270,13 @@
                                     <span class="page-link" aria-disabled="true">Previous</span>
                                 </c:when>
                                 <c:otherwise>
-                                    <a class="page-link" href="${pageContext.request.contextPath}/product?page=${currentPage - 1}">Previous</a>
+                                    <a class="page-link" href="${pageContext.request.contextPath}/products?page=${currentPage - 1}">Previous</a>
                                 </c:otherwise>
                             </c:choose>
                         </li>
                         <c:forEach var="i" begin="1" end="${totalPages}">
                             <li class="page-item ${currentPage == i ? 'active' : ''}">
-                                <a class="page-link" href="${pageContext.request.contextPath}/product?page=${i}"${currentPage == i ? ' aria-current="page"' : ''}>${i}</a>
+                                <a class="page-link" href="${pageContext.request.contextPath}/products?page=${i}"${currentPage == i ? ' aria-current="page"' : ''}>${i}</a>
                             </li>
                         </c:forEach>
                         <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
@@ -285,7 +285,7 @@
                                     <span class="page-link" aria-disabled="true">Next</span>
                                 </c:when>
                                 <c:otherwise>
-                                    <a class="page-link" href="${pageContext.request.contextPath}/product?page=${currentPage + 1}">Next</a>
+                                    <a class="page-link" href="${pageContext.request.contextPath}/products?page=${currentPage + 1}">Next</a>
                                 </c:otherwise>
                             </c:choose>
                         </li>

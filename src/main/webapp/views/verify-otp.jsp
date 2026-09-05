@@ -92,7 +92,7 @@
 
     <c:if test="${not empty success}">
         <div class="auth-links auth-links--center">
-            <a href="${pageContext.request.contextPath}/register">Go back to registration</a>
+            <a href="${pageContext.request.contextPath}/login">Go to login</a>
         </div>
     </c:if>
 

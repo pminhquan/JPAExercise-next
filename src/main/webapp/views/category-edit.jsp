@@ -63,7 +63,7 @@
                         <input
                                 type="hidden"
                                 name="categoryid"
-                                value="${fn:escapeXml(category.categoryid)}">
+                                value="${fn:escapeXml(param.categoryid != null ? param.categoryid : category.categoryid)}">
 
                         <div class="form-field">
 
@@ -72,7 +72,7 @@
                             </label>
 
                             <span class="field-static">
-                                <c:out value="${category.categoryid}"/>
+                                <c:out value="${param.categoryid != null ? param.categoryid : category.categoryid}"/>
                             </span>
 
                         </div>

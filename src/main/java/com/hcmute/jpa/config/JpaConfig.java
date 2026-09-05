@@ -57,20 +57,32 @@ public class JpaConfig {
 
     public static EntityManager getEntityManager() {
         EntityManager currentEntityManager = CURRENT_ENTITY_MANAGER.get();
-        return currentEntityManager != null
-                ? currentEntityManager
-                : ENTITY_MANAGER_FACTORY.createEntityManager();
+        if (currentEntityManager != null) {
+            if (currentEntityManager.isOpen()) {
+                return currentEntityManager;
+            }
+            CURRENT_ENTITY_MANAGER.remove();
+        }
+        return ENTITY_MANAGER_FACTORY.createEntityManager();
     }
 
     public static boolean isTransactionActive() {
         EntityManager currentEntityManager = CURRENT_ENTITY_MANAGER.get();
+        if (currentEntityManager != null && !currentEntityManager.isOpen()) {
+            CURRENT_ENTITY_MANAGER.remove();
+            return false;
+        }
         return currentEntityManager != null
                 && currentEntityManager.getTransaction().isActive();
     }
 
     public static void beginTransaction() {
-        if (CURRENT_ENTITY_MANAGER.get() != null) {
-            throw new IllegalStateException("A transaction is already active on this thread");
+        EntityManager currentEntityManager = CURRENT_ENTITY_MANAGER.get();
+        if (currentEntityManager != null) {
+            if (currentEntityManager.isOpen() && currentEntityManager.getTransaction().isActive()) {
+                throw new IllegalStateException("A transaction is already active on this thread");
+            }
+            endTransaction();
         }
 
         EntityManager entityManager = ENTITY_MANAGER_FACTORY.createEntityManager();
@@ -90,6 +102,7 @@ public class JpaConfig {
     public static void rollbackTransaction() {
         EntityManager entityManager = CURRENT_ENTITY_MANAGER.get();
         if (entityManager != null
+                && entityManager.isOpen()
                 && entityManager.getTransaction().isActive()) {
             entityManager.getTransaction().rollback();
         }
@@ -110,13 +123,14 @@ public class JpaConfig {
 
     private static EntityManager requireCurrentEntityManager() {
         EntityManager entityManager = CURRENT_ENTITY_MANAGER.get();
-        if (entityManager == null) {
+        if (entityManager == null || !entityManager.isOpen()) {
             throw new IllegalStateException("No transaction is active on this thread");
         }
         return entityManager;
     }
 
     public static void close() {
+        endTransaction();
         if (ENTITY_MANAGER_FACTORY != null
                 && ENTITY_MANAGER_FACTORY.isOpen()) {
 

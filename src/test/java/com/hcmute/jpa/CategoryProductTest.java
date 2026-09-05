@@ -1,6 +1,8 @@
 package com.hcmute.jpa;
 
 import com.hcmute.jpa.config.JpaConfig;
+import com.hcmute.jpa.dao.CategoryDao;
+import com.hcmute.jpa.dao.ProductDao;
 import com.hcmute.jpa.entity.Category;
 import com.hcmute.jpa.entity.Product;
 import jakarta.persistence.EntityManager;
@@ -259,6 +261,34 @@ public class CategoryProductTest {
             if (em.isOpen()) {
                 em.close();
             }
+        }
+    }
+
+    @Test
+    public void testDaosPreserveJpaConfigTransactionOwnership() {
+        JpaConfig.beginTransaction();
+        try {
+            Category category = new Category();
+            category.setCategoryname("Transaction Ownership Category");
+            category.setImages("transaction-ownership-category.jpg");
+            category.setStatus(1);
+
+            Product product = new Product();
+            product.setProductname("Transaction Ownership Product");
+            product.setDescription("Transaction ownership regression test");
+            product.setPrice(1);
+            product.setImages("transaction-ownership-product.jpg");
+            product.setStatus(1);
+            product.setCategory(category);
+
+            new CategoryDao().insert(category);
+            new ProductDao().create(product);
+
+            assertTrue(JpaConfig.isTransactionActive());
+            assertTrue(JpaConfig.getEntityManager().isOpen());
+        } finally {
+            JpaConfig.rollbackTransaction();
+            JpaConfig.endTransaction();
         }
     }
 }

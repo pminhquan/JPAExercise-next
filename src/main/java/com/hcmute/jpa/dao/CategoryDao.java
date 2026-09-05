@@ -12,65 +12,77 @@ public class CategoryDao implements ICategoryDao {
 
     @Override
     public void insert(Category category) {
-
         EntityManager entityManager = JpaConfig.getEntityManager();
         EntityTransaction transaction = entityManager.getTransaction();
+        boolean ownsTransaction = !JpaConfig.isTransactionActive();
 
         try {
-            transaction.begin();
+            if (ownsTransaction) {
+                transaction.begin();
+            }
 
             entityManager.persist(category);
 
-            transaction.commit();
+            if (ownsTransaction) {
+                transaction.commit();
+            }
 
         } catch (Exception e) {
-
-            if (transaction.isActive()) {
+            if (ownsTransaction && transaction.isActive()) {
                 transaction.rollback();
             }
 
             throw e;
 
         } finally {
-            entityManager.close();
+            if (ownsTransaction) {
+                entityManager.close();
+            }
         }
     }
 
     @Override
     public void update(Category category) {
-
         EntityManager entityManager = JpaConfig.getEntityManager();
         EntityTransaction transaction = entityManager.getTransaction();
+        boolean ownsTransaction = !JpaConfig.isTransactionActive();
 
         try {
-            transaction.begin();
+            if (ownsTransaction) {
+                transaction.begin();
+            }
 
             entityManager.merge(category);
 
-            transaction.commit();
+            if (ownsTransaction) {
+                transaction.commit();
+            }
 
         } catch (Exception e) {
-
-            if (transaction.isActive()) {
+            if (ownsTransaction && transaction.isActive()) {
                 transaction.rollback();
             }
 
             throw e;
 
         } finally {
-            entityManager.close();
+            if (ownsTransaction) {
+                entityManager.close();
+            }
         }
     }
 
     @Override
     public boolean delete(int id) {
-
         EntityManager entityManager = JpaConfig.getEntityManager();
         EntityTransaction transaction = entityManager.getTransaction();
+        boolean ownsTransaction = !JpaConfig.isTransactionActive();
         boolean deleted = false;
 
         try {
-            transaction.begin();
+            if (ownsTransaction) {
+                transaction.begin();
+            }
 
             Category category =
                     entityManager.find(Category.class, id);
@@ -80,39 +92,44 @@ public class CategoryDao implements ICategoryDao {
                 deleted = true;
             }
 
-            transaction.commit();
+            if (ownsTransaction) {
+                transaction.commit();
+            }
             return deleted;
 
         } catch (Exception e) {
-
-            if (transaction.isActive()) {
+            if (ownsTransaction && transaction.isActive()) {
                 transaction.rollback();
             }
 
             throw e;
 
         } finally {
-            entityManager.close();
+            if (ownsTransaction) {
+                entityManager.close();
+            }
         }
     }
 
     @Override
     public Category findById(int id) {
-
         EntityManager entityManager = JpaConfig.getEntityManager();
+        boolean ownsEntityManager = !JpaConfig.isTransactionActive();
 
         try {
             return entityManager.find(Category.class, id);
 
         } finally {
-            entityManager.close();
+            if (ownsEntityManager) {
+                entityManager.close();
+            }
         }
     }
 
     @Override
     public List<Category> findAll() {
-
         EntityManager entityManager = JpaConfig.getEntityManager();
+        boolean ownsEntityManager = !JpaConfig.isTransactionActive();
 
         try {
             TypedQuery<Category> query =
@@ -124,13 +141,16 @@ public class CategoryDao implements ICategoryDao {
             return query.getResultList();
 
         } finally {
-            entityManager.close();
+            if (ownsEntityManager) {
+                entityManager.close();
+            }
         }
      }
 
     @Override
     public boolean isCategoryInUse(int categoryId) {
         EntityManager entityManager = JpaConfig.getEntityManager();
+        boolean ownsEntityManager = !JpaConfig.isTransactionActive();
         try {
             String jpql = "SELECT COUNT(p) FROM Product p WHERE p.category.categoryid = :categoryId";
             Long count = entityManager.createQuery(jpql, Long.class)
@@ -138,7 +158,9 @@ public class CategoryDao implements ICategoryDao {
                     .getSingleResult();
             return count > 0;
         } finally {
-            entityManager.close();
+            if (ownsEntityManager) {
+                entityManager.close();
+            }
         }
     }
 }

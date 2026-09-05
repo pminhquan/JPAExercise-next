@@ -13,24 +13,32 @@ public class ProductDao implements IProductDao {
     public void create(Product product) {
         EntityManager entityManager = JpaConfig.getEntityManager();
         EntityTransaction transaction = entityManager.getTransaction();
+        boolean ownsTransaction = !JpaConfig.isTransactionActive();
 
         try {
-            transaction.begin();
+            if (ownsTransaction) {
+                transaction.begin();
+            }
             entityManager.persist(product);
-            transaction.commit();
+            if (ownsTransaction) {
+                transaction.commit();
+            }
         } catch (Exception e) {
-            if (transaction.isActive()) {
+            if (ownsTransaction && transaction.isActive()) {
                 transaction.rollback();
             }
             throw e;
         } finally {
-            entityManager.close();
+            if (ownsTransaction) {
+                entityManager.close();
+            }
         }
     }
 
     @Override
     public Product findById(int id) {
         EntityManager entityManager = JpaConfig.getEntityManager();
+        boolean ownsEntityManager = !JpaConfig.isTransactionActive();
         try {
             TypedQuery<Product> query = entityManager.createQuery(
                 "SELECT p FROM Product p JOIN FETCH p.category WHERE p.productid = :id", Product.class);
@@ -39,19 +47,24 @@ public class ProductDao implements IProductDao {
         } catch (jakarta.persistence.NoResultException e) {
             return null;
         } finally {
-            entityManager.close();
+            if (ownsEntityManager) {
+                entityManager.close();
+            }
         }
     }
 
     @Override
     public List<Product> findAll() {
         EntityManager entityManager = JpaConfig.getEntityManager();
+        boolean ownsEntityManager = !JpaConfig.isTransactionActive();
         try {
             TypedQuery<Product> query = entityManager.createQuery(
                 "SELECT p FROM Product p JOIN FETCH p.category ORDER BY p.productid DESC", Product.class);
             return query.getResultList();
         } finally {
-            entityManager.close();
+            if (ownsEntityManager) {
+                entityManager.close();
+            }
         }
     }
 
@@ -59,18 +72,25 @@ public class ProductDao implements IProductDao {
     public void update(Product product) {
         EntityManager entityManager = JpaConfig.getEntityManager();
         EntityTransaction transaction = entityManager.getTransaction();
+        boolean ownsTransaction = !JpaConfig.isTransactionActive();
 
         try {
-            transaction.begin();
+            if (ownsTransaction) {
+                transaction.begin();
+            }
             entityManager.merge(product);
-            transaction.commit();
+            if (ownsTransaction) {
+                transaction.commit();
+            }
         } catch (Exception e) {
-            if (transaction.isActive()) {
+            if (ownsTransaction && transaction.isActive()) {
                 transaction.rollback();
             }
             throw e;
         } finally {
-            entityManager.close();
+            if (ownsTransaction) {
+                entityManager.close();
+            }
         }
     }
 
@@ -78,40 +98,51 @@ public class ProductDao implements IProductDao {
     public void delete(int id) {
         EntityManager entityManager = JpaConfig.getEntityManager();
         EntityTransaction transaction = entityManager.getTransaction();
+        boolean ownsTransaction = !JpaConfig.isTransactionActive();
 
         try {
-            transaction.begin();
+            if (ownsTransaction) {
+                transaction.begin();
+            }
             Product product = entityManager.find(Product.class, id);
             if (product != null) {
                 entityManager.remove(product);
             }
-            transaction.commit();
+            if (ownsTransaction) {
+                transaction.commit();
+            }
         } catch (Exception e) {
-            if (transaction.isActive()) {
+            if (ownsTransaction && transaction.isActive()) {
                 transaction.rollback();
             }
             throw e;
         } finally {
-            entityManager.close();
+            if (ownsTransaction) {
+                entityManager.close();
+            }
         }
     }
 
     @Override
     public List<Product> findNewest(int limit) {
         EntityManager entityManager = JpaConfig.getEntityManager();
+        boolean ownsEntityManager = !JpaConfig.isTransactionActive();
         try {
             TypedQuery<Product> query = entityManager.createQuery(
                 "SELECT p FROM Product p JOIN FETCH p.category ORDER BY p.createdAt DESC, p.productid DESC", Product.class);
             query.setMaxResults(limit);
             return query.getResultList();
         } finally {
-            entityManager.close();
+            if (ownsEntityManager) {
+                entityManager.close();
+            }
         }
     }
 
     @Override
     public List<Product> findPage(int offset, int limit) {
         EntityManager entityManager = JpaConfig.getEntityManager();
+        boolean ownsEntityManager = !JpaConfig.isTransactionActive();
         try {
             TypedQuery<Product> query = entityManager.createQuery(
                 "SELECT p FROM Product p JOIN FETCH p.category ORDER BY p.productid DESC", Product.class);
@@ -119,19 +150,24 @@ public class ProductDao implements IProductDao {
             query.setMaxResults(limit);
             return query.getResultList();
         } finally {
-            entityManager.close();
+            if (ownsEntityManager) {
+                entityManager.close();
+            }
         }
     }
 
     @Override
     public long countAll() {
         EntityManager entityManager = JpaConfig.getEntityManager();
+        boolean ownsEntityManager = !JpaConfig.isTransactionActive();
         try {
             TypedQuery<Long> query = entityManager.createQuery(
                 "SELECT COUNT(p) FROM Product p", Long.class);
             return query.getSingleResult();
         } finally {
-            entityManager.close();
+            if (ownsEntityManager) {
+                entityManager.close();
+            }
         }
     }
 }
