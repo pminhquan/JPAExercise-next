@@ -20,6 +20,13 @@ public class AuthenticationFilter implements Filter {
             throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
+        String path = httpRequest.getServletPath();
+
+        if ("/product".equals(path)
+                || "/products/detail".equals(path)) {
+            chain.doFilter(request, response);
+            return;
+        }
 
         HttpSession session = httpRequest.getSession(false);
         boolean isLoggedIn = (session != null && session.getAttribute("authenticatedUserId") != null);

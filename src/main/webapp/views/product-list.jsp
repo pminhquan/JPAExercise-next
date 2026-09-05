@@ -8,7 +8,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Product Management</title>
+    <title>${pageContext.request.servletPath == '/products' ? 'Product Management' : 'Products'}</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
           rel="stylesheet">
@@ -17,12 +17,20 @@
 
 <body>
 
+<c:set var="managementView" value="${pageContext.request.servletPath == '/products'}"/>
+<c:set var="listPath" value="${managementView ? '/products' : '/product'}"/>
+
 <main class="container py-5">
 
     <div class="page-header">
 
         <div class="page-header__text">
-            <h1 class="page-header__title">Product Management</h1>
+            <h1 class="page-header__title">
+                <c:choose>
+                    <c:when test="${managementView}">Product Management</c:when>
+                    <c:otherwise>Products</c:otherwise>
+                </c:choose>
+            </h1>
             <p class="page-header__subtitle">
                 <c:choose>
                     <c:when test="${totalProducts == 1}">
@@ -36,14 +44,16 @@
         </div>
 
         <div class="page-header__actions">
-            <a href="${pageContext.request.contextPath}/categories"
-               class="btn btn-ghost">
-                Manage Categories
-            </a>
-            <a href="${pageContext.request.contextPath}/products/add"
-               class="btn btn-primary">
-                + Add Product
-            </a>
+            <c:if test="${managementView}">
+                <a href="${pageContext.request.contextPath}/categories"
+                   class="btn btn-ghost">
+                    Manage Categories
+                </a>
+                <a href="${pageContext.request.contextPath}/products/add"
+                   class="btn btn-primary">
+                    + Add Product
+                </a>
+            </c:if>
             <c:if test="${not empty sessionScope.authenticatedUserId}">
                 <a href="${pageContext.request.contextPath}/logout"
                    class="btn btn-ghost">
@@ -78,18 +88,6 @@
         </div>
     </c:if>
 
-    <c:if test="${param.error == 'not_found'}">
-        <div class="alert alert-danger" role="alert">
-            Product does not exist.
-        </div>
-    </c:if>
-
-    <c:if test="${param.error == 'delete_failed'}">
-        <div class="alert alert-danger" role="alert">
-            Failed to delete the product due to a database error.
-        </div>
-    </c:if>
-
     <div class="card shadow-sm card--flush">
 
         <div class="card-body table-wrap">
@@ -105,7 +103,9 @@
                     <th>Image</th>
                     <th>Category</th>
                     <th>Status</th>
-                    <th class="col-actions">Action</th>
+                    <c:if test="${managementView}">
+                        <th class="col-actions">Action</th>
+                    </c:if>
                 </tr>
                 </thead>
 
@@ -207,33 +207,30 @@
                             </c:choose>
                         </td>
 
-                        <td>
-
-                            <div class="table-actions">
-
-                                <a href="${pageContext.request.contextPath}/products/edit?id=${fn:escapeXml(product.productid)}"
-                                   class="btn btn-secondary btn-sm">
-                                    Edit
-                                </a>
-
-                                <form action="${pageContext.request.contextPath}/products/delete"
-                                      method="post"
-                                      class="form-inline"
-                                      onsubmit="return confirm('Are you sure you want to delete this product?');">
-                                    <input type="hidden" name="id" value="${fn:escapeXml(product.productid)}"/>
-                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                                </form>
-
-                            </div>
-
-                        </td>
+                        <c:if test="${managementView}">
+                            <td>
+                                <div class="table-actions">
+                                    <a href="${pageContext.request.contextPath}/products/edit?id=${fn:escapeXml(product.productid)}"
+                                       class="btn btn-secondary btn-sm">
+                                        Edit
+                                    </a>
+                                    <form action="${pageContext.request.contextPath}/products/delete"
+                                          method="post"
+                                          class="form-inline"
+                                          onsubmit="return confirm('Are you sure you want to delete this product?');">
+                                        <input type="hidden" name="id" value="${fn:escapeXml(product.productid)}"/>
+                                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </c:if>
 
                     </tr>
                 </c:forEach>
 
                 <c:if test="${empty products}">
                     <tr>
-                        <td colspan="8">
+                        <td colspan="${managementView ? 8 : 7}">
 
                             <div class="empty-state">
                                 <p class="empty-state__title">
@@ -270,13 +267,13 @@
                                     <span class="page-link" aria-disabled="true">Previous</span>
                                 </c:when>
                                 <c:otherwise>
-                                    <a class="page-link" href="${pageContext.request.contextPath}/products?page=${currentPage - 1}">Previous</a>
+                                    <a class="page-link" href="${pageContext.request.contextPath}${listPath}?page=${currentPage - 1}">Previous</a>
                                 </c:otherwise>
                             </c:choose>
                         </li>
                         <c:forEach var="i" begin="1" end="${totalPages}">
                             <li class="page-item ${currentPage == i ? 'active' : ''}">
-                                <a class="page-link" href="${pageContext.request.contextPath}/products?page=${i}"${currentPage == i ? ' aria-current="page"' : ''}>${i}</a>
+                                <a class="page-link" href="${pageContext.request.contextPath}${listPath}?page=${i}"${currentPage == i ? ' aria-current="page"' : ''}>${i}</a>
                             </li>
                         </c:forEach>
                         <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
@@ -285,7 +282,7 @@
                                     <span class="page-link" aria-disabled="true">Next</span>
                                 </c:when>
                                 <c:otherwise>
-                                    <a class="page-link" href="${pageContext.request.contextPath}/products?page=${currentPage + 1}">Next</a>
+                                    <a class="page-link" href="${pageContext.request.contextPath}${listPath}?page=${currentPage + 1}">Next</a>
                                 </c:otherwise>
                             </c:choose>
                         </li>

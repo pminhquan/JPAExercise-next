@@ -176,7 +176,7 @@ public class AuthenticationProductIntegrationTest {
     }
 
     @Test
-    public void testUnauthenticatedProductListRedirectsToLogin() throws Exception {
+    public void testUnauthenticatedProductListIsPublic() throws Exception {
         MockHttpContext ctx = new MockHttpContext("/product");
         // No session user ID
 
@@ -191,12 +191,12 @@ public class AuthenticationProductIntegrationTest {
 
         authFilter.doFilter(ctx.request, ctx.response, mockChain);
 
-        assertFalse(chainCalled[0], "Chain should not be called for unauthenticated requests");
-        assertEquals("/JPAExercise-next/login", ctx.redirectUrl, "Should redirect to login page");
+        assertTrue(chainCalled[0], "Chain should be called for public product requests");
+        assertNull(ctx.redirectUrl, "Public product requests should not redirect");
     }
 
     @Test
-    public void testUnauthenticatedProductDetailRedirectsToLogin() throws Exception {
+    public void testUnauthenticatedProductDetailIsPublic() throws Exception {
         MockHttpContext ctx = new MockHttpContext("/products/detail");
         ctx.parameters.put("id", "101");
 
@@ -211,8 +211,43 @@ public class AuthenticationProductIntegrationTest {
 
         authFilter.doFilter(ctx.request, ctx.response, mockChain);
 
-        assertFalse(chainCalled[0], "Chain should not be called for unauthenticated detail requests");
-        assertEquals("/JPAExercise-next/login", ctx.redirectUrl, "Should redirect to login page");
+        assertTrue(chainCalled[0], "Chain should be called for public detail requests");
+        assertNull(ctx.redirectUrl, "Public detail requests should not redirect");
+    }
+
+    @Test
+    public void testUnauthenticatedProductWriteStillRedirectsToLogin() throws Exception {
+        MockHttpContext ctx = new MockHttpContext("/products/add");
+
+        boolean[] chainCalled = {false};
+        FilterChain mockChain = createMock(FilterChain.class, (proxy, method, args) -> {
+            if (method.getName().equals("doFilter")) {
+                chainCalled[0] = true;
+            }
+            return null;
+        });
+
+        authFilter.doFilter(ctx.request, ctx.response, mockChain);
+
+        assertFalse(chainCalled[0], "Unauthenticated product writes must remain protected");
+        assertEquals("/JPAExercise-next/login", ctx.redirectUrl, "Product writes should redirect to login");
+    }
+
+    @Test
+    public void testUnauthenticatedManagementProductListRedirectsToLogin() throws Exception {
+        MockHttpContext ctx = new MockHttpContext("/products");
+        boolean[] chainCalled = {false};
+        FilterChain mockChain = createMock(FilterChain.class, (proxy, method, args) -> {
+            if (method.getName().equals("doFilter")) {
+                chainCalled[0] = true;
+            }
+            return null;
+        });
+
+        authFilter.doFilter(ctx.request, ctx.response, mockChain);
+
+        assertFalse(chainCalled[0], "Unauthenticated management listing must remain protected");
+        assertEquals("/JPAExercise-next/login", ctx.redirectUrl);
     }
 
     @Test
@@ -281,7 +316,7 @@ public class AuthenticationProductIntegrationTest {
         assertEquals("/JPAExercise-next/login", ctx.redirectUrl, "Logout should redirect to login");
         assertFalse(ctx.hasSession, "Session flag should be cleared");
 
-        // 3. Subsequent Request: Access Protected Product List
+        // 3. Subsequent Request: Access Public Product List
         MockHttpContext ctx2 = new MockHttpContext("/product");
         ctx2.hasSession = ctx.hasSession; // false
         ctx2.session = ctx.session;       // empty
@@ -297,7 +332,7 @@ public class AuthenticationProductIntegrationTest {
 
         authFilter.doFilter(ctx2.request, ctx2.response, mockChain);
 
-        assertFalse(chainCalled[0], "Chain must not be called after logout");
-        assertEquals("/JPAExercise-next/login", ctx2.redirectUrl, "Subsequent request must redirect to login");
+        assertTrue(chainCalled[0], "Public product list must remain accessible after logout");
+        assertNull(ctx2.redirectUrl, "Public product list must not redirect after logout");
     }
 }

@@ -57,7 +57,8 @@
                     </c:if>
 
                     <form action="${pageContext.request.contextPath}/products/edit"
-                          method="post">
+                          method="post"
+                          enctype="multipart/form-data">
 
                         <input
                                 type="hidden"
@@ -142,15 +143,14 @@
                             </label>
 
                             <input
-                                    type="text"
+                                    type="file"
                                     id="images"
                                     name="images"
                                     class="form-control"
-                                    value="${fn:escapeXml(param.images != null ? param.images : product.images)}"
-                                    placeholder="Example: phone.jpg">
+                                    accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
 
                             <span class="form-hint">
-                                Optional. File name or URL of the product image.
+                                Optional replacement. JPG, JPEG, PNG, or WEBP image; leave empty to keep the current image.
                             </span>
 
                         </div>
