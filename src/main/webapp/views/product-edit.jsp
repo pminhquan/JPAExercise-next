@@ -1,6 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -32,9 +33,17 @@
                 </div>
 
                 <div class="page-header__actions">
+                    <a href="${pageContext.request.contextPath}/home"
+                       class="btn btn-ghost">
+                        Home
+                    </a>
                     <a href="${pageContext.request.contextPath}/products"
                        class="btn btn-ghost">
-                        &larr; Back to list
+                        &larr; Back to Products
+                    </a>
+                    <a href="${pageContext.request.contextPath}/categories"
+                       class="btn btn-ghost">
+                        Manage Categories
                     </a>
                     <c:if test="${not empty sessionScope.authenticatedUserId}">
                         <a href="${pageContext.request.contextPath}/logout"
@@ -71,8 +80,14 @@
                                 Product ID
                             </label>
 
-                            <span class="field-static">
-                                <c:out value="${product.productid}"/>
+                            <div>
+                                <span class="field-static">
+                                    <c:out value="${product.productid}"/>
+                                </span>
+                            </div>
+
+                            <span class="form-hint">
+                                System-generated unique product identifier (read-only).
                             </span>
 
                         </div>
@@ -89,13 +104,27 @@
                                     name="productname"
                                     class="form-control"
                                     value="${fn:escapeXml(param.productname != null ? param.productname : product.productname)}"
+                                    placeholder="e.g. Dell XPS 15 9530, iPhone 15 Pro Max"
+                                    maxlength="255"
                                     required>
 
                             <span class="form-hint">
-                                A short, descriptive product title.
+                                A clear, recognizable title shown in product listings and search results.
                             </span>
 
                         </div>
+
+                        <c:choose>
+                            <c:when test="${param.price != null}">
+                                <c:set var="priceValue" value="${fn:escapeXml(param.price)}"/>
+                            </c:when>
+                            <c:when test="${product.price != null}">
+                                <fmt:formatNumber var="priceValue" value="${product.price}" pattern="0" groupingUsed="false"/>
+                            </c:when>
+                            <c:otherwise>
+                                <c:set var="priceValue" value=""/>
+                            </c:otherwise>
+                        </c:choose>
 
                         <div class="form-field">
 
@@ -103,17 +132,54 @@
                                 Price
                             </label>
 
-                            <input
-                                    type="number"
-                                    id="price"
-                                    name="price"
-                                    class="form-control"
-                                    step="1"
-                                    value="${fn:escapeXml(param.price != null ? param.price : product.price)}"
-                                    required>
+                            <div class="input-group">
+                                <input
+                                        type="number"
+                                        id="price"
+                                        name="price"
+                                        class="form-control"
+                                        min="1"
+                                        step="1"
+                                        value="${priceValue}"
+                                        placeholder="e.g. 15000000"
+                                        required>
+                                <span class="input-group-text">₫ (VND)</span>
+                            </div>
 
                             <span class="form-hint">
-                                Must be a whole number greater than 0.
+                                Positive whole number in Vietnamese Dong (VND), without commas or decimals.
+                            </span>
+
+                        </div>
+
+                        <div class="form-field">
+
+                            <label class="form-label label-required" for="categoryid">
+                                Category
+                            </label>
+
+                            <c:set var="selectedCategoryId"
+                                   value="${param.categoryid != null ? param.categoryid : (product.category != null ? product.category.categoryid : '')}"/>
+
+                            <select
+                                    id="categoryid"
+                                    name="categoryid"
+                                    class="form-select"
+                                    required>
+
+                                <option value="">-- Choose a category --</option>
+
+                                <c:forEach var="cat" items="${categories}">
+                                    <option value="${cat.categoryid}"
+                                            ${selectedCategoryId == cat.categoryid ? 'selected' : ''}>
+                                        <c:out value="${cat.categoryname}"/>
+                                    </option>
+                                </c:forEach>
+
+                            </select>
+
+                            <span class="form-hint">
+                                The catalog category this product belongs to.
                             </span>
 
                         </div>
@@ -128,10 +194,11 @@
                                     id="description"
                                     name="description"
                                     class="form-control"
-                                    rows="3">${fn:escapeXml(param.description != null ? param.description : product.description)}</textarea>
+                                    rows="4"
+                                    placeholder="Provide specifications, features, warranty, or key details...">${fn:escapeXml(param.description != null ? param.description : product.description)}</textarea>
 
                             <span class="form-hint">
-                                Optional. Details customers should know about the product.
+                                Optional. Clear product details displayed on the product overview page.
                             </span>
 
                         </div>
@@ -139,8 +206,33 @@
                         <div class="form-field">
 
                             <label class="form-label" for="images">
-                                Image / Image URL
+                                Product Image
                             </label>
+
+                            <c:if test="${not empty product.images}">
+                                <div class="d-flex align-items-center gap-3 mb-2 p-2 rounded border" style="background-color: var(--bg-app);">
+                                    <c:choose>
+                                        <c:when test="${fn:startsWith(product.images, 'http://') or fn:startsWith(product.images, 'https://')}">
+                                            <img src="${fn:escapeXml(product.images)}"
+                                                 alt="Current product image"
+                                                 class="thumb"
+                                                 onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='inline-block';"/>
+                                            <span class="text-empty small" style="display:none;">(Preview unavailable)</span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <img src="${pageContext.request.contextPath}/uploads/${fn:escapeXml(product.images)}"
+                                                 alt="Current product image"
+                                                 class="thumb"
+                                                 onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='inline-block';"/>
+                                            <span class="text-empty small" style="display:none;">(Preview unavailable)</span>
+                                        </c:otherwise>
+                                    </c:choose>
+                                    <div>
+                                        <div class="small text-muted">Current image file:</div>
+                                        <code class="small"><c:out value="${product.images}"/></code>
+                                    </div>
+                                </div>
+                            </c:if>
 
                             <input
                                     type="file"
@@ -150,37 +242,14 @@
                                     accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
 
                             <span class="form-hint">
-                                Optional replacement. JPG, JPEG, PNG, or WEBP image; leave empty to keep the current image.
-                            </span>
-
-                        </div>
-
-                        <div class="form-field">
-
-                            <label class="form-label label-required" for="categoryid">
-                                Category
-                            </label>
-
-                            <select
-                                    id="categoryid"
-                                    name="categoryid"
-                                    class="form-select"
-                                    required>
-
-                                <c:set var="selectedCategoryId"
-                                       value="${param.categoryid != null ? fn:escapeXml(param.categoryid) : (product.category != null ? product.category.categoryid : '')}"/>
-
-                                <c:forEach var="cat" items="${categories}">
-                                    <option value="${cat.categoryid}"
-                                            ${selectedCategoryId == cat.categoryid ? 'selected' : ''}>
-                                        <c:out value="${cat.categoryname}"/>
-                                    </option>
-                                </c:forEach>
-
-                            </select>
-
-                            <span class="form-hint">
-                                The category this product belongs to.
+                                <c:choose>
+                                    <c:when test="${not empty product.images}">
+                                        Optional replacement. Select a new image file (JPG, JPEG, PNG, WEBP, max 5 MB). Leave empty to retain current image.
+                                    </c:when>
+                                    <c:otherwise>
+                                        Optional. Upload a product image file (JPG, JPEG, PNG, WEBP, max 5 MB).
+                                    </c:otherwise>
+                                </c:choose>
                             </span>
 
                         </div>
@@ -192,7 +261,7 @@
                             </label>
 
                             <c:set var="selectedStatus"
-                                   value="${param.status != null ? fn:escapeXml(param.status) : product.status}"/>
+                                   value="${param.status != null ? param.status : product.status}"/>
 
                             <select
                                     id="status"
@@ -201,18 +270,18 @@
 
                                 <option value="1"
                                         ${selectedStatus == 1 || selectedStatus == '1' ? 'selected' : ''}>
-                                    Active
+                                    Active - Visible to shoppers in catalog
                                 </option>
 
                                 <option value="0"
                                         ${selectedStatus == 0 || selectedStatus == '0' ? 'selected' : ''}>
-                                    Inactive
+                                    Inactive - Hidden from store
                                 </option>
 
                             </select>
 
                             <span class="form-hint">
-                                Inactive products stay in the system but can be hidden from use.
+                                Inactive products remain in inventory but are hidden from the public catalog.
                             </span>
 
                         </div>
@@ -221,13 +290,13 @@
 
                             <a href="${pageContext.request.contextPath}/products"
                                class="btn btn-secondary">
-                                Back
+                                Cancel
                             </a>
 
                             <button
                                     type="submit"
                                     class="btn btn-primary">
-                                Update
+                                Update Product
                             </button>
 
                         </div>

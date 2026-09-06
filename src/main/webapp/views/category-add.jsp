@@ -32,9 +32,17 @@
                 </div>
 
                 <div class="page-header__actions">
+                    <a href="${pageContext.request.contextPath}/home"
+                       class="btn btn-ghost">
+                        Home
+                    </a>
                     <a href="${pageContext.request.contextPath}/categories"
                        class="btn btn-ghost">
-                        &larr; Back to list
+                        &larr; Back to Categories
+                    </a>
+                    <a href="${pageContext.request.contextPath}/products"
+                       class="btn btn-ghost">
+                        Manage Products
                     </a>
                     <c:if test="${not empty sessionScope.authenticatedUserId}">
                         <a href="${pageContext.request.contextPath}/logout"
@@ -72,10 +80,12 @@
                                     name="categoryname"
                                     class="form-control"
                                     value="${fn:escapeXml(param.categoryname)}"
+                                    placeholder="e.g. Laptops, Smartphones, Audio"
+                                    maxlength="100"
                                     required>
 
                             <span class="form-hint">
-                                A short, unique name shown in product forms.
+                                A clear, unique name shown in product forms and catalog filters.
                             </span>
 
                         </div>
@@ -92,10 +102,10 @@
                                     name="images"
                                     class="form-control"
                                     value="${fn:escapeXml(param.images)}"
-                                    placeholder="Example: laptop.jpg">
+                                    placeholder="e.g. laptop.jpg or https://images.unsplash.com/...">
 
                             <span class="form-hint">
-                                Optional. File name or URL of the category image.
+                                Optional. File name located in /uploads/ (e.g. laptop.jpg) or a full web image URL (https://...).
                             </span>
 
                         </div>
@@ -113,18 +123,18 @@
 
                                 <option value="1"
                                         ${empty param.status or param.status == '1' ? 'selected' : ''}>
-                                    Active
+                                    Active - Visible in product forms and catalog
                                 </option>
 
                                 <option value="0"
                                         ${param.status == '0' ? 'selected' : ''}>
-                                    Inactive
+                                    Inactive - Hidden from active product creation
                                 </option>
 
                             </select>
 
                             <span class="form-hint">
-                                Inactive categories stay in the system but can be hidden from use.
+                                Inactive categories stay in the system but cannot be selected for new products.
                             </span>
 
                         </div>
@@ -134,13 +144,13 @@
                             <a
                                     href="${pageContext.request.contextPath}/categories"
                                     class="btn btn-secondary">
-                                Back
+                                Cancel
                             </a>
 
                             <button
                                     type="submit"
                                     class="btn btn-primary">
-                                Save
+                                Save Category
                             </button>
 
                         </div>

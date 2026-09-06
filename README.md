@@ -253,7 +253,7 @@ database.sql
 
 in SQL Server Management Studio and execute it.
 
-The script creates the `jakartaJPA` database if it does not already exist.
+Run this script once against a new or empty SQL Server database context. It creates the `jakartaJPA` database if it does not already exist, creates the `categories`, `users`, `products`, and `otp_tokens` tables, and seeds one category plus ten sample products.
 
 ```sql
 IF DB_ID(N'jakartaJPA') IS NULL
@@ -266,9 +266,7 @@ USE jakartaJPA;
 GO
 ```
 
-`database.sql` only creates the database.
-
-Application tables are created or updated automatically by Hibernate after the application successfully connects to SQL Server.
+The seeded product image names match the files committed under `src/main/webapp/uploads`. The script is intended for initial setup; rerunning it against an already initialized database will fail when the tables already exist.
 
 ---
 
@@ -398,6 +396,18 @@ $env:SMTP_STARTTLS="true"
 OTP email delivery requires a reachable and correctly configured SMTP server.
 
 The application generates 6-digit OTP codes for registration verification and password reset flows.
+
+---
+
+# Image and Upload Handling
+
+The sample product images are stored in:
+
+```text
+src/main/webapp/uploads
+```
+
+The database stores each image filename, and the application serves local images from the deployed `/uploads` path. Product forms accept `.jpg`, `.jpeg`, `.png`, and `.webp` files up to 5 MB per file (6 MB per request). New uploads are renamed to unique filenames and written to the deployed web application's writable `uploads` directory; configure persistent storage separately if uploaded files must survive a redeploy. The seeded images are packaged into the WAR automatically.
 
 ---
 
@@ -699,7 +709,7 @@ AuthenticationFilter
 * SQL Server Authentication is used.
 * Database credentials are not stored in the repository.
 * SMTP credentials are not stored in the repository.
-* `database.sql` creates the database.
+* `database.sql` creates the database, tables, and sample product data.
 * Hibernate manages the application tables through `hibernate.hbm2ddl.auto=update`.
 * Integration tests require a valid SQL Server connection.
 * Category and Product integration tests clean up records created during testing.

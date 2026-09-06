@@ -32,9 +32,17 @@
                 </div>
 
                 <div class="page-header__actions">
+                    <a href="${pageContext.request.contextPath}/home"
+                       class="btn btn-ghost">
+                        Home
+                    </a>
                     <a href="${pageContext.request.contextPath}/categories"
                        class="btn btn-ghost">
-                        &larr; Back to list
+                        &larr; Back to Categories
+                    </a>
+                    <a href="${pageContext.request.contextPath}/products"
+                       class="btn btn-ghost">
+                        Manage Products
                     </a>
                     <c:if test="${not empty sessionScope.authenticatedUserId}">
                         <a href="${pageContext.request.contextPath}/logout"
@@ -71,8 +79,14 @@
                                 Category ID
                             </label>
 
-                            <span class="field-static">
-                                <c:out value="${param.categoryid != null ? param.categoryid : category.categoryid}"/>
+                            <div>
+                                <span class="field-static">
+                                    <c:out value="${param.categoryid != null ? param.categoryid : category.categoryid}"/>
+                                </span>
+                            </div>
+
+                            <span class="form-hint">
+                                System-generated unique identifier (read-only).
                             </span>
 
                         </div>
@@ -89,10 +103,12 @@
                                     name="categoryname"
                                     class="form-control"
                                     value="${fn:escapeXml(param.categoryname != null ? param.categoryname : category.categoryname)}"
+                                    placeholder="e.g. Laptops, Smartphones, Audio"
+                                    maxlength="100"
                                     required>
 
                             <span class="form-hint">
-                                A short, unique name shown in product forms.
+                                A clear, unique name shown in product forms and catalog filters.
                             </span>
 
                         </div>
@@ -103,15 +119,44 @@
                                 Image / Image URL
                             </label>
 
+                            <c:set var="currentImage"
+                                   value="${param.images != null ? param.images : category.images}"/>
+
+                            <c:if test="${not empty currentImage}">
+                                <div class="d-flex align-items-center gap-3 mb-2 p-2 rounded border" style="background-color: var(--bg-app);">
+                                    <c:choose>
+                                        <c:when test="${fn:startsWith(currentImage, 'http://') or fn:startsWith(currentImage, 'https://')}">
+                                            <img src="${fn:escapeXml(currentImage)}"
+                                                 alt="Current category image"
+                                                 class="thumb"
+                                                 onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='inline-block';"/>
+                                            <span class="text-empty small" style="display:none;">(Preview unavailable)</span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <img src="${pageContext.request.contextPath}/uploads/${fn:escapeXml(currentImage)}"
+                                                 alt="Current category image"
+                                                 class="thumb"
+                                                 onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='inline-block';"/>
+                                            <span class="text-empty small" style="display:none;">(Preview unavailable)</span>
+                                        </c:otherwise>
+                                    </c:choose>
+                                    <div>
+                                        <div class="small text-muted">Current image reference:</div>
+                                        <code class="small"><c:out value="${currentImage}"/></code>
+                                    </div>
+                                </div>
+                            </c:if>
+
                             <input
                                     type="text"
                                     id="images"
                                     name="images"
                                     class="form-control"
-                                    value="${fn:escapeXml(param.images != null ? param.images : category.images)}">
+                                    value="${fn:escapeXml(currentImage)}"
+                                    placeholder="e.g. laptop.jpg or https://images.unsplash.com/...">
 
                             <span class="form-hint">
-                                Optional. File name or URL of the category image.
+                                Optional. File name located in /uploads/ (e.g. laptop.jpg) or a full web image URL (https://...). Leave as-is to keep the current image.
                             </span>
 
                         </div>
@@ -133,19 +178,19 @@
                                 <option
                                         value="1"
                                         ${selectedStatus == 1 || selectedStatus == '1' ? 'selected' : ''}>
-                                    Active
+                                    Active - Visible in product forms and catalog
                                 </option>
 
                                 <option
                                         value="0"
                                         ${selectedStatus == 0 || selectedStatus == '0' ? 'selected' : ''}>
-                                    Inactive
+                                    Inactive - Hidden from active product creation
                                 </option>
 
                             </select>
 
                             <span class="form-hint">
-                                Inactive categories stay in the system but can be hidden from use.
+                                Inactive categories stay in the system but cannot be selected for new products.
                             </span>
 
                         </div>
@@ -155,13 +200,13 @@
                             <a
                                     href="${pageContext.request.contextPath}/categories"
                                     class="btn btn-secondary">
-                                Back
+                                Cancel
                             </a>
 
                             <button
                                     type="submit"
                                     class="btn btn-primary">
-                                Update
+                                Update Category
                             </button>
 
                         </div>

@@ -44,20 +44,40 @@
         </div>
 
         <div class="page-header__actions">
-            <a href="${pageContext.request.contextPath}/products"
+            <a href="${pageContext.request.contextPath}/home"
                class="btn btn-ghost">
-                Manage Products
+                Home
             </a>
-            <a href="${pageContext.request.contextPath}/categories"
+            <a href="${pageContext.request.contextPath}/product"
                class="btn btn-ghost">
-                Manage Categories
+                Browse Products
             </a>
-            <c:if test="${not empty sessionScope.authenticatedUserId}">
-                <a href="${pageContext.request.contextPath}/logout"
-                   class="btn btn-ghost">
-                    Logout
-                </a>
-            </c:if>
+            <c:choose>
+                <c:when test="${not empty sessionScope.authenticatedUserId}">
+                    <a href="${pageContext.request.contextPath}/products"
+                       class="btn btn-ghost">
+                        Manage Products
+                    </a>
+                    <a href="${pageContext.request.contextPath}/categories"
+                       class="btn btn-ghost">
+                        Manage Categories
+                    </a>
+                    <a href="${pageContext.request.contextPath}/logout"
+                       class="btn btn-ghost">
+                        Logout
+                    </a>
+                </c:when>
+                <c:otherwise>
+                    <a href="${pageContext.request.contextPath}/login"
+                       class="btn btn-ghost">
+                        Login
+                    </a>
+                    <a href="${pageContext.request.contextPath}/register"
+                       class="btn btn-primary">
+                        Register
+                    </a>
+                </c:otherwise>
+            </c:choose>
         </div>
 
     </div>
@@ -91,7 +111,7 @@
 
                     <div class="product-card">
 
-                        <a href="${pageContext.request.contextPath}/products/detail?id=${fn:escapeXml(product.productid)}"
+                        <a href="${pageContext.request.contextPath}/products/detail?id=${fn:escapeXml(product.productid)}&amp;from=home"
                            class="product-card__media"
                            aria-label="View product details">
 
@@ -102,14 +122,16 @@
 
                                         <c:when test="${fn:startsWith(product.images, 'http://') or fn:startsWith(product.images, 'https://')}">
                                             <img src="${fn:escapeXml(product.images)}"
-                                                 alt=""
-                                                 onerror="this.outerHTML='<span class=&quot;text-empty&quot;>No image</span>'"/>
+                                                 alt="${fn:escapeXml(product.productname)}"
+                                                 onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='inline-block';"/>
+                                            <span class="text-empty" style="display:none;">No image</span>
                                         </c:when>
 
                                         <c:otherwise>
                                             <img src="${pageContext.request.contextPath}/uploads/${fn:escapeXml(product.images)}"
-                                                 alt=""
-                                                 onerror="this.outerHTML='<span class=&quot;text-empty&quot;>No image</span>'"/>
+                                                 alt="${fn:escapeXml(product.productname)}"
+                                                 onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='inline-block';"/>
+                                            <span class="text-empty" style="display:none;">No image</span>
                                         </c:otherwise>
 
                                     </c:choose>
@@ -131,7 +153,7 @@
                                 <c:out value="${product.category.categoryname}"/>
                             </span>
 
-                            <a href="${pageContext.request.contextPath}/products/detail?id=${fn:escapeXml(product.productid)}"
+                            <a href="${pageContext.request.contextPath}/products/detail?id=${fn:escapeXml(product.productid)}&amp;from=home"
                                class="product-card__name">
                                 <c:out value="${product.productname}"/>
                             </a>

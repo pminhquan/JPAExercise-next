@@ -44,22 +44,54 @@
         </div>
 
         <div class="page-header__actions">
-            <c:if test="${managementView}">
-                <a href="${pageContext.request.contextPath}/categories"
-                   class="btn btn-ghost">
-                    Manage Categories
-                </a>
-                <a href="${pageContext.request.contextPath}/products/add"
-                   class="btn btn-primary">
-                    + Add Product
-                </a>
-            </c:if>
-            <c:if test="${not empty sessionScope.authenticatedUserId}">
-                <a href="${pageContext.request.contextPath}/logout"
-                   class="btn btn-ghost">
-                    Logout
-                </a>
-            </c:if>
+            <a href="${pageContext.request.contextPath}/home"
+               class="btn btn-ghost">
+                Home
+            </a>
+            <c:choose>
+                <c:when test="${not empty sessionScope.authenticatedUserId}">
+                    <c:choose>
+                        <c:when test="${managementView}">
+                            <a href="${pageContext.request.contextPath}/product"
+                               class="btn btn-ghost">
+                                Browse Catalog
+                            </a>
+                            <a href="${pageContext.request.contextPath}/categories"
+                               class="btn btn-ghost">
+                                Manage Categories
+                            </a>
+                            <a href="${pageContext.request.contextPath}/products/add"
+                               class="btn btn-primary">
+                                + Add Product
+                            </a>
+                        </c:when>
+                        <c:otherwise>
+                            <a href="${pageContext.request.contextPath}/products"
+                               class="btn btn-ghost">
+                                Manage Products
+                            </a>
+                            <a href="${pageContext.request.contextPath}/categories"
+                               class="btn btn-ghost">
+                                Manage Categories
+                            </a>
+                        </c:otherwise>
+                    </c:choose>
+                    <a href="${pageContext.request.contextPath}/logout"
+                       class="btn btn-ghost">
+                        Logout
+                    </a>
+                </c:when>
+                <c:otherwise>
+                    <a href="${pageContext.request.contextPath}/login"
+                       class="btn btn-ghost">
+                        Login
+                    </a>
+                    <a href="${pageContext.request.contextPath}/register"
+                       class="btn btn-primary">
+                        Register
+                    </a>
+                </c:otherwise>
+            </c:choose>
         </div>
 
     </div>
@@ -90,7 +122,7 @@
 
     <div class="card shadow-sm card--flush">
 
-        <div class="card-body table-wrap">
+        <div class="card-body table-wrap table-responsive">
 
             <table class="table table-hover table--data align-middle">
 
@@ -121,8 +153,9 @@
                         </td>
 
                         <td>
-                            <a href="${pageContext.request.contextPath}/products/detail?id=${fn:escapeXml(product.productid)}"
-                               class="cell-strong">
+                            <a href="${pageContext.request.contextPath}/products/detail?id=${fn:escapeXml(product.productid)}&amp;from=${managementView ? 'products' : 'catalog'}"
+                               class="cell-strong"
+                               aria-label="View details for ${fn:escapeXml(product.productname)}">
                                 <c:out value="${product.productname}"/>
                             </a>
                         </td>
@@ -149,7 +182,8 @@
 
                         <td>
                             <span class="cell-price">
-                                <fmt:formatNumber value="${product.price}" pattern="#,##0"/> ₫
+                                <fmt:formatNumber value="${product.price}" pattern="#,##0"/>
+                                <span class="currency-symbol" aria-label="Vietnamese Dong">₫</span>
                             </span>
                         </td>
 
@@ -163,14 +197,18 @@
                                             <img src="${fn:escapeXml(product.images)}"
                                                  alt="${fn:escapeXml(product.productname)}"
                                                  class="thumb"
-                                                 onerror="this.outerHTML='<span class=&quot;text-empty&quot;>No image</span>'"/>
+                                                 loading="lazy"
+                                                 onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='inline-block';"/>
+                                            <span class="text-empty" style="display:none;">No image</span>
                                         </c:when>
 
                                         <c:otherwise>
                                             <img src="${pageContext.request.contextPath}/uploads/${fn:escapeXml(product.images)}"
                                                  alt="${fn:escapeXml(product.productname)}"
                                                  class="thumb"
-                                                 onerror="this.outerHTML='<span class=&quot;text-empty&quot;>No image</span>'"/>
+                                                 loading="lazy"
+                                                 onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='inline-block';"/>
+                                            <span class="text-empty" style="display:none;">No image</span>
                                         </c:otherwise>
 
                                     </c:choose>
@@ -186,7 +224,18 @@
                         </td>
 
                         <td>
-                            <c:out value="${product.category.categoryname}"/>
+                            <c:choose>
+                                <c:when test="${not empty product.category.categoryname}">
+                                    <span class="cell-category">
+                                        <c:out value="${product.category.categoryname}"/>
+                                    </span>
+                                </c:when>
+                                <c:otherwise>
+                                    <span class="text-empty">
+                                        Uncategorized
+                                    </span>
+                                </c:otherwise>
+                            </c:choose>
                         </td>
 
                         <td>
@@ -211,7 +260,8 @@
                             <td>
                                 <div class="table-actions">
                                     <a href="${pageContext.request.contextPath}/products/edit?id=${fn:escapeXml(product.productid)}"
-                                       class="btn btn-secondary btn-sm">
+                                       class="btn btn-secondary btn-sm"
+                                       aria-label="Edit ${fn:escapeXml(product.productname)}">
                                         Edit
                                     </a>
                                     <form action="${pageContext.request.contextPath}/products/delete"
@@ -219,7 +269,7 @@
                                           class="form-inline"
                                           onsubmit="return confirm('Are you sure you want to delete this product?');">
                                         <input type="hidden" name="id" value="${fn:escapeXml(product.productid)}"/>
-                                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                        <button type="submit" class="btn btn-danger btn-sm" aria-label="Delete ${fn:escapeXml(product.productname)}">Delete</button>
                                     </form>
                                 </div>
                             </td>
@@ -237,8 +287,23 @@
                                     No products found.
                                 </p>
                                 <p class="empty-state__text">
-                                    Add your first product to get started.
+                                    <c:choose>
+                                        <c:when test="${managementView}">
+                                            Add your first product to get started.
+                                        </c:when>
+                                        <c:otherwise>
+                                            Check back later or browse other categories.
+                                        </c:otherwise>
+                                    </c:choose>
                                 </p>
+                                <c:if test="${managementView}">
+                                    <div class="mt-3">
+                                        <a href="${pageContext.request.contextPath}/products/add"
+                                           class="btn btn-primary btn-sm">
+                                            + Add Product
+                                        </a>
+                                    </div>
+                                </c:if>
                             </div>
 
                         </td>
@@ -267,13 +332,13 @@
                                     <span class="page-link" aria-disabled="true">Previous</span>
                                 </c:when>
                                 <c:otherwise>
-                                    <a class="page-link" href="${pageContext.request.contextPath}${listPath}?page=${currentPage - 1}">Previous</a>
+                                    <a class="page-link" href="${pageContext.request.contextPath}${listPath}?page=${currentPage - 1}" aria-label="Previous page">Previous</a>
                                 </c:otherwise>
                             </c:choose>
                         </li>
                         <c:forEach var="i" begin="1" end="${totalPages}">
                             <li class="page-item ${currentPage == i ? 'active' : ''}">
-                                <a class="page-link" href="${pageContext.request.contextPath}${listPath}?page=${i}"${currentPage == i ? ' aria-current="page"' : ''}>${i}</a>
+                                <a class="page-link" href="${pageContext.request.contextPath}${listPath}?page=${i}"${currentPage == i ? ' aria-current="page"' : ''} aria-label="Page ${i}">${i}</a>
                             </li>
                         </c:forEach>
                         <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
@@ -282,7 +347,7 @@
                                     <span class="page-link" aria-disabled="true">Next</span>
                                 </c:when>
                                 <c:otherwise>
-                                    <a class="page-link" href="${pageContext.request.contextPath}${listPath}?page=${currentPage + 1}">Next</a>
+                                    <a class="page-link" href="${pageContext.request.contextPath}${listPath}?page=${currentPage + 1}" aria-label="Next page">Next</a>
                                 </c:otherwise>
                             </c:choose>
                         </li>

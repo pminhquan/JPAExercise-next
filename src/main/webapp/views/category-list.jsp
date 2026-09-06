@@ -36,6 +36,14 @@
         </div>
 
         <div class="page-header__actions">
+            <a href="${pageContext.request.contextPath}/home"
+               class="btn btn-ghost">
+                Home
+            </a>
+            <a href="${pageContext.request.contextPath}/products"
+               class="btn btn-ghost">
+                Manage Products
+            </a>
             <a href="${pageContext.request.contextPath}/categories?action=add"
                class="btn btn-primary">
                 + Add Category
@@ -94,7 +102,7 @@
 
     <div class="card shadow-sm card--flush">
 
-        <div class="card-body table-wrap">
+        <div class="card-body table-wrap table-responsive">
 
             <table class="table table-hover table--data align-middle">
 
@@ -129,11 +137,25 @@
                             <c:choose>
 
                                 <c:when test="${not empty category.images}">
-                                    <span class="cell-truncate"
-                                          tabindex="0"
-                                          title="${fn:escapeXml(category.images)}">
-                                        <c:out value="${category.images}"/>
-                                    </span>
+                                    <c:choose>
+
+                                        <c:when test="${fn:startsWith(category.images, 'http://') or fn:startsWith(category.images, 'https://')}">
+                                            <img src="${fn:escapeXml(category.images)}"
+                                                 alt="${fn:escapeXml(category.categoryname)}"
+                                                 class="thumb"
+                                                 onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='inline-block';"/>
+                                            <span class="text-empty" style="display:none;">No image</span>
+                                        </c:when>
+
+                                        <c:otherwise>
+                                            <img src="${pageContext.request.contextPath}/uploads/${fn:escapeXml(category.images)}"
+                                                 alt="${fn:escapeXml(category.categoryname)}"
+                                                 class="thumb"
+                                                 onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='inline-block';"/>
+                                            <span class="text-empty" style="display:none;">No image</span>
+                                        </c:otherwise>
+
+                                    </c:choose>
                                 </c:when>
 
                                 <c:otherwise>

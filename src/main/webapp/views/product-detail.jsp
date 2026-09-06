@@ -24,6 +24,21 @@
         <div class="col-md-9">
 
             <c:choose>
+                <c:when test="${param.from == 'home'}">
+                    <c:set var="backUrl" value="${pageContext.request.contextPath}/home"/>
+                    <c:set var="backLabel" value="Back to Home"/>
+                </c:when>
+                <c:when test="${param.from == 'manage' or param.from == 'products' or (not empty sessionScope.authenticatedUserId and param.from != 'catalog' and param.from != 'product')}">
+                    <c:set var="backUrl" value="${pageContext.request.contextPath}/products"/>
+                    <c:set var="backLabel" value="Back to Management"/>
+                </c:when>
+                <c:otherwise>
+                    <c:set var="backUrl" value="${pageContext.request.contextPath}/product"/>
+                    <c:set var="backLabel" value="Back to Products"/>
+                </c:otherwise>
+            </c:choose>
+
+            <c:choose>
 
                 <c:when test="${not empty error}">
 
@@ -45,9 +60,9 @@
 
                             <div class="detail-actions detail-actions--center">
 
-                                <a href="${pageContext.request.contextPath}/product"
+                                <a href="${backUrl}"
                                    class="btn btn-secondary">
-                                    Back to Products
+                                    <c:out value="${backLabel}"/>
                                 </a>
 
                             </div>
@@ -70,16 +85,24 @@
                         </div>
 
                         <div class="page-header__actions">
-                            <a href="${pageContext.request.contextPath}/product"
+                            <a href="${backUrl}"
                                class="btn btn-ghost">
-                                &larr; Back to list
+                                &larr; <c:out value="${backLabel}"/>
                             </a>
-                            <c:if test="${not empty sessionScope.authenticatedUserId}">
-                                <a href="${pageContext.request.contextPath}/logout"
-                                   class="btn btn-ghost">
-                                    Logout
-                                </a>
-                            </c:if>
+                            <c:choose>
+                                <c:when test="${not empty sessionScope.authenticatedUserId}">
+                                    <a href="${pageContext.request.contextPath}/logout"
+                                       class="btn btn-ghost">
+                                        Logout
+                                    </a>
+                                </c:when>
+                                <c:otherwise>
+                                    <a href="${pageContext.request.contextPath}/login"
+                                       class="btn btn-ghost">
+                                        Login
+                                    </a>
+                                </c:otherwise>
+                            </c:choose>
                         </div>
 
                     </div>
@@ -101,14 +124,20 @@
                                                     <img src="${fn:escapeXml(product.images)}"
                                                          alt="${fn:escapeXml(product.productname)}"
                                                          class="detail-media__img"
-                                                         onerror="this.outerHTML='<div class=&quot;detail-media__empty&quot;><span class=&quot;text-empty&quot;>No image</span></div>'"/>
+                                                         onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';"/>
+                                                    <div class="detail-media__empty" style="display:none;">
+                                                        <span class="text-empty">No image</span>
+                                                    </div>
                                                 </c:when>
 
                                                 <c:otherwise>
                                                     <img src="${pageContext.request.contextPath}/uploads/${fn:escapeXml(product.images)}"
                                                          alt="${fn:escapeXml(product.productname)}"
                                                          class="detail-media__img"
-                                                         onerror="this.outerHTML='<div class=&quot;detail-media__empty&quot;><span class=&quot;text-empty&quot;>No image</span></div>'"/>
+                                                         onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';"/>
+                                                    <div class="detail-media__empty" style="display:none;">
+                                                        <span class="text-empty">No image</span>
+                                                    </div>
                                                 </c:otherwise>
 
                                             </c:choose>
@@ -138,7 +167,8 @@
                                     </div>
 
                                     <p class="detail-price">
-                                        <fmt:formatNumber value="${product.price}" pattern="#,##0"/> ₫
+                                        <span class="detail-price__amount"><fmt:formatNumber value="${product.price}" pattern="#,##0"/></span>
+                                        <span class="detail-price__currency" aria-label="Vietnamese Dong">₫</span>
                                     </p>
 
                                     <div class="detail-facts">
@@ -181,15 +211,31 @@
 
                             <div class="detail-actions">
 
-                                <a href="${pageContext.request.contextPath}/product"
+                                <a href="${backUrl}"
                                    class="btn btn-secondary">
-                                    Back to Products
+                                    <c:out value="${backLabel}"/>
                                 </a>
 
-                                <a href="${pageContext.request.contextPath}/products/edit?id=${fn:escapeXml(product.productid)}"
-                                   class="btn btn-primary">
-                                    Edit Product
-                                </a>
+                                <c:choose>
+                                    <c:when test="${not empty sessionScope.authenticatedUserId}">
+                                        <a href="${pageContext.request.contextPath}/products/edit?id=${fn:escapeXml(product.productid)}"
+                                           class="btn btn-primary">
+                                            Edit Product
+                                        </a>
+                                    </c:when>
+                                    <c:when test="${param.from == 'home'}">
+                                        <a href="${pageContext.request.contextPath}/product"
+                                           class="btn btn-primary">
+                                            Browse Products
+                                        </a>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <a href="${pageContext.request.contextPath}/home"
+                                           class="btn btn-primary">
+                                            Home
+                                        </a>
+                                    </c:otherwise>
+                                </c:choose>
 
                             </div>
 

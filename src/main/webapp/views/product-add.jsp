@@ -32,9 +32,17 @@
                 </div>
 
                 <div class="page-header__actions">
+                    <a href="${pageContext.request.contextPath}/home"
+                       class="btn btn-ghost">
+                        Home
+                    </a>
                     <a href="${pageContext.request.contextPath}/products"
                        class="btn btn-ghost">
-                        &larr; Back to list
+                        &larr; Back to Products
+                    </a>
+                    <a href="${pageContext.request.contextPath}/categories"
+                       class="btn btn-ghost">
+                        Manage Categories
                     </a>
                     <c:if test="${not empty sessionScope.authenticatedUserId}">
                         <a href="${pageContext.request.contextPath}/logout"
@@ -72,10 +80,12 @@
                                     name="productname"
                                     class="form-control"
                                     value="${fn:escapeXml(param.productname)}"
+                                    placeholder="e.g. Dell XPS 15 9530, iPhone 15 Pro Max"
+                                    maxlength="255"
                                     required>
 
                             <span class="form-hint">
-                                A short, descriptive product title.
+                                A clear, recognizable title shown in product listings and search results.
                             </span>
 
                         </div>
@@ -86,54 +96,22 @@
                                 Price
                             </label>
 
-                            <input
-                                    type="number"
-                                    id="price"
-                                    name="price"
-                                    class="form-control"
-                                    step="1"
-                                    value="${fn:escapeXml(param.price)}"
-                                    required>
+                            <div class="input-group">
+                                <input
+                                        type="number"
+                                        id="price"
+                                        name="price"
+                                        class="form-control"
+                                        min="1"
+                                        step="1"
+                                        value="${fn:escapeXml(param.price)}"
+                                        placeholder="e.g. 15000000"
+                                        required>
+                                <span class="input-group-text">₫ (VND)</span>
+                            </div>
 
                             <span class="form-hint">
-                                Must be a whole number greater than 0.
-                            </span>
-
-                        </div>
-
-                        <div class="form-field">
-
-                            <label class="form-label" for="description">
-                                Description
-                            </label>
-
-                            <textarea
-                                    id="description"
-                                    name="description"
-                                    class="form-control"
-                                    rows="3">${fn:escapeXml(param.description)}</textarea>
-
-                            <span class="form-hint">
-                                Optional. Details customers should know about the product.
-                            </span>
-
-                        </div>
-
-                        <div class="form-field">
-
-                            <label class="form-label" for="images">
-                                Image / Image URL
-                            </label>
-
-                            <input
-                                    type="file"
-                                    id="images"
-                                    name="images"
-                                    class="form-control"
-                                    accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
-
-                            <span class="form-hint">
-                                Optional. JPG, JPEG, PNG, or WEBP image.
+                                Positive whole number in Vietnamese Dong (VND), without commas or decimals.
                             </span>
 
                         </div>
@@ -150,7 +128,7 @@
                                     class="form-select"
                                     required>
 
-                                <option value="">-- Select Category --</option>
+                                <option value="">-- Choose a category --</option>
 
                                 <c:forEach var="cat" items="${categories}">
                                     <option value="${cat.categoryid}"
@@ -162,7 +140,45 @@
                             </select>
 
                             <span class="form-hint">
-                                The category this product belongs to.
+                                The catalog category this product will be classified under.
+                            </span>
+
+                        </div>
+
+                        <div class="form-field">
+
+                            <label class="form-label" for="description">
+                                Description
+                            </label>
+
+                            <textarea
+                                    id="description"
+                                    name="description"
+                                    class="form-control"
+                                    rows="4"
+                                    placeholder="Provide specifications, features, warranty, or key details...">${fn:escapeXml(param.description)}</textarea>
+
+                            <span class="form-hint">
+                                Optional. Clear product details displayed on the product overview page.
+                            </span>
+
+                        </div>
+
+                        <div class="form-field">
+
+                            <label class="form-label" for="images">
+                                Product Image
+                            </label>
+
+                            <input
+                                    type="file"
+                                    id="images"
+                                    name="images"
+                                    class="form-control"
+                                    accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
+
+                            <span class="form-hint">
+                                Optional. Supported formats: JPG, JPEG, PNG, WEBP (maximum size 5 MB).
                             </span>
 
                         </div>
@@ -179,19 +195,19 @@
                                     class="form-select">
 
                                 <option value="1"
-                                        ${param.status == '1' || empty param.status ? 'selected' : ''}>
-                                    Active
+                                        ${empty param.status or param.status == '1' ? 'selected' : ''}>
+                                    Active - Visible to shoppers in catalog
                                 </option>
 
                                 <option value="0"
                                         ${param.status == '0' ? 'selected' : ''}>
-                                    Inactive
+                                    Inactive - Hidden from store
                                 </option>
 
                             </select>
 
                             <span class="form-hint">
-                                Inactive products stay in the system but can be hidden from use.
+                                Inactive products remain in inventory but are hidden from the public catalog.
                             </span>
 
                         </div>
@@ -200,13 +216,13 @@
 
                             <a href="${pageContext.request.contextPath}/products"
                                class="btn btn-secondary">
-                                Back
+                                Cancel
                             </a>
 
                             <button
                                     type="submit"
                                     class="btn btn-primary">
-                                Save
+                                Save Product
                             </button>
 
                         </div>
