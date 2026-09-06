@@ -8,7 +8,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>${pageContext.request.servletPath == '/products' ? 'Product Management' : 'Products'}</title>
+    <title>${managementView ? 'Product Management' : 'Products'}</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
           rel="stylesheet">
@@ -17,7 +17,7 @@
 
 <body>
 
-<c:set var="managementView" value="${pageContext.request.servletPath == '/products'}"/>
+<c:set var="managementView" value="${not empty managementView ? managementView : (requestScope['jakarta.servlet.forward.servlet_path'] == '/products')}"/>
 <c:set var="listPath" value="${managementView ? '/products' : '/product'}"/>
 
 <%@ include file="fragments/navbar.jsp" %>

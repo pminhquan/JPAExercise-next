@@ -8,7 +8,13 @@ import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 
-@WebFilter(urlPatterns = {"/categories", "/products", "/products/*", "/product", "/product/*"})
+@WebFilter(urlPatterns = {
+        "/categories", "/categories/*",
+        "/products", "/products/*",
+        "/product", "/product/*",
+        "/admin/product", "/admin/product/*",
+        "/admin/category", "/admin/category/*"
+})
 public class AuthenticationFilter implements Filter {
 
     @Override
@@ -31,11 +37,27 @@ public class AuthenticationFilter implements Filter {
         HttpSession session = httpRequest.getSession(false);
         boolean isLoggedIn = (session != null && session.getAttribute("authenticatedUserId") != null);
 
-        if (isLoggedIn) {
-            chain.doFilter(request, response);
-        } else {
+        if (!isLoggedIn) {
             httpResponse.sendRedirect(httpRequest.getContextPath() + "/login");
+            return;
         }
+
+        if (path != null) {
+            if (path.startsWith("/admin/product")) {
+                String sub = path.substring("/admin/product".length());
+                String target = sub.isEmpty() || sub.equals("/") ? "/products" : "/products" + (sub.startsWith("/") ? sub : "/" + sub);
+                httpRequest.getRequestDispatcher(target).forward(request, response);
+                return;
+            }
+            if (path.startsWith("/admin/category")) {
+                String sub = path.substring("/admin/category".length());
+                String target = sub.isEmpty() || sub.equals("/") ? "/categories" : "/categories" + (sub.startsWith("/") ? sub : "/" + sub);
+                httpRequest.getRequestDispatcher(target).forward(request, response);
+                return;
+            }
+        }
+
+        chain.doFilter(request, response);
     }
 
     @Override

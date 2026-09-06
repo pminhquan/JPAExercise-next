@@ -140,6 +140,7 @@ public class ProductController extends HttpServlet {
             request.setAttribute("currentPage", page);
             request.setAttribute("totalPages", totalPages);
             request.setAttribute("totalProducts", totalProducts);
+            request.setAttribute("managementView", "/products".equals(request.getServletPath()));
 
             request.getRequestDispatcher("/views/product-list.jsp").forward(request, response);
         } catch (Exception e) {
