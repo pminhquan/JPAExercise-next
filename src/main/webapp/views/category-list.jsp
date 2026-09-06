@@ -16,6 +16,8 @@
 
 <body>
 
+<%@ include file="fragments/navbar.jsp" %>
+
 <main class="container py-5">
 
     <div class="page-header">
@@ -159,9 +161,44 @@
                                 </c:when>
 
                                 <c:otherwise>
-                                    <span class="text-empty">
-                                        No image
-                                    </span>
+                                    <c:set var="cNameLower" value="${fn:toLowerCase(category.categoryname)}" />
+                                    <c:choose>
+                                        <c:when test="${fn:contains(cNameLower, 'laptop')}">
+                                            <img src="${pageContext.request.contextPath}/uploads/laptop.jpg"
+                                                 alt="${fn:escapeXml(category.categoryname)}"
+                                                 class="thumb"/>
+                                        </c:when>
+                                        <c:when test="${fn:contains(cNameLower, 'headphone') or fn:contains(cNameLower, 'audio')}">
+                                            <img src="${pageContext.request.contextPath}/uploads/headphone.jpg"
+                                                 alt="${fn:escapeXml(category.categoryname)}"
+                                                 class="thumb"/>
+                                        </c:when>
+                                        <c:when test="${fn:contains(cNameLower, 'phone')}">
+                                            <img src="${pageContext.request.contextPath}/uploads/smartphone.jpg"
+                                                 alt="${fn:escapeXml(category.categoryname)}"
+                                                 class="thumb"/>
+                                        </c:when>
+                                        <c:when test="${fn:contains(cNameLower, 'tablet') or fn:contains(cNameLower, 'pad')}">
+                                            <img src="${pageContext.request.contextPath}/uploads/tablet.jpg"
+                                                 alt="${fn:escapeXml(category.categoryname)}"
+                                                 class="thumb"/>
+                                        </c:when>
+                                        <c:when test="${fn:contains(cNameLower, 'mouse')}">
+                                            <img src="${pageContext.request.contextPath}/uploads/mouse.jpg"
+                                                 alt="${fn:escapeXml(category.categoryname)}"
+                                                 class="thumb"/>
+                                        </c:when>
+                                        <c:when test="${fn:contains(cNameLower, 'watch')}">
+                                            <img src="${pageContext.request.contextPath}/uploads/smartwatch.jpg"
+                                                 alt="${fn:escapeXml(category.categoryname)}"
+                                                 class="thumb"/>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <span class="text-empty">
+                                                No image
+                                            </span>
+                                        </c:otherwise>
+                                    </c:choose>
                                 </c:otherwise>
 
                             </c:choose>
@@ -234,6 +271,8 @@
     </div>
 
 </main>
+
+<%@ include file="fragments/footer.jsp" %>
 
 </body>
 </html>

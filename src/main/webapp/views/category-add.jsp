@@ -16,6 +16,8 @@
 
 <body>
 
+<%@ include file="fragments/navbar.jsp" %>
+
 <main class="container py-5">
 
     <div class="row justify-content-center">
@@ -105,7 +107,7 @@
                                     placeholder="e.g. laptop.jpg or https://images.unsplash.com/...">
 
                             <span class="form-hint">
-                                Optional. File name located in /uploads/ (e.g. laptop.jpg) or a full web image URL (https://...).
+                                Optional. File name located in /uploads/ (presets: laptop.jpg, smartphone.jpg, headphone.jpg, tablet.jpg, mouse.jpg, smartwatch.jpg) or a full web image URL (https://...).
                             </span>
 
                         </div>
@@ -166,6 +168,8 @@
     </div>
 
 </main>
+
+<%@ include file="fragments/footer.jsp" %>
 
 </body>
 </html>

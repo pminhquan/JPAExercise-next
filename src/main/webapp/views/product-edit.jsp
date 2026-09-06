@@ -17,6 +17,8 @@
 
 <body>
 
+<%@ include file="fragments/navbar.jsp" %>
+
 <main class="container py-5">
 
     <div class="row justify-content-center">
@@ -312,6 +314,8 @@
     </div>
 
 </main>
+
+<%@ include file="fragments/footer.jsp" %>
 
 </body>
 </html>

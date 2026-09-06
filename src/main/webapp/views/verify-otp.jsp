@@ -137,5 +137,7 @@
 
 <script src="${pageContext.request.contextPath}/assets/js/otp.js"></script>
 
+<%@ include file="fragments/footer.jsp" %>
+
 </body>
 </html>

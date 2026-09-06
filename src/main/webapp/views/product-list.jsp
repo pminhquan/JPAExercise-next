@@ -20,6 +20,8 @@
 <c:set var="managementView" value="${pageContext.request.servletPath == '/products'}"/>
 <c:set var="listPath" value="${managementView ? '/products' : '/product'}"/>
 
+<%@ include file="fragments/navbar.jsp" %>
+
 <main class="container py-5">
 
     <div class="page-header">
@@ -361,6 +363,8 @@
     </div>
 
 </main>
+
+<%@ include file="fragments/footer.jsp" %>
 
 </body>
 </html>

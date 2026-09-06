@@ -129,5 +129,7 @@
 
 <script src="${pageContext.request.contextPath}/assets/js/password-toggle.js"></script>
 
+<%@ include file="fragments/footer.jsp" %>
+
 </body>
 </html>
