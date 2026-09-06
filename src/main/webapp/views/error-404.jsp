@@ -11,12 +11,9 @@
 
 <body>
 
-<main class="auth-shell">
+<%@ include file="fragments/navbar.jsp" %>
 
-    <a class="auth-brand" href="${pageContext.request.contextPath}/home">
-        <span class="auth-brand__mark" aria-hidden="true">J</span>
-        JPAExercise
-    </a>
+<main class="auth-shell">
 
     <header class="auth-header">
         <h1 class="auth-header__title">Page not found</h1>

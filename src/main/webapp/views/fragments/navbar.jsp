@@ -64,7 +64,7 @@
             </button>
 
             <div class="collapse navbar-collapse" id="mainNavbar">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0 site-nav__links">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 site-nav__links">
                     <li class="nav-item">
                         <a class="nav-link ${activeNav == 'home' ? 'active' : ''}"
                            href="${pageContext.request.contextPath}/home"
@@ -97,7 +97,7 @@
                     </c:if>
                 </ul>
 
-                <div class="site-nav__auth d-flex align-items-center gap-2">
+                <div class="site-nav__auth d-flex align-items-center gap-2 ms-lg-2">
                     <c:choose>
                         <c:when test="${not empty sessionScope.authenticatedUserId}">
                             <a href="${pageContext.request.contextPath}/logout"

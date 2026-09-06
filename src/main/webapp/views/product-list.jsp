@@ -45,56 +45,14 @@
             </p>
         </div>
 
-        <div class="page-header__actions">
-            <a href="${pageContext.request.contextPath}/home"
-               class="btn btn-ghost">
-                Home
-            </a>
-            <c:choose>
-                <c:when test="${not empty sessionScope.authenticatedUserId}">
-                    <c:choose>
-                        <c:when test="${managementView}">
-                            <a href="${pageContext.request.contextPath}/product"
-                               class="btn btn-ghost">
-                                Browse Catalog
-                            </a>
-                            <a href="${pageContext.request.contextPath}/categories"
-                               class="btn btn-ghost">
-                                Manage Categories
-                            </a>
-                            <a href="${pageContext.request.contextPath}/products/add"
-                               class="btn btn-primary">
-                                + Add Product
-                            </a>
-                        </c:when>
-                        <c:otherwise>
-                            <a href="${pageContext.request.contextPath}/products"
-                               class="btn btn-ghost">
-                                Manage Products
-                            </a>
-                            <a href="${pageContext.request.contextPath}/categories"
-                               class="btn btn-ghost">
-                                Manage Categories
-                            </a>
-                        </c:otherwise>
-                    </c:choose>
-                    <a href="${pageContext.request.contextPath}/logout"
-                       class="btn btn-ghost">
-                        Logout
-                    </a>
-                </c:when>
-                <c:otherwise>
-                    <a href="${pageContext.request.contextPath}/login"
-                       class="btn btn-ghost">
-                        Login
-                    </a>
-                    <a href="${pageContext.request.contextPath}/register"
-                       class="btn btn-primary">
-                        Register
-                    </a>
-                </c:otherwise>
-            </c:choose>
-        </div>
+        <c:if test="${managementView}">
+            <div class="page-header__actions">
+                <a href="${pageContext.request.contextPath}/products/add"
+                   class="btn btn-primary">
+                    + Add Product
+                </a>
+            </div>
+        </c:if>
 
     </div>
 

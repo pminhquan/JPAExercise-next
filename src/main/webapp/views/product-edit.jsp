@@ -35,24 +35,10 @@
                 </div>
 
                 <div class="page-header__actions">
-                    <a href="${pageContext.request.contextPath}/home"
-                       class="btn btn-ghost">
-                        Home
-                    </a>
                     <a href="${pageContext.request.contextPath}/products"
                        class="btn btn-ghost">
                         &larr; Back to Products
                     </a>
-                    <a href="${pageContext.request.contextPath}/categories"
-                       class="btn btn-ghost">
-                        Manage Categories
-                    </a>
-                    <c:if test="${not empty sessionScope.authenticatedUserId}">
-                        <a href="${pageContext.request.contextPath}/logout"
-                           class="btn btn-ghost">
-                            Logout
-                        </a>
-                    </c:if>
                 </div>
 
             </div>

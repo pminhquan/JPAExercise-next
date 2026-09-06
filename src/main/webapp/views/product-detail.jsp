@@ -91,20 +91,6 @@
                                class="btn btn-ghost">
                                 &larr; <c:out value="${backLabel}"/>
                             </a>
-                            <c:choose>
-                                <c:when test="${not empty sessionScope.authenticatedUserId}">
-                                    <a href="${pageContext.request.contextPath}/logout"
-                                       class="btn btn-ghost">
-                                        Logout
-                                    </a>
-                                </c:when>
-                                <c:otherwise>
-                                    <a href="${pageContext.request.contextPath}/login"
-                                       class="btn btn-ghost">
-                                        Login
-                                    </a>
-                                </c:otherwise>
-                            </c:choose>
                         </div>
 
                     </div>

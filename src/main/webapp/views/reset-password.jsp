@@ -13,13 +13,11 @@
 </head>
 <body>
 
+<%@ include file="fragments/navbar.jsp" %>
+
 <main class="auth-shell">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <a class="auth-brand mb-0" href="${pageContext.request.contextPath}/home">
-            <span class="auth-brand__mark" aria-hidden="true">J</span>
-            JPAExercise
-        </a>
+    <div class="mb-4">
         <a href="${pageContext.request.contextPath}/home" class="btn btn-ghost btn-sm">
             &larr; Back to Home
         </a>
