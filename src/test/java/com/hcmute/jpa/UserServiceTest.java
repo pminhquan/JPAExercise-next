@@ -90,6 +90,67 @@ public class UserServiceTest {
         assertFalse(userService.verifyPassword(updatedUser, password));
     }
 
+    @Test
+    public void testUpdateProfileUpdatesProfileFieldsAndPreservesOtherFields() {
+        String baseName = "profileuser_" + System.currentTimeMillis();
+        String username = baseName;
+        String email = baseName + "@example.com";
+        String password = "Password123";
+
+        User registeredUser = userService.register(username, email, password);
+        int userId = registeredUser.getId();
+        String originalPasswordHash = registeredUser.getPasswordHash();
+        java.sql.Timestamp originalCreatedAt = registeredUser.getCreatedAt();
+
+        // Initially nullable fields are null
+        assertNull(registeredUser.getFullname());
+        assertNull(registeredUser.getPhone());
+        assertNull(registeredUser.getImages());
+
+        // Update profile
+        String newFullname = "Nguyen Van A";
+        String newPhone = "0901234567";
+        String newImages = "https://example.com/avatar.jpg";
+        boolean result = userService.updateProfile(userId, newFullname, newPhone, newImages);
+        assertTrue(result);
+
+        // Verify updated user
+        User updatedUser = userService.findById(userId);
+        assertNotNull(updatedUser);
+        assertEquals(newFullname, updatedUser.getFullname());
+        assertEquals(newPhone, updatedUser.getPhone());
+        assertEquals(newImages, updatedUser.getImages());
+
+        // Verify preserved fields
+        assertEquals(username, updatedUser.getUsername());
+        assertEquals(email, updatedUser.getEmail());
+        assertEquals(originalPasswordHash, updatedUser.getPasswordHash());
+        assertFalse(updatedUser.isActive());
+        assertEquals(originalCreatedAt, updatedUser.getCreatedAt());
+
+        // Verify password authentication still works
+        assertTrue(userService.verifyPassword(updatedUser, password));
+
+        // Test updating profile fields to null is allowed
+        boolean resetNullResult = userService.updateProfile(userId, null, null, null);
+        assertTrue(resetNullResult);
+        User nullFieldUser = userService.findById(userId);
+        assertNull(nullFieldUser.getFullname());
+        assertNull(nullFieldUser.getPhone());
+        assertNull(nullFieldUser.getImages());
+        assertEquals(username, nullFieldUser.getUsername());
+        assertEquals(email, nullFieldUser.getEmail());
+        assertEquals(originalPasswordHash, nullFieldUser.getPasswordHash());
+        assertFalse(nullFieldUser.isActive());
+        assertEquals(originalCreatedAt, nullFieldUser.getCreatedAt());
+    }
+
+    @Test
+    public void testUpdateProfileNonExistentUserFailsSafely() {
+        boolean result = userService.updateProfile(999999, "Non Existent", "000", "none.png");
+        assertFalse(result);
+    }
+
     private static final class InMemoryUserDao implements IUserDao {
         private final java.util.Map<Integer, User> usersById = new java.util.HashMap<>();
         private int nextId = 1;

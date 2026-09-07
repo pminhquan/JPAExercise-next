@@ -61,6 +61,13 @@
             <version>3.0.1</version>
         </dependency>
 
+        <!-- SiteMesh 3 (Jakarta EE compatible) -->
+        <dependency>
+            <groupId>org.sitemesh</groupId>
+            <artifactId>sitemesh</artifactId>
+            <version>3.2.2</version>
+        </dependency>
+
         <!-- JUnit 5 -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>

@@ -21,4 +21,6 @@ public interface IUserService {
     boolean activateUser(int id);
 
     boolean updatePassword(int id, String newPlaintextPassword);
+
+    boolean updateProfile(int userId, String fullname, String phone, String images);
 }

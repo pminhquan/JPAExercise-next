@@ -26,6 +26,9 @@ CREATE TABLE users
     PasswordHash NVARCHAR(255) NOT NULL,
     Active BIT NOT NULL,
     CreatedAt DATETIME2(6) NOT NULL,
+    Fullname NVARCHAR(100) NULL,
+    Phone NVARCHAR(30) NULL,
+    Images NVARCHAR(500) NULL,
     CONSTRAINT UQ_users_Username UNIQUE (Username),
     CONSTRAINT UQ_users_Email UNIQUE (Email)
 );

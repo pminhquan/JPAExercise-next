@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitemesh>
+    <!-- Exclude static assets and uploaded files -->
+    <mapping path="/assets/*" exclude="true"/>
+    <mapping path="/uploads/*" exclude="true"/>
+
+    <!-- Decorate only profile flow -->
+    <mapping path="/profile" decorator="profile.jsp"/>
+    <mapping path="/profile/*" decorator="profile.jsp"/>
+</sitemesh>

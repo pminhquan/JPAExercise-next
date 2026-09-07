@@ -35,6 +35,15 @@ public class User implements Serializable {
     @Column(name = "CreatedAt", nullable = false, updatable = false)
     private Timestamp createdAt;
 
+    @Column(name = "Fullname", columnDefinition = "NVARCHAR(100)")
+    private String fullname;
+
+    @Column(name = "Phone", columnDefinition = "NVARCHAR(30)")
+    private String phone;
+
+    @Column(name = "Images", columnDefinition = "NVARCHAR(500)")
+    private String images;
+
     @PrePersist
     protected void onCreate() {
         if (createdAt == null) {
@@ -98,5 +107,29 @@ public class User implements Serializable {
 
     public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getFullname() {
+        return fullname;
+    }
+
+    public void setFullname(String fullname) {
+        this.fullname = fullname;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getImages() {
+        return images;
+    }
+
+    public void setImages(String images) {
+        this.images = images;
     }
 }

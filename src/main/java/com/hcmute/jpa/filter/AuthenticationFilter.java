@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 
 @WebFilter(urlPatterns = {
+        "/profile", "/profile/*",
         "/categories", "/categories/*",
         "/products", "/products/*",
         "/product", "/product/*",
