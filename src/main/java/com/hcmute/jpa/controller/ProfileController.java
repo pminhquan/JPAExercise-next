@@ -263,6 +263,14 @@ public class ProfileController extends HttpServlet {
             return;
         }
 
+        User updatedUser = userService.findById(userId);
+        if (updatedUser != null) {
+            HttpSession session = request.getSession(false);
+            if (session != null) {
+                session.setAttribute("account", updatedUser);
+            }
+        }
+
         response.sendRedirect(
                 request.getContextPath() + "/profile"
         );
