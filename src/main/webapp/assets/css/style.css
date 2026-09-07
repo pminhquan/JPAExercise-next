@@ -713,6 +713,8 @@ a.btn-ghost:active {
   .page-link,
   .product-card,
   .product-card__media img,
+  .detail-media,
+  .detail-media__img,
   .table-hover tbody tr,
   .site-brand__mark,
   .site-footer__brand .site-brand__mark,
@@ -729,6 +731,7 @@ a.btn-ghost:active {
   .product-card:hover,
   .product-card:active,
   .product-card:hover .product-card__media img,
+  .detail-media:hover .detail-media__img,
   .btn:hover,
   .btn:active,
   button:active,
@@ -789,35 +792,190 @@ a.btn-ghost:active {
   margin-bottom: 0;
 }
 
-/* Detail layout: media column beside facts column */
+/*
+ * Phase 3 / UI-002: Product Detail Experience
+ * Upgrades: Semantic breadcrumb, clear section hierarchy, modern 4:3 media card with restrained hover,
+ * and responsive layout without horizontal overflow at 360px, 768px, and 1200px.
+ */
+
+/* Breadcrumb Navigation */
+.detail-breadcrumb-nav {
+  margin-bottom: var(--space-4);
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.detail-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  gap: var(--space-1);
+  box-sizing: border-box;
+}
+
+.detail-breadcrumb .breadcrumb-item {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.detail-breadcrumb .breadcrumb-item a {
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s ease-in-out;
+}
+
+.detail-breadcrumb .breadcrumb-item a:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+.detail-breadcrumb .breadcrumb-item.active {
+  color: var(--color-text-primary);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
+}
+
+@media (min-width: 768px) {
+  .detail-breadcrumb .breadcrumb-item.active {
+    max-width: 380px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .detail-breadcrumb .breadcrumb-item.active {
+    max-width: 520px;
+  }
+}
+
+.detail-card {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  background-color: var(--bg-surface);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.detail-card-body {
+  padding: var(--space-4);
+  box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+  .detail-card-body {
+    padding: var(--space-6);
+  }
+}
+
+/* Detail layout: media column beside details column (mobile-first responsive grid) */
 .detail-grid {
   display: grid;
-  grid-template-columns: minmax(16rem, 22rem) minmax(0, 1fr);
-  gap: var(--space-6);
+  grid-template-columns: 1fr;
+  gap: var(--space-5);
   align-items: start;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+  .detail-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    gap: var(--space-6);
+  }
+}
+
+@media (min-width: 1200px) {
+  .detail-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+    gap: var(--space-6);
+  }
+}
+
+/* Modern 4:3 Image Container with rounded card and restrained hover effect */
+.detail-media {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  aspect-ratio: 4 / 3;
+  background-color: var(--bg-app);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+  box-sizing: border-box;
+  transition: box-shadow 0.25s ease-in-out, border-color 0.25s ease-in-out;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .detail-media:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--border-color-focus);
+  }
+
+  .detail-media:hover .detail-media__img {
+    transform: scale(1.03);
+  }
 }
 
 .detail-media__img {
   display: block;
   width: 100%;
-  height: auto;
-  max-height: 26rem;
-  aspect-ratio: 1 / 1;
-  object-fit: contain;
+  height: 100%;
+  max-height: none;
+  aspect-ratio: auto;
+  object-fit: cover;
   background-color: var(--bg-app);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  border: none;
+  border-radius: 0;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .detail-media__empty {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 16rem;
-  aspect-ratio: 1 / 1;
+  gap: var(--space-2);
+  width: 100%;
+  height: 100%;
+  min-height: 12rem;
+  aspect-ratio: auto;
   background-color: var(--bg-app);
-  border: 1px dashed var(--border-color);
-  border-radius: var(--radius-md);
+  border: none;
+  border-radius: 0;
+  color: var(--color-text-muted);
+  box-sizing: border-box;
+  text-align: center;
+  padding: var(--space-4);
+}
+
+.detail-media__empty-icon {
+  color: var(--color-text-muted);
+  opacity: 0.6;
+}
+
+/* Product Information Body */
+.detail-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .detail-titlebar {
@@ -825,61 +983,131 @@ a.btn-ghost:active {
   align-items: center;
   gap: var(--space-3);
   flex-wrap: wrap;
-}
-
-.detail-title {
-  margin: 0;
-  font-size: clamp(1.375rem, 2.5vw, 1.875rem);
-  font-weight: 700;
-  line-height: 1.25;
-  color: var(--color-text-primary);
-}
-
-.detail-category {
-  display: inline-block;
   margin-bottom: var(--space-2);
 }
 
+.detail-title {
+  margin: 0 0 var(--space-2);
+  font-size: clamp(1.375rem, 2.75vw, 1.875rem);
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--color-text-primary);
+  letter-spacing: -0.01em;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.detail-badge-wrap {
+  margin-bottom: var(--space-2);
+}
+
+.detail-category {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: 9999px;
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+  border: 1px solid var(--border-color-focus);
+  margin-bottom: var(--space-2);
+  width: fit-content;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+/* Prominent Price Panel */
+.detail-price-box {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--bg-app);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  margin-top: var(--space-2);
+  margin-bottom: var(--space-4);
+  width: fit-content;
+  min-width: 11rem;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.detail-price-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+}
+
 .detail-price {
-  margin: var(--space-2) 0 0;
-  font-size: clamp(1.375rem, 2vw, 1.75rem);
+  margin: 0;
+  font-size: clamp(1.375rem, 2.25vw, 1.75rem);
   font-weight: 700;
   font-family: var(--font-family-mono);
   color: var(--color-primary);
+  line-height: 1.2;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
+.detail-price__currency {
+  font-size: 0.875em;
+  margin-left: 2px;
+  font-weight: 600;
+}
+
+/* Facts list for management view */
 .detail-facts {
-  margin-top: var(--space-4);
+  margin-top: var(--space-2);
+  margin-bottom: var(--space-3);
   border-top: 1px solid var(--border-color);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .detail-fact {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: var(--space-4);
+  gap: var(--space-3);
   padding: var(--space-2) 0;
   border-bottom: 1px solid var(--border-color);
+  box-sizing: border-box;
 }
 
 .detail-fact__label {
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--color-text-secondary);
+  flex-shrink: 0;
 }
 
 .detail-fact__value {
   font-size: 0.9375rem;
   color: var(--color-text-primary);
   text-align: right;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  max-width: 65%;
 }
 
+/* Description Section */
 .detail-section {
-  margin-top: var(--space-4);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border-color);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .detail-section__title {
-  margin: 0 0 var(--space-1);
+  margin: 0 0 var(--space-2);
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--color-text-secondary);
@@ -893,25 +1121,47 @@ a.btn-ghost:active {
   white-space: pre-line;
   line-height: 1.625;
   font-size: 0.9375rem;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .detail-description--empty {
   color: var(--color-text-muted);
+  font-style: italic;
 }
 
 .page-header--detail {
-  margin-bottom: var(--space-4);
-}
-
-/* Detail footer: back on the left, primary action on the right */
-.detail-actions {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-2);
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-4);
+}
+
+/* Detail action buttons: full width on mobile, row on tablet/desktop */
+.detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
   margin-top: var(--space-5);
   padding-top: var(--space-4);
   border-top: 1px solid var(--border-color);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.detail-actions .btn {
+  min-height: 2.75rem; /* >= 44px touch target */
+  padding: 0.5rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
 }
 
 .detail-actions--center {
@@ -922,21 +1172,16 @@ a.btn-ghost:active {
 }
 
 @media (max-width: 640px) {
-  .detail-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .detail-media__empty {
-    min-height: 9rem;
-  }
-
   .pagination-bar {
     flex-direction: column;
   }
+}
 
+@media (max-width: 575.98px) {
   .detail-actions {
     flex-direction: column-reverse;
     align-items: stretch;
+    gap: var(--space-2);
   }
 
   .detail-actions .btn {

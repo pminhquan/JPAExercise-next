@@ -46,9 +46,9 @@
 
                 <c:when test="${not empty error}">
 
-                    <div class="card shadow-sm">
+                    <div class="card shadow-sm detail-card">
 
-                        <div class="card-body">
+                        <div class="card-body detail-card-body">
 
                             <div class="empty-state">
 
@@ -78,6 +78,34 @@
                 </c:when>
 
                 <c:otherwise>
+
+                    <nav aria-label="breadcrumb" class="detail-breadcrumb-nav">
+                        <ol class="breadcrumb detail-breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="${pageContext.request.contextPath}/home">Home</a>
+                            </li>
+                            <c:choose>
+                                <c:when test="${isManagement}">
+                                    <li class="breadcrumb-item">
+                                        <a href="${pageContext.request.contextPath}/products">Management</a>
+                                    </li>
+                                </c:when>
+                                <c:otherwise>
+                                    <li class="breadcrumb-item">
+                                        <a href="${pageContext.request.contextPath}/product">Products</a>
+                                    </li>
+                                </c:otherwise>
+                            </c:choose>
+                            <c:if test="${not empty product.category.categoryname}">
+                                <li class="breadcrumb-item">
+                                    <c:out value="${product.category.categoryname}"/>
+                                </li>
+                            </c:if>
+                            <li class="breadcrumb-item active" aria-current="page">
+                                <c:out value="${product.productname}"/>
+                            </li>
+                        </ol>
+                    </nav>
 
                     <c:choose>
                         <c:when test="${isManagement}">
@@ -110,9 +138,9 @@
                         </c:otherwise>
                     </c:choose>
 
-                    <div class="card shadow-sm">
+                    <div class="card shadow-sm detail-card">
 
-                        <div class="card-body">
+                        <div class="card-body detail-card-body">
 
                             <div class="detail-grid">
 
@@ -173,10 +201,13 @@
                                                 </span>
                                             </div>
 
-                                            <p class="detail-price">
-                                                <span class="detail-price__amount"><fmt:formatNumber value="${product.price}" pattern="#,##0"/></span>
-                                                <span class="detail-price__currency" aria-label="Vietnamese Dong">₫</span>
-                                            </p>
+                                            <div class="detail-price-box">
+                                                <span class="detail-price-label">Price</span>
+                                                <p class="detail-price">
+                                                    <span class="detail-price__amount"><fmt:formatNumber value="${product.price}" pattern="#,##0"/></span>
+                                                    <span class="detail-price__currency" aria-label="Vietnamese Dong">₫</span>
+                                                </p>
+                                            </div>
 
                                             <div class="detail-facts">
 
@@ -196,7 +227,7 @@
 
                                             </div>
 
-                                            <div class="detail-section">
+                                            <div class="detail-section detail-section--description">
                                                 <h3 class="detail-section__title">Description</h3>
                                                 <c:choose>
                                                     <c:when test="${not empty product.description}">
@@ -215,21 +246,26 @@
 
                                         <c:otherwise>
                                             <c:if test="${not empty product.category.categoryname}">
-                                                <span class="product-card__category detail-category">
-                                                    <c:out value="${product.category.categoryname}"/>
-                                                </span>
+                                                <div class="detail-badge-wrap">
+                                                    <span class="product-card__category detail-category">
+                                                        <c:out value="${product.category.categoryname}"/>
+                                                    </span>
+                                                </div>
                                             </c:if>
 
                                             <h1 class="detail-title">
                                                 <c:out value="${product.productname}"/>
                                             </h1>
 
-                                            <p class="detail-price">
-                                                <span class="detail-price__amount"><fmt:formatNumber value="${product.price}" pattern="#,##0"/></span>
-                                                <span class="detail-price__currency" aria-label="Vietnamese Dong">₫</span>
-                                            </p>
+                                            <div class="detail-price-box">
+                                                <span class="detail-price-label">Price</span>
+                                                <p class="detail-price">
+                                                    <span class="detail-price__amount"><fmt:formatNumber value="${product.price}" pattern="#,##0"/></span>
+                                                    <span class="detail-price__currency" aria-label="Vietnamese Dong">₫</span>
+                                                </p>
+                                            </div>
 
-                                            <div class="detail-section">
+                                            <div class="detail-section detail-section--description">
                                                 <h2 class="detail-section__title">Description</h2>
                                                 <c:choose>
                                                     <c:when test="${not empty product.description}">
