@@ -8,7 +8,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Product Details</title>
+    <title><c:choose><c:when test="${not empty product}">${fn:escapeXml(product.productname)} - Products</c:when><c:otherwise>Product Details</c:otherwise></c:choose></title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
           rel="stylesheet">
@@ -23,14 +23,16 @@
 
     <div class="row justify-content-center">
 
-        <div class="col-md-9">
+        <div class="col-lg-10 col-xl-9">
+
+            <c:set var="isManagement" value="${param.from == 'manage' or param.from == 'products' or (not empty sessionScope.authenticatedUserId and param.from != 'home' and param.from != 'catalog' and param.from != 'product')}"/>
 
             <c:choose>
                 <c:when test="${param.from == 'home'}">
                     <c:set var="backUrl" value="${pageContext.request.contextPath}/home"/>
                     <c:set var="backLabel" value="Back to Home"/>
                 </c:when>
-                <c:when test="${param.from == 'manage' or param.from == 'products' or (not empty sessionScope.authenticatedUserId and param.from != 'catalog' and param.from != 'product')}">
+                <c:when test="${isManagement}">
                     <c:set var="backUrl" value="${pageContext.request.contextPath}/products"/>
                     <c:set var="backLabel" value="Back to Management"/>
                 </c:when>
@@ -77,23 +79,36 @@
 
                 <c:otherwise>
 
-                    <div class="page-header">
+                    <c:choose>
+                        <c:when test="${isManagement}">
+                            <div class="page-header">
+                                <div class="page-header__text">
+                                    <h1 class="page-header__title">Product Details</h1>
+                                    <p class="page-header__subtitle">
+                                        Product #<c:out value="${product.productid}"/>
+                                    </p>
+                                </div>
 
-                        <div class="page-header__text">
-                            <h1 class="page-header__title">Product Details</h1>
-                            <p class="page-header__subtitle">
-                                Product #<c:out value="${product.productid}"/>
-                            </p>
-                        </div>
-
-                        <div class="page-header__actions">
-                            <a href="${backUrl}"
-                               class="btn btn-ghost">
-                                &larr; <c:out value="${backLabel}"/>
-                            </a>
-                        </div>
-
-                    </div>
+                                <div class="page-header__actions">
+                                    <a href="${backUrl}"
+                                       class="btn btn-ghost">
+                                        &larr; <c:out value="${backLabel}"/>
+                                    </a>
+                                </div>
+                            </div>
+                        </c:when>
+                        <c:otherwise>
+                            <div class="page-header page-header--detail">
+                                <div class="page-header__actions">
+                                    <a href="${backUrl}"
+                                       class="btn btn-ghost"
+                                       aria-label="${fn:escapeXml(backLabel)}">
+                                        &larr; <c:out value="${backLabel}"/>
+                                    </a>
+                                </div>
+                            </div>
+                        </c:otherwise>
+                    </c:choose>
 
                     <div class="card shadow-sm">
 
@@ -112,6 +127,7 @@
                                                     <img src="${fn:escapeXml(product.images)}"
                                                          alt="${fn:escapeXml(product.productname)}"
                                                          class="detail-media__img"
+                                                         loading="lazy"
                                                          onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';"/>
                                                     <div class="detail-media__empty" style="display:none;">
                                                         <span class="text-empty">No image</span>
@@ -122,6 +138,7 @@
                                                     <img src="${pageContext.request.contextPath}/uploads/${fn:escapeXml(product.images)}"
                                                          alt="${fn:escapeXml(product.productname)}"
                                                          class="detail-media__img"
+                                                         loading="lazy"
                                                          onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';"/>
                                                     <div class="detail-media__empty" style="display:none;">
                                                         <span class="text-empty">No image</span>
@@ -145,53 +162,90 @@
 
                                 <div class="detail-body">
 
-                                    <div class="detail-titlebar">
-                                        <h2 class="detail-title">
-                                            <c:out value="${product.productname}"/>
-                                        </h2>
-                                        <span class="badge ${product.status == 1 ? 'bg-success' : 'bg-secondary'} badge-status">
-                                            <c:out value="${product.status == 1 ? 'Active' : 'Inactive'}"/>
-                                        </span>
-                                    </div>
+                                    <c:choose>
+                                        <c:when test="${isManagement}">
+                                            <div class="detail-titlebar">
+                                                <h2 class="detail-title">
+                                                    <c:out value="${product.productname}"/>
+                                                </h2>
+                                                <span class="badge ${product.status == 1 ? 'bg-success' : 'bg-secondary'} badge-status">
+                                                    <c:out value="${product.status == 1 ? 'Active' : 'Inactive'}"/>
+                                                </span>
+                                            </div>
 
-                                    <p class="detail-price">
-                                        <span class="detail-price__amount"><fmt:formatNumber value="${product.price}" pattern="#,##0"/></span>
-                                        <span class="detail-price__currency" aria-label="Vietnamese Dong">₫</span>
-                                    </p>
+                                            <p class="detail-price">
+                                                <span class="detail-price__amount"><fmt:formatNumber value="${product.price}" pattern="#,##0"/></span>
+                                                <span class="detail-price__currency" aria-label="Vietnamese Dong">₫</span>
+                                            </p>
 
-                                    <div class="detail-facts">
+                                            <div class="detail-facts">
 
-                                        <div class="detail-fact">
-                                            <span class="detail-fact__label">Category</span>
-                                            <span class="detail-fact__value">
-                                                <c:out value="${product.category.categoryname}"/>
-                                            </span>
-                                        </div>
+                                                <div class="detail-fact">
+                                                    <span class="detail-fact__label">Category</span>
+                                                    <span class="detail-fact__value">
+                                                        <c:out value="${product.category.categoryname}"/>
+                                                    </span>
+                                                </div>
 
-                                        <div class="detail-fact">
-                                            <span class="detail-fact__label">Product ID</span>
-                                            <span class="detail-fact__value cell-id">
-                                                <c:out value="${product.productid}"/>
-                                            </span>
-                                        </div>
+                                                <div class="detail-fact">
+                                                    <span class="detail-fact__label">Product ID</span>
+                                                    <span class="detail-fact__value cell-id">
+                                                        <c:out value="${product.productid}"/>
+                                                    </span>
+                                                </div>
 
-                                    </div>
+                                            </div>
 
-                                    <div class="detail-section">
-                                        <h3 class="detail-section__title">Description</h3>
-                                        <c:choose>
-                                            <c:when test="${not empty product.description}">
-                                                <p class="detail-description">
-                                                    <c:out value="${product.description}"/>
-                                                </p>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <p class="detail-description detail-description--empty">
-                                                    No description provided.
-                                                </p>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </div>
+                                            <div class="detail-section">
+                                                <h3 class="detail-section__title">Description</h3>
+                                                <c:choose>
+                                                    <c:when test="${not empty product.description}">
+                                                        <p class="detail-description">
+                                                            <c:out value="${product.description}"/>
+                                                        </p>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <p class="detail-description detail-description--empty">
+                                                            No description provided.
+                                                        </p>
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </div>
+                                        </c:when>
+
+                                        <c:otherwise>
+                                            <c:if test="${not empty product.category.categoryname}">
+                                                <span class="product-card__category detail-category">
+                                                    <c:out value="${product.category.categoryname}"/>
+                                                </span>
+                                            </c:if>
+
+                                            <h1 class="detail-title">
+                                                <c:out value="${product.productname}"/>
+                                            </h1>
+
+                                            <p class="detail-price">
+                                                <span class="detail-price__amount"><fmt:formatNumber value="${product.price}" pattern="#,##0"/></span>
+                                                <span class="detail-price__currency" aria-label="Vietnamese Dong">₫</span>
+                                            </p>
+
+                                            <div class="detail-section">
+                                                <h2 class="detail-section__title">Description</h2>
+                                                <c:choose>
+                                                    <c:when test="${not empty product.description}">
+                                                        <p class="detail-description">
+                                                            <c:out value="${product.description}"/>
+                                                        </p>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <p class="detail-description detail-description--empty">
+                                                            No description provided.
+                                                        </p>
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </div>
+                                        </c:otherwise>
+                                    </c:choose>
 
                                 </div>
 

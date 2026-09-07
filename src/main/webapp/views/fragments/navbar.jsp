@@ -56,6 +56,7 @@
                             or param.from == 'products'
                             or (not empty sessionScope.authenticatedUserId
                                 and not empty param.from
+                                and param.from != 'home'
                                 and param.from != 'catalog'
                                 and param.from != 'product')}">
 
@@ -153,6 +154,8 @@
                     </li>
 
                     <c:if test="${not empty sessionScope.authenticatedUserId}">
+
+                        <li class="nav-item site-nav__divider d-none d-lg-flex" aria-hidden="true"></li>
 
                         <li class="nav-item">
 
