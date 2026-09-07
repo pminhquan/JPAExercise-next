@@ -191,20 +191,67 @@
 
                         <c:when test="${not empty sessionScope.authenticatedUserId}">
 
-                            <a href="${pageContext.request.contextPath}/profile"
-                               class="btn btn-ghost btn-sm ${activeNav == 'profile' ? 'active' : ''}"
-                               ${activeNav == 'profile' ? 'aria-current="page"' : ''}>
+                            <c:set var="account" value="${not empty sessionScope.account ? sessionScope.account : account}" />
+                            <c:set var="displayUsername" value="${not empty account.username ? account.username : 'User'}" />
+                            <c:set var="userInitial" value="${not empty displayUsername ? fn:toUpperCase(fn:substring(displayUsername, 0, 1)) : 'U'}" />
 
-                                Profile
-
-                            </a>
-
-                            <a href="${pageContext.request.contextPath}/logout"
-                               class="btn btn-ghost btn-sm">
-
-                                Logout
-
-                            </a>
+                            <div class="dropdown site-nav__user-dropdown">
+                                <button class="btn btn-ghost btn-sm dropdown-toggle site-nav__user-toggle ${activeNav == 'profile' ? 'active' : ''}"
+                                        type="button"
+                                        id="navbarUserDropdown"
+                                        data-bs-toggle="dropdown"
+                                        aria-expanded="false"
+                                        aria-label="User account menu for ${fn:escapeXml(displayUsername)}">
+                                    <span class="site-nav__avatar" aria-hidden="true">
+                                        <c:choose>
+                                            <c:when test="${not empty account.images}">
+                                                <c:choose>
+                                                    <c:when test="${fn:startsWith(account.images, 'http://') or fn:startsWith(account.images, 'https://')}">
+                                                        <c:set var="avatarImgSrc" value="${account.images}" />
+                                                    </c:when>
+                                                    <c:when test="${fn:startsWith(account.images, '/')}">
+                                                        <c:set var="avatarImgSrc" value="${pageContext.request.contextPath}${account.images}" />
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <c:set var="avatarImgSrc" value="${pageContext.request.contextPath}/uploads/${account.images}" />
+                                                    </c:otherwise>
+                                                </c:choose>
+                                                <img src="${fn:escapeXml(avatarImgSrc)}"
+                                                     alt="${fn:escapeXml(displayUsername)}"
+                                                     class="site-nav__avatar-img"
+                                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                                                <span class="site-nav__avatar-fallback" style="display:none;">
+                                                    <c:out value="${userInitial}" />
+                                                </span>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span class="site-nav__avatar-fallback">
+                                                    <c:out value="${userInitial}" />
+                                                </span>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </span>
+                                    <span class="site-nav__username">
+                                        <c:out value="${displayUsername}" />
+                                    </span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="navbarUserDropdown">
+                                    <li>
+                                        <a class="dropdown-item ${activeNav == 'profile' ? 'active' : ''}"
+                                           href="${pageContext.request.contextPath}/profile"
+                                           ${activeNav == 'profile' ? 'aria-current="page"' : ''}>
+                                            My Profile
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item"
+                                           href="${pageContext.request.contextPath}/logout">
+                                            Logout
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
 
                         </c:when>
 

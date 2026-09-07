@@ -75,8 +75,9 @@ public class LoginController extends HttpServlet {
             if (oldSession != null) {
                 oldSession.invalidate();
             }
-            HttpSession newSession = request.getSession(true);
-            newSession.setAttribute("authenticatedUserId", user.getId());
+            HttpSession session = request.getSession(true);
+            session.setAttribute("authenticatedUserId", user.getId());
+            session.setAttribute("account", user);
 
             response.sendRedirect(request.getContextPath() + "/categories");
         } else {
