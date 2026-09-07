@@ -134,7 +134,7 @@
 
                         <a href="${pageContext.request.contextPath}/products/detail?id=${fn:escapeXml(product.productid)}&amp;from=home"
                            class="product-card__media"
-                           aria-label="View product details">
+                           aria-label="View details for ${fn:escapeXml(product.productname)}">
 
                             <c:choose>
 
@@ -144,6 +144,7 @@
                                         <c:when test="${fn:startsWith(product.images, 'http://') or fn:startsWith(product.images, 'https://')}">
                                             <img src="${fn:escapeXml(product.images)}"
                                                  alt="${fn:escapeXml(product.productname)}"
+                                                 loading="lazy"
                                                  onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='inline-block';"/>
                                             <span class="text-empty" style="display:none;">No image</span>
                                         </c:when>
@@ -151,6 +152,7 @@
                                         <c:otherwise>
                                             <img src="${pageContext.request.contextPath}/uploads/${fn:escapeXml(product.images)}"
                                                  alt="${fn:escapeXml(product.productname)}"
+                                                 loading="lazy"
                                                  onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='inline-block';"/>
                                             <span class="text-empty" style="display:none;">No image</span>
                                         </c:otherwise>
@@ -166,13 +168,28 @@
 
                             </c:choose>
 
+                            <c:choose>
+                                <c:when test="${product.status == 1}">
+                                    <span class="product-card__badge badge bg-success badge-status">
+                                        Active
+                                    </span>
+                                </c:when>
+                                <c:otherwise>
+                                    <span class="product-card__badge badge bg-secondary badge-status">
+                                        Inactive
+                                    </span>
+                                </c:otherwise>
+                            </c:choose>
+
                         </a>
 
                         <div class="product-card__body">
 
-                            <span class="product-card__category">
-                                <c:out value="${product.category.categoryname}"/>
-                            </span>
+                            <c:if test="${not empty product.category.categoryname}">
+                                <span class="product-card__category">
+                                    <c:out value="${product.category.categoryname}"/>
+                                </span>
+                            </c:if>
 
                             <a href="${pageContext.request.contextPath}/products/detail?id=${fn:escapeXml(product.productid)}&amp;from=home"
                                class="product-card__name">
@@ -188,24 +205,15 @@
                             <div class="product-card__footer">
 
                                 <span class="product-card__price">
-                                    <fmt:formatNumber value="${product.price}" pattern="#,##0"/> ₫
+                                    <fmt:formatNumber value="${product.price}" pattern="#,##0"/>
+                                    <span class="currency-symbol" aria-label="Vietnamese Dong">₫</span>
                                 </span>
 
-                                <c:choose>
-
-                                    <c:when test="${product.status == 1}">
-                                        <span class="badge bg-success badge-status">
-                                            Active
-                                        </span>
-                                    </c:when>
-
-                                    <c:otherwise>
-                                        <span class="badge bg-secondary badge-status">
-                                            Inactive
-                                        </span>
-                                    </c:otherwise>
-
-                                </c:choose>
+                                <a href="${pageContext.request.contextPath}/products/detail?id=${fn:escapeXml(product.productid)}&amp;from=home"
+                                   class="btn btn-primary btn-sm"
+                                   aria-label="View details for ${fn:escapeXml(product.productname)}">
+                                    View detail
+                                </a>
 
                             </div>
 

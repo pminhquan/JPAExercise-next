@@ -432,6 +432,19 @@
                                         </c:otherwise>
                                     </c:choose>
 
+                                    <c:choose>
+                                        <c:when test="${product.status == 1}">
+                                            <span class="product-card__badge badge bg-success badge-status">
+                                                Active
+                                            </span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <span class="product-card__badge badge bg-secondary badge-status">
+                                                Inactive
+                                            </span>
+                                        </c:otherwise>
+                                    </c:choose>
+
                                 </a>
 
                                 <div class="product-card__body">
