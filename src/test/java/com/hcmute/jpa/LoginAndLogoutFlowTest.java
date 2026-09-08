@@ -2,6 +2,7 @@ package com.hcmute.jpa;
 
 import com.hcmute.jpa.controller.LoginController;
 import com.hcmute.jpa.controller.LogoutController;
+import com.hcmute.jpa.entity.Role;
 import com.hcmute.jpa.entity.User;
 import com.hcmute.jpa.service.IUserService;
 import com.hcmute.jpa.service.UserServiceImpl;
@@ -126,7 +127,7 @@ public class LoginAndLogoutFlowTest {
 
         controller.doPost(ctx.request, ctx.response);
 
-        assertEquals("/categories", ctx.redirectUrl);
+        assertEquals("/home", ctx.redirectUrl);
         assertEquals(activeUser.getId(), ctx.session.get("authenticatedUserId"));
         assertEquals("CUSTOMER", ctx.session.get("authenticatedUserRole"));
         assertEquals(activeUser, ctx.session.get("account"));
@@ -174,7 +175,7 @@ public class LoginAndLogoutFlowTest {
 
         controller.doPost(ctx.request, ctx.response);
 
-        assertEquals("/categories", ctx.redirectUrl);
+        assertEquals("/home", ctx.redirectUrl);
         assertEquals(activeUser.getId(), ctx.session.get("authenticatedUserId"));
         assertEquals("CUSTOMER", ctx.session.get("authenticatedUserRole"));
         assertEquals(activeUser, ctx.session.get("account"));
@@ -249,5 +250,63 @@ public class LoginAndLogoutFlowTest {
         assertTrue(ctx.invalidated);
         assertNull(ctx.session.get("authenticatedUserId"));
         assertEquals("/login", ctx.redirectUrl);
+    }
+
+    @Test
+    public void testSuccessfulLoginFlowForAdmin() throws Exception {
+        String unique = "admin_" + System.currentTimeMillis();
+        User adminUser = userService.register(unique, unique + "@example.com", password);
+        adminUser.setRole(Role.ADMIN);
+        userService.activateUser(adminUser.getId());
+
+        LoginController controller = new LoginController(userService);
+        MockHttpContext ctx = new MockHttpContext();
+        ctx.parameters.put("identifier", adminUser.getEmail());
+        ctx.parameters.put("password", password);
+
+        controller.doPost(ctx.request, ctx.response);
+
+        assertEquals("/categories", ctx.redirectUrl);
+        assertEquals(adminUser.getId(), ctx.session.get("authenticatedUserId"));
+        assertEquals("ADMIN", ctx.session.get("authenticatedUserRole"));
+        assertEquals(adminUser, ctx.session.get("account"));
+    }
+
+    @Test
+    public void testAuthenticatedGetLoginRedirectsCustomerToHome() throws Exception {
+        LoginController controller = new LoginController(userService);
+        MockHttpContext ctx = new MockHttpContext();
+        ctx.session.put("authenticatedUserId", activeUser.getId());
+        ctx.session.put("authenticatedUserRole", "CUSTOMER");
+
+        controller.doGet(ctx.request, ctx.response);
+
+        assertEquals("/home", ctx.redirectUrl);
+        assertFalse(ctx.forwarded);
+    }
+
+    @Test
+    public void testAuthenticatedGetLoginRedirectsAdminToCategories() throws Exception {
+        LoginController controller = new LoginController(userService);
+        MockHttpContext ctx = new MockHttpContext();
+        ctx.session.put("authenticatedUserId", 999);
+        ctx.session.put("authenticatedUserRole", "ADMIN");
+
+        controller.doGet(ctx.request, ctx.response);
+
+        assertEquals("/categories", ctx.redirectUrl);
+        assertFalse(ctx.forwarded);
+    }
+
+    @Test
+    public void testUnauthenticatedGetLoginShowsLoginPage() throws Exception {
+        LoginController controller = new LoginController(userService);
+        MockHttpContext ctx = new MockHttpContext();
+
+        controller.doGet(ctx.request, ctx.response);
+
+        assertTrue(ctx.forwarded);
+        assertEquals("/views/login.jsp", ctx.forwardedPath);
+        assertNull(ctx.redirectUrl);
     }
 }

@@ -35,6 +35,12 @@ public class LoginController extends HttpServlet {
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        HttpSession session = request.getSession(false);
+        if (session != null && session.getAttribute("authenticatedUserId") != null) {
+            String role = (String) session.getAttribute("authenticatedUserRole");
+            response.sendRedirect(getRedirectPath(request, role));
+            return;
+        }
         request.getRequestDispatcher("/views/login.jsp").forward(request, response);
     }
 
@@ -82,11 +88,16 @@ public class LoginController extends HttpServlet {
             session.setAttribute("authenticatedUserRole", role.name());
             session.setAttribute("account", user);
 
-            response.sendRedirect(request.getContextPath() + "/categories");
+            response.sendRedirect(getRedirectPath(request, role.name()));
         } else {
             request.setAttribute("error", genericError);
             request.getRequestDispatcher("/views/login.jsp").forward(request, response);
         }
+    }
+
+    private String getRedirectPath(HttpServletRequest request, String role) {
+        String target = "ADMIN".equalsIgnoreCase(role) ? "/categories" : "/home";
+        return request.getContextPath() + target;
     }
 
     private boolean isEmpty(String str) {
