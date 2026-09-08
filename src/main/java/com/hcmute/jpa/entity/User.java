@@ -44,14 +44,22 @@ public class User implements Serializable {
     @Column(name = "Images", columnDefinition = "NVARCHAR(500)")
     private String images;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "Role", nullable = false)
+    private Role role = Role.CUSTOMER;
+
     @PrePersist
     protected void onCreate() {
         if (createdAt == null) {
             createdAt = new Timestamp(System.currentTimeMillis());
         }
+        if (role == null) {
+            role = Role.CUSTOMER;
+        }
     }
 
     public User() {
+        this.role = Role.CUSTOMER;
     }
 
     public User(String username, String email, String passwordHash) {
@@ -59,6 +67,7 @@ public class User implements Serializable {
         this.email = email;
         this.passwordHash = passwordHash;
         this.active = false;
+        this.role = Role.CUSTOMER;
     }
 
     public int getId() {
@@ -131,5 +140,13 @@ public class User implements Serializable {
 
     public void setImages(String images) {
         this.images = images;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
     }
 }
