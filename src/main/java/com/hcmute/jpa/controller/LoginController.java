@@ -1,5 +1,6 @@
 package com.hcmute.jpa.controller;
 
+import com.hcmute.jpa.entity.Role;
 import com.hcmute.jpa.entity.User;
 import com.hcmute.jpa.service.IUserService;
 import com.hcmute.jpa.service.UserServiceImpl;
@@ -77,6 +78,8 @@ public class LoginController extends HttpServlet {
             }
             HttpSession session = request.getSession(true);
             session.setAttribute("authenticatedUserId", user.getId());
+            Role role = user.getRole() != null ? user.getRole() : Role.CUSTOMER;
+            session.setAttribute("authenticatedUserRole", role.name());
             session.setAttribute("account", user);
 
             response.sendRedirect(request.getContextPath() + "/categories");

@@ -2,6 +2,7 @@ package com.hcmute.jpa.service;
 
 import com.hcmute.jpa.dao.IUserDao;
 import com.hcmute.jpa.dao.UserDao;
+import com.hcmute.jpa.entity.Role;
 import com.hcmute.jpa.entity.User;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -28,6 +29,7 @@ public class UserServiceImpl implements IUserService {
 
         String hashedPassword = BCrypt.hashpw(plaintextPassword, BCrypt.gensalt());
         User user = new User(username, email, hashedPassword);
+        user.setRole(Role.CUSTOMER);
         userDao.create(user);
         return user;
     }
