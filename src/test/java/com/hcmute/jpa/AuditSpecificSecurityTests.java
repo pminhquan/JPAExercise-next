@@ -516,6 +516,7 @@ public class AuditSpecificSecurityTests {
         @Override public boolean existsByEmail(String email) { return findByEmail(email) != null; }
         @Override public boolean existsByUsername(String username) { return findByUsername(username) != null; }
         @Override public void update(User user) { users.put(user.getId(), user); }
+        @Override public long countAllUsers() { return users.size(); }
     }
 
     private static final class InMemoryOtpTokenDao implements IOtpTokenDao {

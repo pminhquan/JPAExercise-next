@@ -106,4 +106,9 @@ public class UserServiceImpl implements IUserService {
         }
         return false;
     }
+
+    @Override
+    public long countAllUsers() {
+        return userDao.countAllUsers();
+    }
 }

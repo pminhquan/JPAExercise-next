@@ -137,4 +137,19 @@ public class UserDao implements IUserDao {
             }
         }
     }
+
+    @Override
+    public long countAllUsers() {
+        EntityManager entityManager = JpaConfig.getEntityManager();
+        boolean ownsEntityManager = !JpaConfig.isTransactionActive();
+        try {
+            TypedQuery<Long> query = entityManager.createQuery(
+                "SELECT COUNT(u) FROM User u", Long.class);
+            return query.getSingleResult();
+        } finally {
+            if (ownsEntityManager) {
+                entityManager.close();
+            }
+        }
+    }
 }

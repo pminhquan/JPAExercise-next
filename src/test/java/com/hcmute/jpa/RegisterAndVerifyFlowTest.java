@@ -739,6 +739,11 @@ public class RegisterAndVerifyFlowTest {
         public void update(User user) {
             users.put(user.getId(), user);
         }
+
+        @Override
+        public long countAllUsers() {
+            return users.size();
+        }
     }
 
     private static final class InMemoryOtpTokenDao implements IOtpTokenDao {

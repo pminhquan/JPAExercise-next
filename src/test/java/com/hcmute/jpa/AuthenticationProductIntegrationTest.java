@@ -164,6 +164,9 @@ public class AuthenticationProductIntegrationTest {
                 if (methodName.equals("sendRedirect")) {
                     redirectUrl = (String) args[0];
                     return null;
+                } else if (methodName.equals("sendError")) {
+                    status = (Integer) args[0];
+                    return null;
                 } else if (methodName.equals("setCharacterEncoding")) {
                     return null;
                 } else if (methodName.equals("setStatus")) {
@@ -334,5 +337,165 @@ public class AuthenticationProductIntegrationTest {
 
         assertTrue(chainCalled[0], "Public product list must remain accessible after logout");
         assertNull(ctx2.redirectUrl, "Public product list must not redirect after logout");
+    }
+
+    @Test
+    public void testUnauthenticatedAdminDashboardRedirectsToLogin() throws Exception {
+        MockHttpContext ctx = new MockHttpContext("/admin/dashboard");
+        boolean[] chainCalled = {false};
+        FilterChain mockChain = createMock(FilterChain.class, (proxy, method, args) -> {
+            if (method.getName().equals("doFilter")) {
+                chainCalled[0] = true;
+            }
+            return null;
+        });
+
+        authFilter.doFilter(ctx.request, ctx.response, mockChain);
+
+        assertFalse(chainCalled[0], "Unauthenticated dashboard request must not reach chain");
+        assertEquals("/JPAExercise-next/login", ctx.redirectUrl, "Unauthenticated dashboard request must redirect to login");
+    }
+
+    @Test
+    public void testCustomerRoleOnAdminDashboardReceivesForbidden() throws Exception {
+        MockHttpContext ctx = new MockHttpContext("/admin/dashboard");
+        ctx.hasSession = true;
+        ctx.session.put("authenticatedUserId", 1);
+        ctx.session.put("authenticatedUserRole", "CUSTOMER");
+
+        boolean[] chainCalled = {false};
+        FilterChain mockChain = createMock(FilterChain.class, (proxy, method, args) -> {
+            if (method.getName().equals("doFilter")) {
+                chainCalled[0] = true;
+            }
+            return null;
+        });
+
+        authFilter.doFilter(ctx.request, ctx.response, mockChain);
+
+        assertFalse(chainCalled[0], "CUSTOMER role must not access admin dashboard");
+        assertEquals(HttpServletResponse.SC_FORBIDDEN, ctx.status, "CUSTOMER role must receive HTTP 403 Forbidden");
+    }
+
+    @Test
+    public void testAdminRoleOnAdminDashboardReachesChain() throws Exception {
+        MockHttpContext ctx = new MockHttpContext("/admin/dashboard");
+        ctx.hasSession = true;
+        ctx.session.put("authenticatedUserId", 1);
+        ctx.session.put("authenticatedUserRole", "ADMIN");
+
+        boolean[] chainCalled = {false};
+        FilterChain mockChain = createMock(FilterChain.class, (proxy, method, args) -> {
+            if (method.getName().equals("doFilter")) {
+                chainCalled[0] = true;
+            }
+            return null;
+        });
+
+        authFilter.doFilter(ctx.request, ctx.response, mockChain);
+
+        assertTrue(chainCalled[0], "ADMIN role must reach the chain for /admin/dashboard");
+        assertNull(ctx.redirectUrl, "ADMIN role should not redirect");
+    }
+
+    @Test
+    public void testUnauthenticatedCategoriesRedirectsToLogin() throws Exception {
+        MockHttpContext ctx = new MockHttpContext("/categories");
+        boolean[] chainCalled = {false};
+        FilterChain mockChain = createMock(FilterChain.class, (proxy, method, args) -> {
+            if (method.getName().equals("doFilter")) {
+                chainCalled[0] = true;
+            }
+            return null;
+        });
+
+        authFilter.doFilter(ctx.request, ctx.response, mockChain);
+
+        assertFalse(chainCalled[0], "Unauthenticated categories must not reach chain");
+        assertEquals("/JPAExercise-next/login", ctx.redirectUrl);
+    }
+
+    @Test
+    public void testCustomerRoleOnCategoriesReceivesForbidden() throws Exception {
+        MockHttpContext ctx = new MockHttpContext("/categories");
+        ctx.hasSession = true;
+        ctx.session.put("authenticatedUserId", 1);
+        ctx.session.put("authenticatedUserRole", "CUSTOMER");
+
+        boolean[] chainCalled = {false};
+        FilterChain mockChain = createMock(FilterChain.class, (proxy, method, args) -> {
+            if (method.getName().equals("doFilter")) {
+                chainCalled[0] = true;
+            }
+            return null;
+        });
+
+        authFilter.doFilter(ctx.request, ctx.response, mockChain);
+
+        assertFalse(chainCalled[0], "CUSTOMER role must not access categories");
+        assertEquals(HttpServletResponse.SC_FORBIDDEN, ctx.status);
+    }
+
+    @Test
+    public void testAdminRoleOnCategoriesReachesChain() throws Exception {
+        MockHttpContext ctx = new MockHttpContext("/categories");
+        ctx.hasSession = true;
+        ctx.session.put("authenticatedUserId", 1);
+        ctx.session.put("authenticatedUserRole", "ADMIN");
+
+        boolean[] chainCalled = {false};
+        FilterChain mockChain = createMock(FilterChain.class, (proxy, method, args) -> {
+            if (method.getName().equals("doFilter")) {
+                chainCalled[0] = true;
+            }
+            return null;
+        });
+
+        authFilter.doFilter(ctx.request, ctx.response, mockChain);
+
+        assertTrue(chainCalled[0], "ADMIN role must reach chain for categories");
+        assertNull(ctx.redirectUrl);
+    }
+
+    @Test
+    public void testCustomerRoleOnProductsReceivesForbidden() throws Exception {
+        MockHttpContext ctx = new MockHttpContext("/products");
+        ctx.hasSession = true;
+        ctx.session.put("authenticatedUserId", 1);
+        ctx.session.put("authenticatedUserRole", "CUSTOMER");
+
+        boolean[] chainCalled = {false};
+        FilterChain mockChain = createMock(FilterChain.class, (proxy, method, args) -> {
+            if (method.getName().equals("doFilter")) {
+                chainCalled[0] = true;
+            }
+            return null;
+        });
+
+        authFilter.doFilter(ctx.request, ctx.response, mockChain);
+
+        assertFalse(chainCalled[0], "CUSTOMER role must not access /products");
+        assertEquals(HttpServletResponse.SC_FORBIDDEN, ctx.status);
+    }
+
+    @Test
+    public void testAdminRoleOnProductsReachesChain() throws Exception {
+        MockHttpContext ctx = new MockHttpContext("/products");
+        ctx.hasSession = true;
+        ctx.session.put("authenticatedUserId", 1);
+        ctx.session.put("authenticatedUserRole", "ADMIN");
+
+        boolean[] chainCalled = {false};
+        FilterChain mockChain = createMock(FilterChain.class, (proxy, method, args) -> {
+            if (method.getName().equals("doFilter")) {
+                chainCalled[0] = true;
+            }
+            return null;
+        });
+
+        authFilter.doFilter(ctx.request, ctx.response, mockChain);
+
+        assertTrue(chainCalled[0], "ADMIN role must reach chain for /products");
+        assertNull(ctx.redirectUrl);
     }
 }

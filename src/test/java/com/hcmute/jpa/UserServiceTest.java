@@ -151,6 +151,15 @@ public class UserServiceTest {
         assertFalse(result);
     }
 
+    @Test
+    public void testCountAllUsers() {
+        assertEquals(0, userService.countAllUsers());
+        userService.register("user1", "user1@example.com", "pass12345");
+        assertEquals(1, userService.countAllUsers());
+        userService.register("user2", "user2@example.com", "pass12345");
+        assertEquals(2, userService.countAllUsers());
+    }
+
     private static final class InMemoryUserDao implements IUserDao {
         private final java.util.Map<Integer, User> usersById = new java.util.HashMap<>();
         private int nextId = 1;
@@ -193,6 +202,11 @@ public class UserServiceTest {
         @Override
         public void update(User user) {
             usersById.put(user.getId(), user);
+        }
+
+        @Override
+        public long countAllUsers() {
+            return usersById.size();
         }
     }
 }

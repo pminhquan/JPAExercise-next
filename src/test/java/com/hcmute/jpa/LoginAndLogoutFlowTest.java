@@ -164,6 +164,9 @@ public class LoginAndLogoutFlowTest {
 
         @Override
         public void update(User user) { users.put(user.getId(), user); }
+
+        @Override
+        public long countAllUsers() { return users.size(); }
     }
 
     @Test

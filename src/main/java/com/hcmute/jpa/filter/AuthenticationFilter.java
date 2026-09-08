@@ -13,6 +13,7 @@ import java.io.IOException;
         "/categories", "/categories/*",
         "/products", "/products/*",
         "/product", "/product/*",
+        "/admin/dashboard", "/admin/dashboard/*",
         "/admin/product", "/admin/product/*",
         "/admin/category", "/admin/category/*"
 })
@@ -75,6 +76,7 @@ public class AuthenticationFilter implements Filter {
         }
         return matchesRoute(path, "/products")
                 || matchesRoute(path, "/categories")
+                || matchesRoute(path, "/admin/dashboard")
                 || matchesRoute(path, "/admin/product")
                 || matchesRoute(path, "/admin/category");
     }

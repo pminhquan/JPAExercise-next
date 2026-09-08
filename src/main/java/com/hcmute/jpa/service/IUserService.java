@@ -23,4 +23,6 @@ public interface IUserService {
     boolean updatePassword(int id, String newPlaintextPassword);
 
     boolean updateProfile(int userId, String fullname, String phone, String images);
+
+    long countAllUsers();
 }
