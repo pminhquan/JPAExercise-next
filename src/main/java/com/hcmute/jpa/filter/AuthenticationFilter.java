@@ -43,14 +43,22 @@ public class AuthenticationFilter implements Filter {
             return;
         }
 
+        if (isAdminRoute(path)) {
+            boolean isAdmin = "ADMIN".equals(session.getAttribute("authenticatedUserRole"));
+            if (!isAdmin) {
+                httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN);
+                return;
+            }
+        }
+
         if (path != null) {
-            if (path.startsWith("/admin/product")) {
+            if (matchesRoute(path, "/admin/product")) {
                 String sub = path.substring("/admin/product".length());
                 String target = sub.isEmpty() || sub.equals("/") ? "/products" : "/products" + (sub.startsWith("/") ? sub : "/" + sub);
                 httpRequest.getRequestDispatcher(target).forward(request, response);
                 return;
             }
-            if (path.startsWith("/admin/category")) {
+            if (matchesRoute(path, "/admin/category")) {
                 String sub = path.substring("/admin/category".length());
                 String target = sub.isEmpty() || sub.equals("/") ? "/categories" : "/categories" + (sub.startsWith("/") ? sub : "/" + sub);
                 httpRequest.getRequestDispatcher(target).forward(request, response);
@@ -59,6 +67,23 @@ public class AuthenticationFilter implements Filter {
         }
 
         chain.doFilter(request, response);
+    }
+
+    private boolean isAdminRoute(String path) {
+        if (path == null || "/products/detail".equals(path)) {
+            return false;
+        }
+        return matchesRoute(path, "/products")
+                || matchesRoute(path, "/categories")
+                || matchesRoute(path, "/admin/product")
+                || matchesRoute(path, "/admin/category");
+    }
+
+    private boolean matchesRoute(String path, String base) {
+        if (path == null) {
+            return false;
+        }
+        return path.equals(base) || path.startsWith(base + "/");
     }
 
     @Override
