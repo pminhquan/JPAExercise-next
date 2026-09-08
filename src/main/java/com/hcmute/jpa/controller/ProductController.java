@@ -6,6 +6,7 @@ import com.hcmute.jpa.service.CategoryServiceImpl;
 import com.hcmute.jpa.service.ICategoryService;
 import com.hcmute.jpa.service.IProductService;
 import com.hcmute.jpa.service.ProductServiceImpl;
+import com.hcmute.jpa.util.UploadStorage;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
@@ -476,47 +477,14 @@ public class ProductController extends HttpServlet {
             throw new IllegalArgumentException("Unsupported image type. Allowed types: JPG, JPEG, PNG, WEBP.");
         }
 
-        String webRoot = request.getServletContext().getRealPath("/");
-        String uploadRoot = request.getServletContext().getRealPath("/uploads");
-        if (webRoot == null || uploadRoot == null) {
-            throw new IOException("Upload directory is unavailable.");
-        }
-
-        Path webRootPath = Paths.get(webRoot).toAbsolutePath().normalize();
-        Path uploadDirectory = Paths.get(uploadRoot).toAbsolutePath().normalize();
-        if (!uploadDirectory.startsWith(webRootPath)) {
-            throw new IOException("Upload directory is invalid.");
-        }
-        Files.createDirectories(uploadDirectory);
-
         String generatedFileName = UUID.randomUUID() + "." + extension;
-        Path target = uploadDirectory.resolve(generatedFileName).normalize();
-        if (!target.getParent().equals(uploadDirectory)) {
-            throw new IOException("Upload target is invalid.");
-        }
         try (InputStream input = imagePart.getInputStream()) {
-            Files.copy(input, target);
+            return UploadStorage.storeFile(request.getServletContext(), input, "products", generatedFileName);
         }
-        return generatedFileName;
     }
 
     private void deleteStoredImage(HttpServletRequest request, String fileName) {
-        if (fileName == null || fileName.isBlank()) {
-            return;
-        }
-        try {
-            String uploadRoot = request.getServletContext().getRealPath("/uploads");
-            if (uploadRoot == null || fileName.contains("/") || fileName.contains("\\") || fileName.contains("..")) {
-                return;
-            }
-            Path uploadDirectory = Paths.get(uploadRoot).toAbsolutePath().normalize();
-            Path target = uploadDirectory.resolve(fileName).normalize();
-            if (target.getParent().equals(uploadDirectory)) {
-                Files.deleteIfExists(target);
-            }
-        } catch (IOException ignored) {
-            LOGGER.warning("Unable to remove unused uploaded image: " + fileName);
-        }
+        UploadStorage.deleteFile(request.getServletContext(), fileName);
     }
 
     private double parsePrice(String priceStr) {

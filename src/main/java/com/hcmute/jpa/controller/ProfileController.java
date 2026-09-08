@@ -3,6 +3,7 @@ package com.hcmute.jpa.controller;
 import com.hcmute.jpa.entity.User;
 import com.hcmute.jpa.service.IUserService;
 import com.hcmute.jpa.service.UserServiceImpl;
+import com.hcmute.jpa.util.UploadStorage;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -404,97 +405,30 @@ public class ProfileController extends HttpServlet {
             );
         }
 
-        String uploadRoot =
-                getServletContext()
-                        .getRealPath("/uploads");
-
-        if (uploadRoot == null) {
-
-            throw new IOException(
-                    "Upload directory is unavailable."
-            );
-        }
-
-        Path uploadDirectory =
-                Paths.get(uploadRoot)
-                        .toAbsolutePath()
-                        .normalize();
-
-        Files.createDirectories(
-                uploadDirectory
-        );
-
         String generatedFileName =
                 UUID.randomUUID()
                         + "."
                         + extension;
 
-        Path target =
-                uploadDirectory
-                        .resolve(generatedFileName)
-                        .normalize();
-
-        if (!target.getParent()
-                .equals(uploadDirectory)) {
-
-            throw new IOException(
-                    "Invalid upload target."
-            );
-        }
-
         try (InputStream input =
                      imagePart.getInputStream()) {
 
-            Files.copy(input, target);
+            return UploadStorage.storeFile(
+                    getServletContext(),
+                    input,
+                    "avatars",
+                    generatedFileName
+            );
         }
-
-        return generatedFileName;
     }
 
     private void deleteStoredImage(
             HttpServletRequest request,
             String fileName) {
 
-        if (fileName == null ||
-                fileName.isBlank()) {
-
-            return;
-        }
-
-        if (fileName.contains("/") ||
-                fileName.contains("\\") ||
-                fileName.contains("..")) {
-
-            return;
-        }
-
-        try {
-
-            String uploadRoot =
-                    getServletContext()
-                            .getRealPath("/uploads");
-
-            if (uploadRoot == null) {
-                return;
-            }
-
-            Path uploadDirectory =
-                    Paths.get(uploadRoot)
-                            .toAbsolutePath()
-                            .normalize();
-
-            Path target =
-                    uploadDirectory
-                            .resolve(fileName)
-                            .normalize();
-
-            if (target.getParent()
-                    .equals(uploadDirectory)) {
-
-                Files.deleteIfExists(target);
-            }
-
-        } catch (IOException ignored) {
-        }
+        UploadStorage.deleteFile(
+                getServletContext(),
+                fileName
+        );
     }
 }
