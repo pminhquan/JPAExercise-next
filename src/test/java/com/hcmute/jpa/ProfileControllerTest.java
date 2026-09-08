@@ -7,6 +7,7 @@ import com.hcmute.jpa.service.IUserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletConfig;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -110,7 +111,7 @@ public class ProfileControllerTest {
         Map<String, Part> parts = new HashMap<>();
         boolean sessionExists = false;
         boolean sessionInvalidated = false;
-        String contentType = null;
+        String contentType = "multipart/form-data; boundary=----WebKitFormBoundaryXYZ";
         String redirectUrl = null;
         boolean forwarded = false;
         String forwardedPath = null;
@@ -121,6 +122,7 @@ public class ProfileControllerTest {
         HttpServletResponse response;
         HttpSession session;
         ServletContext servletContext;
+        ServletConfig servletConfig;
         RequestDispatcher requestDispatcher;
 
         MockHttpContext(String servletPath) {
@@ -144,6 +146,19 @@ public class ProfileControllerTest {
                         return uploadDir.toAbsolutePath().toString();
                     }
                     return webRootDir.resolve(path.startsWith("/") ? path.substring(1) : path).toAbsolutePath().toString();
+                } else if ("getRequestDispatcher".equals(methodName)) {
+                    forwardedPath = (String) args[0];
+                    return requestDispatcher;
+                }
+                return null;
+            });
+
+            servletConfig = createMock(ServletConfig.class, (proxy, method, args) -> {
+                String methodName = method.getName();
+                if ("getServletContext".equals(methodName)) {
+                    return servletContext;
+                } else if ("getServletName".equals(methodName)) {
+                    return "ProfileController";
                 }
                 return null;
             });
@@ -241,6 +256,12 @@ public class ProfileControllerTest {
         }
     }
 
+    private ProfileController createController(MockHttpContext ctx) throws Exception {
+        ProfileController controller = new ProfileController(mockUserService);
+        controller.init(ctx.servletConfig);
+        return controller;
+    }
+
     // --- AuthenticationFilter tests ---
 
     @Test
@@ -287,8 +308,8 @@ public class ProfileControllerTest {
 
     @Test
     public void testControllerAnonymousGetRedirectsToLogin() throws Exception {
-        ProfileController controller = new ProfileController(mockUserService);
         MockHttpContext ctx = new MockHttpContext("/profile");
+        ProfileController controller = createController(ctx);
 
         controller.doGet(ctx.request, ctx.response);
 
@@ -298,8 +319,8 @@ public class ProfileControllerTest {
 
     @Test
     public void testControllerAnonymousPostRedirectsToLogin() throws Exception {
-        ProfileController controller = new ProfileController(mockUserService);
         MockHttpContext ctx = new MockHttpContext("/profile");
+        ProfileController controller = createController(ctx);
         // Anonymous/missing-session POST
         ctx.parameters.put("fullname", "Alice Attacker");
         ctx.parameters.put("phone", "0911223344");
@@ -313,8 +334,8 @@ public class ProfileControllerTest {
 
     @Test
     public void testControllerInvalidSessionUserIdRedirectsToLogin() throws Exception {
-        ProfileController controller = new ProfileController(mockUserService);
         MockHttpContext ctx = new MockHttpContext("/profile");
+        ProfileController controller = createController(ctx);
         ctx.sessionExists = true;
         ctx.sessionAttributes.put("authenticatedUserId", "not-a-number");
 
@@ -326,8 +347,8 @@ public class ProfileControllerTest {
 
     @Test
     public void testControllerOutOfRangeNumberSessionRedirectsToLogin() throws Exception {
-        ProfileController controller = new ProfileController(mockUserService);
         MockHttpContext ctx = new MockHttpContext("/profile");
+        ProfileController controller = createController(ctx);
         ctx.sessionExists = true;
         ctx.sessionAttributes.put("authenticatedUserId", Long.valueOf(3_000_000_000L));
 
@@ -339,8 +360,8 @@ public class ProfileControllerTest {
 
     @Test
     public void testControllerNonexistentUserSessionRedirectsToLogin() throws Exception {
-        ProfileController controller = new ProfileController(mockUserService);
         MockHttpContext ctx = new MockHttpContext("/profile");
+        ProfileController controller = createController(ctx);
         ctx.setAuthenticatedUser(9999); // nonexistent in usersDb
 
         controller.doGet(ctx.request, ctx.response);
@@ -352,8 +373,8 @@ public class ProfileControllerTest {
 
     @Test
     public void testAuthenticatedGetSuccess() throws Exception {
-        ProfileController controller = new ProfileController(mockUserService);
         MockHttpContext ctx = new MockHttpContext("/profile");
+        ProfileController controller = createController(ctx);
         ctx.setAuthenticatedUser(1);
 
         controller.doGet(ctx.request, ctx.response);
@@ -371,8 +392,8 @@ public class ProfileControllerTest {
 
     @Test
     public void testPostIgnoresSpoofedIdParameters() throws Exception {
-        ProfileController controller = new ProfileController(mockUserService);
         MockHttpContext ctx = new MockHttpContext("/profile");
+        ProfileController controller = createController(ctx);
         ctx.setAuthenticatedUser(1);
 
         // Attacker attempts to spoof ID to update user 2
@@ -396,8 +417,8 @@ public class ProfileControllerTest {
 
     @Test
     public void testPostFullnameExceeds100CharsFails() throws Exception {
-        ProfileController controller = new ProfileController(mockUserService);
         MockHttpContext ctx = new MockHttpContext("/profile");
+        ProfileController controller = createController(ctx);
         ctx.setAuthenticatedUser(1);
 
         String longName = "A".repeat(101);
@@ -415,8 +436,8 @@ public class ProfileControllerTest {
 
     @Test
     public void testPostPhoneExceeds30CharsFails() throws Exception {
-        ProfileController controller = new ProfileController(mockUserService);
         MockHttpContext ctx = new MockHttpContext("/profile");
+        ProfileController controller = createController(ctx);
         ctx.setAuthenticatedUser(1);
 
         String longPhone = "0".repeat(31);
@@ -433,8 +454,8 @@ public class ProfileControllerTest {
 
     @Test
     public void testPostInvalidPhoneLettersFails() throws Exception {
-        ProfileController controller = new ProfileController(mockUserService);
         MockHttpContext ctx = new MockHttpContext("/profile");
+        ProfileController controller = createController(ctx);
         ctx.setAuthenticatedUser(1);
 
         ctx.parameters.put("fullname", "Alice Valid");
@@ -450,12 +471,11 @@ public class ProfileControllerTest {
 
     @Test
     public void testPostValidPhoneFormatsAccepted() throws Exception {
-        ProfileController controller = new ProfileController(mockUserService);
-
         String[] validPhones = {"+84901234567", "0901234567", "090-123-4567", "(028) 3896 8641"};
         for (String phone : validPhones) {
             updateProfileCalled = false;
             MockHttpContext ctx = new MockHttpContext("/profile");
+            ProfileController controller = createController(ctx);
             ctx.setAuthenticatedUser(1);
             ctx.parameters.put("fullname", "Alice");
             ctx.parameters.put("phone", phone);
@@ -471,8 +491,8 @@ public class ProfileControllerTest {
 
     @Test
     public void testPostEmptyUploadPreservesOldImage() throws Exception {
-        ProfileController controller = new ProfileController(mockUserService);
         MockHttpContext ctx = new MockHttpContext("/profile");
+        ProfileController controller = createController(ctx);
         ctx.setAuthenticatedUser(1);
         ctx.parameters.put("fullname", "Alice Updated");
         ctx.parameters.put("phone", "0901112233");
@@ -488,8 +508,8 @@ public class ProfileControllerTest {
 
     @Test
     public void testPostMultipartNullImagePartPreservesExistingImageAndUpdatesInfo() throws Exception {
-        ProfileController controller = new ProfileController(mockUserService);
         MockHttpContext ctx = new MockHttpContext("/profile");
+        ProfileController controller = createController(ctx);
         ctx.setAuthenticatedUser(1);
         ctx.contentType = "multipart/form-data; boundary=----WebKitFormBoundaryXYZ";
         // request.getPart("images") returns null because no "images" part is added
@@ -508,8 +528,8 @@ public class ProfileControllerTest {
 
     @Test
     public void testPostValidImageUploadWritesFileAndUpdatesProfile() throws Exception {
-        ProfileController controller = new ProfileController(mockUserService);
         MockHttpContext ctx = new MockHttpContext("/profile");
+        ProfileController controller = createController(ctx);
         ctx.setAuthenticatedUser(1);
         ctx.parameters.put("fullname", "Alice New Pic");
         ctx.parameters.put("phone", "0901112233");
@@ -534,8 +554,8 @@ public class ProfileControllerTest {
 
     @Test
     public void testPostInvalidImageExtensionRejected() throws Exception {
-        ProfileController controller = new ProfileController(mockUserService);
         MockHttpContext ctx = new MockHttpContext("/profile");
+        ProfileController controller = createController(ctx);
         ctx.setAuthenticatedUser(1);
         ctx.parameters.put("fullname", "Alice");
         ctx.addFilePart("images", "malicious.sh", "#!/bin/sh".getBytes(StandardCharsets.UTF_8));
@@ -546,13 +566,13 @@ public class ProfileControllerTest {
         assertTrue(ctx.forwarded);
         assertEquals("/WEB-INF/views/profile.jsp", ctx.forwardedPath);
         assertNotNull(ctx.attributes.get("error"));
-        assertTrue(ctx.attributes.get("error").toString().contains("Unsupported image type"));
+        assertTrue(ctx.attributes.get("error").toString().contains("Only JPG, JPEG, PNG and WEBP images are allowed"));
     }
 
     @Test
     public void testPostPathTraversalFilenameRejected() throws Exception {
-        ProfileController controller = new ProfileController(mockUserService);
         MockHttpContext ctx = new MockHttpContext("/profile");
+        ProfileController controller = createController(ctx);
         ctx.setAuthenticatedUser(1);
         ctx.parameters.put("fullname", "Alice");
         ctx.addFilePart("images", "../../evil.png", "fake".getBytes(StandardCharsets.UTF_8));
@@ -568,8 +588,8 @@ public class ProfileControllerTest {
 
     @Test
     public void testPostZeroByteFileWithSubmittedFileNamePreservesExistingImage() throws Exception {
-        ProfileController controller = new ProfileController(mockUserService);
         MockHttpContext ctx = new MockHttpContext("/profile");
+        ProfileController controller = createController(ctx);
         ctx.setAuthenticatedUser(1);
         ctx.parameters.put("fullname", "Alice Updated");
         ctx.parameters.put("phone", "0901112233");
@@ -586,8 +606,8 @@ public class ProfileControllerTest {
     public void testPostPersistenceFailureCleansUpNewlyWrittenFile() throws Exception {
         updateProfileReturnStatus = false; // Simulate database update failure
 
-        ProfileController controller = new ProfileController(mockUserService);
         MockHttpContext ctx = new MockHttpContext("/profile");
+        ProfileController controller = createController(ctx);
         ctx.setAuthenticatedUser(1);
         ctx.parameters.put("fullname", "Alice New Pic");
         byte[] dummyPng = "PNG dummy image".getBytes(StandardCharsets.UTF_8);
@@ -607,8 +627,8 @@ public class ProfileControllerTest {
 
     @Test
     public void testPostMultipartSizeLimitExceededHandledSafely() throws Exception {
-        ProfileController controller = new ProfileController(mockUserService);
         MockHttpContext ctx = new MockHttpContext("/profile");
+        ProfileController controller = createController(ctx);
         ctx.setAuthenticatedUser(1);
         ctx.contentType = "multipart/form-data; boundary=----XYZ";
         ctx.multipartSizeExceeded = true; // Simulates Tomcat maxFileSize / maxRequestSize violation
@@ -619,6 +639,6 @@ public class ProfileControllerTest {
         assertTrue(ctx.forwarded);
         assertEquals("/WEB-INF/views/profile.jsp", ctx.forwardedPath);
         assertNotNull(ctx.attributes.get("error"));
-        assertTrue(ctx.attributes.get("error").toString().contains("5MB"));
+        assertTrue(ctx.attributes.get("error").toString().contains("5 MB"));
     }
 }

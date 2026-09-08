@@ -128,7 +128,8 @@ public class LoginAndLogoutFlowTest {
 
         assertEquals("/categories", ctx.redirectUrl);
         assertEquals(activeUser.getId(), ctx.session.get("authenticatedUserId"));
-        assertEquals(1, ctx.session.size());
+        assertEquals("CUSTOMER", ctx.session.get("authenticatedUserRole"));
+        assertEquals(activeUser, ctx.session.get("account"));
     }
 
     private static final class InMemoryUserDao implements IUserDao {
@@ -175,7 +176,8 @@ public class LoginAndLogoutFlowTest {
 
         assertEquals("/categories", ctx.redirectUrl);
         assertEquals(activeUser.getId(), ctx.session.get("authenticatedUserId"));
-        assertEquals(1, ctx.session.size());
+        assertEquals("CUSTOMER", ctx.session.get("authenticatedUserRole"));
+        assertEquals(activeUser, ctx.session.get("account"));
     }
 
     @Test
