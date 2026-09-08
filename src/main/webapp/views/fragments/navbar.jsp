@@ -153,7 +153,7 @@
 
                     </li>
 
-                    <c:if test="${not empty sessionScope.authenticatedUserId}">
+                    <c:if test="${sessionScope.authenticatedUserRole == 'ADMIN'}">
 
                         <li class="nav-item site-nav__divider d-none d-lg-flex" aria-hidden="true"></li>
 
