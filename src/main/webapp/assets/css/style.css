@@ -1748,6 +1748,11 @@ a.product-card__name:hover {
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.35) !important;
 }
 
+.site-nav__auth .btn-ghost:hover {
+  color: var(--color-primary) !important;
+  background-color: var(--bg-surface-hover) !important;
+}
+
 .site-nav__auth .btn-ghost.active,
 .site-nav__auth .btn-ghost.active:hover {
   color: var(--color-primary) !important;
