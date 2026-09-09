@@ -303,17 +303,24 @@
                         <c:otherwise>
 
                             <a href="${pageContext.request.contextPath}/login"
-                               class="btn btn-ghost btn-sm ${activeNav == 'login' ? 'active' : ''}">
-
-                                Login
-
+                               class="btn btn-ghost btn-sm d-inline-flex align-items-center justify-content-center gap-1 ${activeNav == 'login' ? 'active' : ''}">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                                    <polyline points="10 17 15 12 10 7"/>
+                                    <line x1="15" y1="12" x2="3" y2="12"/>
+                                </svg>
+                                <span>Login</span>
                             </a>
 
                             <a href="${pageContext.request.contextPath}/register"
-                               class="btn btn-primary btn-sm ${activeNav == 'register' ? 'active' : ''}">
-
-                                Register
-
+                               class="btn btn-primary btn-sm d-inline-flex align-items-center justify-content-center gap-1 ${activeNav == 'register' ? 'active' : ''}">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="8.5" cy="7" r="4"/>
+                                    <line x1="20" y1="8" x2="20" y2="14"/>
+                                    <line x1="23" y1="11" x2="17" y2="11"/>
+                                </svg>
+                                <span>Register</span>
                             </a>
 
                         </c:otherwise>
