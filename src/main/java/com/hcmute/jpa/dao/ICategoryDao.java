@@ -17,4 +17,6 @@ public interface ICategoryDao {
     List<Category> findAll();
 
     boolean isCategoryInUse(int categoryId);
+
+    Category findByName(String name);
 }

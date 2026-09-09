@@ -64,6 +64,7 @@
                         placeholder="Enter your new password"
                         autocomplete="new-password"
                         aria-describedby="password-hint"
+                        minlength="6"
                         required
                         autofocus>
                 <button
@@ -93,6 +94,7 @@
                         placeholder="Re-enter your new password"
                         autocomplete="new-password"
                         aria-describedby="confirm-hint"
+                        minlength="6"
                         required>
                 <button
                         type="button"

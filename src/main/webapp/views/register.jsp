@@ -93,6 +93,7 @@
                         class="form-control"
                         placeholder="Enter your password"
                         autocomplete="new-password"
+                        minlength="6"
                         required>
                 <button
                         type="button"
@@ -120,6 +121,7 @@
                         class="form-control"
                         placeholder="Re-enter your password"
                         autocomplete="new-password"
+                        minlength="6"
                         required>
                 <button
                         type="button"

@@ -43,4 +43,9 @@ public class CategoryServiceImpl implements ICategoryService {
     public boolean isCategoryInUse(int categoryId) {
         return categoryDao.isCategoryInUse(categoryId);
     }
+
+    @Override
+    public Category findByName(String name) {
+        return categoryDao.findByName(name);
+    }
 }

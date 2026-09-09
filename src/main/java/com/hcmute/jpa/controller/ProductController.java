@@ -255,6 +255,11 @@ public class ProductController extends HttpServlet {
             return;
         }
 
+        if (productname.trim().length() > 250) {
+            forwardWithError(request, response, "Product name must not exceed 250 characters.", "/views/product-add.jsp");
+            return;
+        }
+
         // Validation: positive whole-number VND price
         double price;
         try {
@@ -285,6 +290,11 @@ public class ProductController extends HttpServlet {
             return;
         }
 
+        if (description != null && description.trim().length() > 500) {
+            forwardWithError(request, response, "Description must not exceed 500 characters.", "/views/product-add.jsp");
+            return;
+        }
+
         int status = 1;
         if (statusStr != null && !statusStr.trim().isEmpty()) {
             try {
@@ -297,6 +307,9 @@ public class ProductController extends HttpServlet {
         String images;
         try {
             images = storeImage(request);
+        } catch (IllegalStateException e) {
+            forwardWithError(request, response, "Image file exceeds maximum allowed size of 5 MB.", "/views/product-add.jsp");
+            return;
         } catch (IllegalArgumentException e) {
             forwardWithError(request, response, e.getMessage(), "/views/product-add.jsp");
             return;
@@ -367,6 +380,12 @@ public class ProductController extends HttpServlet {
             return;
         }
 
+        if (productname.trim().length() > 250) {
+            request.setAttribute("product", existingProduct);
+            forwardWithError(request, response, "Product name must not exceed 250 characters.", "/views/product-edit.jsp");
+            return;
+        }
+
         // Validation: positive whole-number VND price
         double price;
         try {
@@ -401,6 +420,12 @@ public class ProductController extends HttpServlet {
             return;
         }
 
+        if (description != null && description.trim().length() > 500) {
+            request.setAttribute("product", existingProduct);
+            forwardWithError(request, response, "Description must not exceed 500 characters.", "/views/product-edit.jsp");
+            return;
+        }
+
         int status = 1;
         if (statusStr != null && !statusStr.trim().isEmpty()) {
             try {
@@ -413,6 +438,10 @@ public class ProductController extends HttpServlet {
         String images;
         try {
             images = storeImage(request);
+        } catch (IllegalStateException e) {
+            request.setAttribute("product", existingProduct);
+            forwardWithError(request, response, "Image file exceeds maximum allowed size of 5 MB.", "/views/product-edit.jsp");
+            return;
         } catch (IllegalArgumentException e) {
             request.setAttribute("product", existingProduct);
             forwardWithError(request, response, e.getMessage(), "/views/product-edit.jsp");

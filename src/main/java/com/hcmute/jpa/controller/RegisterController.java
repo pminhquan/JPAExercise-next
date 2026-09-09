@@ -107,6 +107,12 @@ public class RegisterController extends HttpServlet {
             }
         }
 
+        if (password.length() < 6) {
+            request.setAttribute("error", "Password must be at least 6 characters.");
+            request.getRequestDispatcher("/views/register.jsp").forward(request, response);
+            return;
+        }
+
         try {
             if (user == null) {
                 user = userService.register(username, email, password);

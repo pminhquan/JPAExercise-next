@@ -17,11 +17,23 @@ public class CategoryController extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
 
+    // ponytail: Process-local write lock ensures atomic name-uniqueness check and write in a single JVM instance; multi-node deployments require a database-level UNIQUE constraint on CategoryName or distributed locking.
+    private static final Object CATEGORY_WRITE_LOCK = new Object();
+
     private ICategoryService categoryService;
+
+    public CategoryController() {
+    }
+
+    public CategoryController(ICategoryService categoryService) {
+        this.categoryService = categoryService;
+    }
 
     @Override
     public void init() {
-        categoryService = new CategoryServiceImpl();
+        if (categoryService == null) {
+            categoryService = new CategoryServiceImpl();
+        }
     }
 
     @Override
@@ -220,6 +232,44 @@ public class CategoryController extends HttpServlet {
             return;
         }
 
+        if (categoryname.trim().length() > 100) {
+
+            request.setAttribute(
+                    "error",
+                    "Category name must not exceed 100 characters."
+            );
+
+            request.getRequestDispatcher(
+                    "/views/category-add.jsp"
+            ).forward(request, response);
+
+            return;
+        }
+
+        if (images != null && !images.trim().isEmpty()) {
+            String trimmedImages = images.trim();
+            if (trimmedImages.length() > 500) {
+                request.setAttribute(
+                        "error",
+                        "Image path must not exceed 500 characters."
+                );
+                request.getRequestDispatcher(
+                        "/views/category-add.jsp"
+                ).forward(request, response);
+                return;
+            }
+            if (trimmedImages.contains("..")) {
+                request.setAttribute(
+                        "error",
+                        "Invalid image reference."
+                );
+                request.getRequestDispatcher(
+                        "/views/category-add.jsp"
+                ).forward(request, response);
+                return;
+            }
+        }
+
         Category category = new Category();
 
         category.setCategoryname(
@@ -234,7 +284,28 @@ public class CategoryController extends HttpServlet {
 
         category.setStatus(status);
 
-        categoryService.insert(category);
+        boolean duplicateFound = false;
+        synchronized (CATEGORY_WRITE_LOCK) {
+            Category existingCategory = categoryService.findByName(categoryname.trim());
+            if (existingCategory != null) {
+                duplicateFound = true;
+            } else {
+                categoryService.insert(category);
+            }
+        }
+
+        if (duplicateFound) {
+            request.setAttribute(
+                    "error",
+                    "Category name already exists."
+            );
+
+            request.getRequestDispatcher(
+                    "/views/category-add.jsp"
+            ).forward(request, response);
+
+            return;
+        }
 
         response.sendRedirect(
                 request.getContextPath()
@@ -311,30 +382,122 @@ public class CategoryController extends HttpServlet {
             return;
         }
 
-        Category category =
-                categoryService.findById(id);
+        if (categoryname.trim().length() > 100) {
 
-        if (category == null) {
+            Category category =
+                    categoryService.findById(id);
+
+            request.setAttribute(
+                    "category",
+                    category
+            );
+
+            request.setAttribute(
+                    "error",
+                    "Category name must not exceed 100 characters."
+            );
+
+            request.getRequestDispatcher(
+                    "/views/category-edit.jsp"
+            ).forward(request, response);
+
+            return;
+        }
+
+        if (images != null && !images.trim().isEmpty()) {
+            String trimmedImages = images.trim();
+            if (trimmedImages.length() > 500) {
+                Category category =
+                        categoryService.findById(id);
+                request.setAttribute(
+                        "category",
+                        category
+                );
+                request.setAttribute(
+                        "error",
+                        "Image path must not exceed 500 characters."
+                );
+                request.getRequestDispatcher(
+                        "/views/category-edit.jsp"
+                ).forward(request, response);
+                return;
+            }
+            if (trimmedImages.contains("..")) {
+                Category category =
+                        categoryService.findById(id);
+                request.setAttribute(
+                        "category",
+                        category
+                );
+                request.setAttribute(
+                        "error",
+                        "Invalid image reference."
+                );
+                request.getRequestDispatcher(
+                        "/views/category-edit.jsp"
+                ).forward(request, response);
+                return;
+            }
+        }
+
+        boolean duplicateFound = false;
+        boolean notFound = false;
+        synchronized (CATEGORY_WRITE_LOCK) {
+            Category existingCategory = categoryService.findByName(categoryname.trim());
+            if (existingCategory != null && existingCategory.getCategoryid() != id) {
+                duplicateFound = true;
+            } else {
+                Category category =
+                        categoryService.findById(id);
+
+                if (category == null) {
+                    notFound = true;
+                } else {
+                    category.setCategoryname(
+                            categoryname.trim()
+                    );
+
+                    category.setImages(
+                            images == null
+                                    ? ""
+                                    : images.trim()
+                    );
+
+                    category.setStatus(status);
+
+                    categoryService.update(category);
+                }
+            }
+        }
+
+        if (duplicateFound) {
+            Category category =
+                    categoryService.findById(id);
+
+            request.setAttribute(
+                    "category",
+                    category
+            );
+
+            request.setAttribute(
+                    "error",
+                    "Category name already exists."
+            );
+
+            request.getRequestDispatcher(
+                    "/views/category-edit.jsp"
+            ).forward(request, response);
+
+            return;
+        }
+
+        if (notFound) {
             response.sendRedirect(
                     request.getContextPath()
                             + "/categories"
             );
             return;
         }
-
-        category.setCategoryname(
-                categoryname.trim()
-        );
-
-        category.setImages(
-                images == null
-                        ? ""
-                        : images.trim()
-        );
-
-        category.setStatus(status);
-
-        categoryService.update(category);
 
         response.sendRedirect(
                 request.getContextPath()

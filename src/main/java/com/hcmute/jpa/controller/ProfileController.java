@@ -128,29 +128,6 @@ public class ProfileController extends HttpServlet {
         user.setFullname(fullname);
         user.setPhone(phone);
 
-        if (fullname != null && fullname.length() > 100) {
-            forwardWithError(
-                    request,
-                    response,
-                    user,
-                    "Full name must not exceed 100 characters."
-            );
-            return;
-        }
-
-        if (phone != null && !phone.isEmpty()) {
-
-            if (phone.length() > 30 || !isValidPhone(phone)) {
-                forwardWithError(
-                        request,
-                        response,
-                        user,
-                        "Invalid phone number."
-                );
-                return;
-            }
-        }
-
         Part imagePart;
 
         try {
@@ -191,6 +168,39 @@ public class ProfileController extends HttpServlet {
                     "Unable to process uploaded image."
             );
             return;
+        }
+
+        if (fullname == null || fullname.isEmpty()) {
+            forwardWithError(
+                    request,
+                    response,
+                    user,
+                    "Full name is required."
+            );
+            return;
+        }
+
+        if (fullname.length() > 100) {
+            forwardWithError(
+                    request,
+                    response,
+                    user,
+                    "Full name must not exceed 100 characters."
+            );
+            return;
+        }
+
+        if (phone != null && !phone.isEmpty()) {
+
+            if (phone.length() > 30 || !isValidPhone(phone)) {
+                forwardWithError(
+                        request,
+                        response,
+                        user,
+                        "Invalid phone number."
+                );
+                return;
+            }
         }
 
         String oldImage = user.getImages();

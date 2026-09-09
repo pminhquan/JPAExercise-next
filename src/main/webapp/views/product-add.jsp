@@ -69,7 +69,7 @@
                                     class="form-control"
                                     value="${fn:escapeXml(param.productname)}"
                                     placeholder="e.g. Dell XPS 15 9530, iPhone 15 Pro Max"
-                                    maxlength="255"
+                                    maxlength="250"
                                     required>
 
                             <span class="form-hint">
@@ -144,6 +144,7 @@
                                     name="description"
                                     class="form-control"
                                     rows="4"
+                                    maxlength="500"
                                     placeholder="Provide specifications, features, warranty, or key details...">${fn:escapeXml(param.description)}</textarea>
 
                             <span class="form-hint">

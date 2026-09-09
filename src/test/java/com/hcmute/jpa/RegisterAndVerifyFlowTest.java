@@ -660,6 +660,55 @@ public class RegisterAndVerifyFlowTest {
         }
     }
 
+    @Test
+    public void testRegistrationPasswordLengthValidation() throws Exception {
+        RegisterController registerController = new RegisterController(userService, otpService, emailStub);
+
+        // 1. Password shorter than 6 characters (5 characters) must be rejected
+        String shortUser = "short_" + System.currentTimeMillis();
+        MockHttpContext shortCtx = new MockHttpContext();
+        shortCtx.parameters.put("username", shortUser);
+        shortCtx.parameters.put("email", shortUser + "@example.com");
+        shortCtx.parameters.put("password", "12345");
+        shortCtx.parameters.put("confirmPassword", "12345");
+
+        registerController.doPost(shortCtx.request, shortCtx.response);
+
+        assertTrue(shortCtx.forwarded);
+        assertEquals("/views/register.jsp", shortCtx.forwardedPath);
+        assertEquals("Password must be at least 6 characters.", shortCtx.attributes.get("error"));
+        assertNull(userService.findByUsername(shortUser));
+        assertNull(userService.findByEmail(shortUser + "@example.com"));
+
+        // 2. Password with exactly 6 characters must be accepted
+        String valid6User = "valid6_" + System.currentTimeMillis();
+        MockHttpContext valid6Ctx = new MockHttpContext();
+        valid6Ctx.parameters.put("username", valid6User);
+        valid6Ctx.parameters.put("email", valid6User + "@example.com");
+        valid6Ctx.parameters.put("password", "123456");
+        valid6Ctx.parameters.put("confirmPassword", "123456");
+
+        registerController.doPost(valid6Ctx.request, valid6Ctx.response);
+
+        assertEquals("/verify-otp", valid6Ctx.redirectUrl);
+        assertNotNull(userService.findByUsername(valid6User));
+        assertNotNull(userService.findByEmail(valid6User + "@example.com"));
+
+        // 3. Password with more than 6 characters must be accepted
+        String validLongUser = "validlong_" + System.currentTimeMillis();
+        MockHttpContext validLongCtx = new MockHttpContext();
+        validLongCtx.parameters.put("username", validLongUser);
+        validLongCtx.parameters.put("email", validLongUser + "@example.com");
+        validLongCtx.parameters.put("password", "SecurePassword123");
+        validLongCtx.parameters.put("confirmPassword", "SecurePassword123");
+
+        registerController.doPost(validLongCtx.request, validLongCtx.response);
+
+        assertEquals("/verify-otp", validLongCtx.redirectUrl);
+        assertNotNull(userService.findByUsername(validLongUser));
+        assertNotNull(userService.findByEmail(validLongUser + "@example.com"));
+    }
+
     private static final class RecordingTransactionBoundary
             implements VerifyOtpController.TransactionBoundary {
         private final java.util.List<String> events;

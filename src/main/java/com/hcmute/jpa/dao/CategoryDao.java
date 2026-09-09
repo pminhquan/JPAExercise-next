@@ -163,4 +163,25 @@ public class CategoryDao implements ICategoryDao {
             }
         }
     }
+
+    @Override
+    public Category findByName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            return null;
+        }
+        EntityManager entityManager = JpaConfig.getEntityManager();
+        boolean ownsEntityManager = !JpaConfig.isTransactionActive();
+        try {
+            String jpql = "SELECT c FROM Category c WHERE LOWER(TRIM(c.categoryname)) = LOWER(:name)";
+            List<Category> results = entityManager.createQuery(jpql, Category.class)
+                    .setParameter("name", name.trim())
+                    .setMaxResults(1)
+                    .getResultList();
+            return results.isEmpty() ? null : results.get(0);
+        } finally {
+            if (ownsEntityManager) {
+                entityManager.close();
+            }
+        }
+    }
 }

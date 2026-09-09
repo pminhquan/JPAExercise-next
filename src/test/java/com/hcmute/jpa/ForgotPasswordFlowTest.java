@@ -270,6 +270,65 @@ public class ForgotPasswordFlowTest {
         assertEquals("/forgot-password", ctx.redirectUrl);
     }
 
+    @Test
+    public void testResetPasswordLengthValidation() throws Exception {
+        ResetPasswordController resetController = new ResetPasswordController(userService);
+
+        // 1. Password shorter than 6 characters (5 characters) must be rejected
+        MockHttpContext shortCtx = new MockHttpContext();
+        shortCtx.session.put("resetEmail", testUser.getEmail());
+        shortCtx.session.put("resetAuthorized", true);
+        shortCtx.session.put("resetExpiry", System.currentTimeMillis() + 60000);
+        shortCtx.parameters.put("password", "12345");
+        shortCtx.parameters.put("confirmPassword", "12345");
+
+        resetController.doPost(shortCtx.request, shortCtx.response);
+
+        assertTrue(shortCtx.forwarded);
+        assertEquals("/views/reset-password.jsp", shortCtx.forwardedPath);
+        assertEquals("Password must be at least 6 characters.", shortCtx.attributes.get("error"));
+        // Old password unchanged
+        User userAfterShort = userService.findByEmail(testUser.getEmail());
+        assertTrue(userService.verifyPassword(userAfterShort, password));
+        assertFalse(userService.verifyPassword(userAfterShort, "12345"));
+        // Reset session authorization retained for retry
+        assertEquals(true, shortCtx.session.get("resetAuthorized"));
+
+        // 2. Password with exactly 6 characters must be accepted
+        MockHttpContext valid6Ctx = new MockHttpContext();
+        valid6Ctx.session.put("resetEmail", testUser.getEmail());
+        valid6Ctx.session.put("resetAuthorized", true);
+        valid6Ctx.session.put("resetExpiry", System.currentTimeMillis() + 60000);
+        valid6Ctx.parameters.put("password", "123456");
+        valid6Ctx.parameters.put("confirmPassword", "123456");
+
+        resetController.doPost(valid6Ctx.request, valid6Ctx.response);
+
+        assertTrue(valid6Ctx.redirectUrl.contains("/login"));
+        assertNull(valid6Ctx.session.get("resetEmail"));
+        assertNull(valid6Ctx.session.get("resetAuthorized"));
+        User userAfterValid6 = userService.findByEmail(testUser.getEmail());
+        assertTrue(userService.verifyPassword(userAfterValid6, "123456"));
+        assertFalse(userService.verifyPassword(userAfterValid6, password));
+
+        // 3. Password with more than 6 characters must be accepted
+        MockHttpContext validLongCtx = new MockHttpContext();
+        validLongCtx.session.put("resetEmail", testUser.getEmail());
+        validLongCtx.session.put("resetAuthorized", true);
+        validLongCtx.session.put("resetExpiry", System.currentTimeMillis() + 60000);
+        validLongCtx.parameters.put("password", "BrandNewPass999");
+        validLongCtx.parameters.put("confirmPassword", "BrandNewPass999");
+
+        resetController.doPost(validLongCtx.request, validLongCtx.response);
+
+        assertTrue(validLongCtx.redirectUrl.contains("/login"));
+        assertNull(validLongCtx.session.get("resetEmail"));
+        assertNull(validLongCtx.session.get("resetAuthorized"));
+        User userAfterLong = userService.findByEmail(testUser.getEmail());
+        assertTrue(userService.verifyPassword(userAfterLong, "BrandNewPass999"));
+        assertFalse(userService.verifyPassword(userAfterLong, "123456"));
+    }
+
     private static final class InMemoryUserDao implements IUserDao {
         private final Map<Integer, User> users = new HashMap<>();
         private int nextId = 1;

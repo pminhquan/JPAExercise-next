@@ -197,7 +197,7 @@
                                     <div class="row g-3">
                                         <div class="col-12 col-sm-6">
                                             <div class="form-field mb-0">
-                                                <label for="fullname" class="form-label">
+                                                <label for="fullname" class="form-label label-required">
                                                     Full name
                                                 </label>
                                                 <input
@@ -208,7 +208,8 @@
                                                         maxlength="100"
                                                         placeholder="Enter your full name"
                                                         autocomplete="name"
-                                                        value="${fn:escapeXml(user.fullname)}" />
+                                                        value="${fn:escapeXml(user.fullname)}"
+                                                        required />
                                                 <span class="form-hint">Max 100 characters.</span>
                                             </div>
                                         </div>

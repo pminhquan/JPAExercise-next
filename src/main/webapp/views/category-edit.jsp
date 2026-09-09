@@ -141,6 +141,7 @@
                                     name="images"
                                     class="form-control"
                                     value="${fn:escapeXml(currentImage)}"
+                                    maxlength="500"
                                     placeholder="e.g. laptop.jpg or https://images.unsplash.com/...">
 
                             <span class="form-hint">

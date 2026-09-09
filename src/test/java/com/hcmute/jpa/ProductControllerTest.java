@@ -131,6 +131,7 @@ public class ProductControllerTest {
         String forwardedPath = null;
         String servletPath = "/products";
         int status = 200;
+        boolean multipartSizeExceeded = false;
 
         HttpServletRequest request;
         HttpServletResponse response;
@@ -164,6 +165,11 @@ public class ProductControllerTest {
                 } else if (methodName.equals("getServletPath")) {
                     return servletPath;
                 } else if (methodName.equals("setCharacterEncoding")) {
+                    return null;
+                } else if (methodName.equals("getPart")) {
+                    if (multipartSizeExceeded) {
+                        throw new IllegalStateException("SizeLimitExceededException: request exceeds 6MB or file exceeds 5MB");
+                    }
                     return null;
                 }
                 return null;
@@ -667,5 +673,108 @@ public class ProductControllerTest {
         assertNull(ctx.attributes.get("product"));
         assertEquals("An internal database or server error occurred.", ctx.attributes.get("error"));
         assertEquals(500, ctx.status);
+    }
+
+    @Test
+    public void testPostProductAddNameExceeds250CharsValidation() throws Exception {
+        ProductController controller = new ProductController(mockProductService, mockCategoryService);
+        MockHttpContext ctx = new MockHttpContext("/products/add");
+        ctx.parameters.put("productname", "A".repeat(251));
+        ctx.parameters.put("price", "100000");
+        ctx.parameters.put("categoryid", "10");
+
+        controller.doPost(ctx.request, ctx.response);
+
+        assertFalse(createProductCalled);
+        assertTrue(ctx.forwarded);
+        assertEquals("/views/product-add.jsp", ctx.forwardedPath);
+        assertEquals("Product name must not exceed 250 characters.", ctx.attributes.get("error"));
+    }
+
+    @Test
+    public void testPostProductEditNameExceeds250CharsValidation() throws Exception {
+        ProductController controller = new ProductController(mockProductService, mockCategoryService);
+        MockHttpContext ctx = new MockHttpContext("/products/edit");
+        ctx.parameters.put("productid", "101");
+        ctx.parameters.put("productname", "A".repeat(251));
+        ctx.parameters.put("price", "100000");
+        ctx.parameters.put("categoryid", "10");
+
+        controller.doPost(ctx.request, ctx.response);
+
+        assertFalse(updateProductCalled);
+        assertTrue(ctx.forwarded);
+        assertEquals("/views/product-edit.jsp", ctx.forwardedPath);
+        assertEquals("Product name must not exceed 250 characters.", ctx.attributes.get("error"));
+    }
+
+    @Test
+    public void testPostProductAddDescriptionExceeds500CharsValidation() throws Exception {
+        ProductController controller = new ProductController(mockProductService, mockCategoryService);
+        MockHttpContext ctx = new MockHttpContext("/products/add");
+        ctx.parameters.put("productname", "Valid Product");
+        ctx.parameters.put("price", "100000");
+        ctx.parameters.put("categoryid", "10");
+        ctx.parameters.put("description", "D".repeat(501));
+
+        controller.doPost(ctx.request, ctx.response);
+
+        assertFalse(createProductCalled);
+        assertTrue(ctx.forwarded);
+        assertEquals("/views/product-add.jsp", ctx.forwardedPath);
+        assertEquals("Description must not exceed 500 characters.", ctx.attributes.get("error"));
+    }
+
+    @Test
+    public void testPostProductEditDescriptionExceeds500CharsValidation() throws Exception {
+        ProductController controller = new ProductController(mockProductService, mockCategoryService);
+        MockHttpContext ctx = new MockHttpContext("/products/edit");
+        ctx.parameters.put("productid", "101");
+        ctx.parameters.put("productname", "Valid Product");
+        ctx.parameters.put("price", "100000");
+        ctx.parameters.put("categoryid", "10");
+        ctx.parameters.put("description", "D".repeat(501));
+
+        controller.doPost(ctx.request, ctx.response);
+
+        assertFalse(updateProductCalled);
+        assertTrue(ctx.forwarded);
+        assertEquals("/views/product-edit.jsp", ctx.forwardedPath);
+        assertEquals("Description must not exceed 500 characters.", ctx.attributes.get("error"));
+    }
+
+    @Test
+    public void testPostProductAddMultipartSizeExceededValidation() throws Exception {
+        ProductController controller = new ProductController(mockProductService, mockCategoryService);
+        MockHttpContext ctx = new MockHttpContext("/products/add");
+        ctx.parameters.put("productname", "Valid Product");
+        ctx.parameters.put("price", "100000");
+        ctx.parameters.put("categoryid", "10");
+        ctx.multipartSizeExceeded = true;
+
+        controller.doPost(ctx.request, ctx.response);
+
+        assertFalse(createProductCalled);
+        assertTrue(ctx.forwarded);
+        assertEquals("/views/product-add.jsp", ctx.forwardedPath);
+        assertEquals("Image file exceeds maximum allowed size of 5 MB.", ctx.attributes.get("error"));
+    }
+
+    @Test
+    public void testPostProductEditMultipartSizeExceededValidation() throws Exception {
+        ProductController controller = new ProductController(mockProductService, mockCategoryService);
+        MockHttpContext ctx = new MockHttpContext("/products/edit");
+        ctx.parameters.put("productid", "101");
+        ctx.parameters.put("productname", "Valid Product");
+        ctx.parameters.put("price", "100000");
+        ctx.parameters.put("categoryid", "10");
+        ctx.multipartSizeExceeded = true;
+
+        controller.doPost(ctx.request, ctx.response);
+
+        assertFalse(updateProductCalled);
+        assertTrue(ctx.forwarded);
+        assertEquals("/views/product-edit.jsp", ctx.forwardedPath);
+        assertEquals("Image file exceeds maximum allowed size of 5 MB.", ctx.attributes.get("error"));
     }
 }

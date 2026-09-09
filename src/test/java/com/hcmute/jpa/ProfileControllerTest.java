@@ -416,6 +416,38 @@ public class ProfileControllerTest {
     // --- Validation tests ---
 
     @Test
+    public void testPostEmptyFullnameFails() throws Exception {
+        MockHttpContext ctx = new MockHttpContext("/profile");
+        ProfileController controller = createController(ctx);
+        ctx.setAuthenticatedUser(1);
+        ctx.parameters.put("fullname", "");
+        ctx.parameters.put("phone", "0912345678");
+
+        controller.doPost(ctx.request, ctx.response);
+
+        assertFalse(updateProfileCalled);
+        assertTrue(ctx.forwarded);
+        assertEquals("/WEB-INF/views/profile.jsp", ctx.forwardedPath);
+        assertEquals("Full name is required.", ctx.attributes.get("error"));
+    }
+
+    @Test
+    public void testPostWhitespaceFullnameFails() throws Exception {
+        MockHttpContext ctx = new MockHttpContext("/profile");
+        ProfileController controller = createController(ctx);
+        ctx.setAuthenticatedUser(1);
+        ctx.parameters.put("fullname", "   ");
+        ctx.parameters.put("phone", "0912345678");
+
+        controller.doPost(ctx.request, ctx.response);
+
+        assertFalse(updateProfileCalled);
+        assertTrue(ctx.forwarded);
+        assertEquals("/WEB-INF/views/profile.jsp", ctx.forwardedPath);
+        assertEquals("Full name is required.", ctx.attributes.get("error"));
+    }
+
+    @Test
     public void testPostFullnameExceeds100CharsFails() throws Exception {
         MockHttpContext ctx = new MockHttpContext("/profile");
         ProfileController controller = createController(ctx);

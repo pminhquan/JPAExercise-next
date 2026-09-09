@@ -67,6 +67,12 @@ public class ResetPasswordController extends HttpServlet {
             return;
         }
 
+        if (password.length() < 6) {
+            request.setAttribute("error", "Password must be at least 6 characters.");
+            request.getRequestDispatcher("/views/reset-password.jsp").forward(request, response);
+            return;
+        }
+
         HttpSession session = request.getSession();
         String email = (String) session.getAttribute("resetEmail");
         User user = userService.findByEmail(email);
