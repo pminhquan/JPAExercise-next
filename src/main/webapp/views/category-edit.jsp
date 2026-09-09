@@ -54,7 +54,8 @@
 
                     <form
                             action="${pageContext.request.contextPath}/categories?action=update"
-                            method="post">
+                            method="post"
+                            enctype="multipart/form-data">
 
                         <input
                                 type="hidden"
@@ -103,8 +104,8 @@
 
                         <div class="form-field">
 
-                            <label class="form-label" for="images">
-                                Image / Image URL
+                            <label class="form-label" for="image">
+                                Category Image
                             </label>
 
                             <c:set var="currentImage"
@@ -133,23 +134,28 @@
                                         </c:otherwise>
                                     </c:choose>
                                     <div>
-                                        <div class="small text-muted">Current image reference:</div>
+                                        <div class="small text-muted">Current image file:</div>
                                         <code class="small"><c:out value="${currentImage}"/></code>
                                     </div>
                                 </div>
                             </c:if>
 
                             <input
-                                    type="text"
-                                    id="images"
-                                    name="images"
+                                    type="file"
+                                    id="image"
+                                    name="image"
                                     class="form-control"
-                                    value="${fn:escapeXml(currentImage)}"
-                                    maxlength="500"
-                                    placeholder="e.g. laptop.jpg or https://images.unsplash.com/...">
+                                    accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
 
                             <span class="form-hint">
-                                Optional. File name located in /uploads/ (presets: laptop.jpg, smartphone.jpg, headphone.jpg, tablet.jpg, mouse.jpg, smartwatch.jpg) or a full web image URL (https://...). Leave as-is to keep the current image.
+                                <c:choose>
+                                    <c:when test="${not empty currentImage}">
+                                        Optional replacement. Select a new image file (JPG, JPEG, PNG, WEBP, max 5 MB). Leave empty to retain current image.
+                                    </c:when>
+                                    <c:otherwise>
+                                        Optional. Select an image file (JPG, JPEG, PNG, WEBP, max 5 MB).
+                                    </c:otherwise>
+                                </c:choose>
                             </span>
 
                         </div>

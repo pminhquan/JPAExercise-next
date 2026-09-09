@@ -4,18 +4,25 @@ import com.hcmute.jpa.controller.CategoryController;
 import com.hcmute.jpa.entity.Category;
 import com.hcmute.jpa.service.ICategoryService;
 import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -27,9 +34,15 @@ public class CategoryControllerTest {
     private boolean updateCalled;
     private boolean deleteCalled;
     private int nextCategoryId = 1;
+    private Path tempUploadDir;
+    private String savedAppUploadDir;
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws IOException {
+        tempUploadDir = Files.createTempDirectory("cat_ctrl_test_uploads_");
+        savedAppUploadDir = System.getProperty("app.upload.dir");
+        System.setProperty("app.upload.dir", tempUploadDir.toAbsolutePath().toString());
+
         categoriesDb = new ArrayList<>();
         insertCalled = false;
         updateCalled = false;
@@ -43,6 +56,10 @@ public class CategoryControllerTest {
         Category c2 = new Category("Books", "book.jpg", 1);
         c2.setCategoryid(2);
         categoriesDb.add(c2);
+
+        Category c3 = new Category("ExternalCategory", "https://images.example.com/item.jpg", 1);
+        c3.setCategoryid(3);
+        categoriesDb.add(c3);
 
         mockCategoryService = createMock(ICategoryService.class, (proxy, method, args) -> {
             String name = method.getName();
@@ -79,6 +96,28 @@ public class CategoryControllerTest {
         });
     }
 
+    @AfterEach
+    public void tearDown() {
+        if (savedAppUploadDir != null) {
+            System.setProperty("app.upload.dir", savedAppUploadDir);
+        } else {
+            System.clearProperty("app.upload.dir");
+        }
+
+        if (tempUploadDir != null && Files.exists(tempUploadDir)) {
+            try (Stream<Path> stream = Files.walk(tempUploadDir)) {
+                stream.sorted(Comparator.reverseOrder())
+                        .forEach(p -> {
+                            try {
+                                Files.deleteIfExists(p);
+                            } catch (Exception ignored) {
+                            }
+                        });
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
     @SuppressWarnings("unchecked")
     private static <T> T createMock(Class<T> interfaceType, InvocationHandler handler) {
         return (T) Proxy.newProxyInstance(
@@ -91,6 +130,10 @@ public class CategoryControllerTest {
     private static class MockHttpContext {
         Map<String, String> parameters = new HashMap<>();
         Map<String, Object> attributes = new HashMap<>();
+        Map<String, Part> parts = new HashMap<>();
+        boolean throwOnGetPart = false;
+        Throwable getPartException = null;
+        String contentType = null;
         String redirectUrl = null;
         boolean forwarded = false;
         String forwardedPath = null;
@@ -110,7 +153,15 @@ public class CategoryControllerTest {
 
             request = createMock(HttpServletRequest.class, (proxy, method, args) -> {
                 String methodName = method.getName();
-                if ("getParameter".equals(methodName)) {
+                if ("getContentType".equals(methodName)) {
+                    if (contentType != null) {
+                        return contentType;
+                    }
+                    if (!parts.isEmpty() || throwOnGetPart || getPartException != null) {
+                        return "multipart/form-data; boundary=----WebKitFormBoundaryXYZ";
+                    }
+                    return "application/x-www-form-urlencoded";
+                } else if ("getParameter".equals(methodName)) {
                     return parameters.get((String) args[0]);
                 } else if ("setAttribute".equals(methodName)) {
                     attributes.put((String) args[0], args[1]);
@@ -123,6 +174,25 @@ public class CategoryControllerTest {
                 } else if ("getContextPath".equals(methodName)) {
                     return "/JPAExercise-next";
                 } else if ("setCharacterEncoding".equals(methodName)) {
+                    return null;
+                } else if ("getPart".equals(methodName)) {
+                    if (throwOnGetPart) {
+                        throw new IllegalStateException("Size limit exceeded");
+                    }
+                    if (getPartException != null) {
+                        if (getPartException instanceof IOException) {
+                            throw (IOException) getPartException;
+                        }
+                        if (getPartException instanceof ServletException) {
+                            throw (ServletException) getPartException;
+                        }
+                        if (getPartException instanceof RuntimeException) {
+                            throw (RuntimeException) getPartException;
+                        }
+                        throw new ServletException(getPartException);
+                    }
+                    return parts.get((String) args[0]);
+                } else if ("getServletContext".equals(methodName)) {
                     return null;
                 }
                 return null;
@@ -139,6 +209,38 @@ public class CategoryControllerTest {
                 return null;
             });
         }
+    }
+
+    private static Part createMockPart(String submittedFileName, byte[] content, String contentType) {
+        return createMock(Part.class, (proxy, method, args) -> {
+            String name = method.getName();
+            if ("getSubmittedFileName".equals(name)) {
+                return submittedFileName;
+            } else if ("getSize".equals(name)) {
+                return content == null ? 0L : (long) content.length;
+            } else if ("getInputStream".equals(name)) {
+                return new java.io.ByteArrayInputStream(content != null ? content : new byte[0]);
+            } else if ("getContentType".equals(name)) {
+                return contentType;
+            }
+            return null;
+        });
+    }
+
+    private static Part createMockPartWithStream(String submittedFileName, long size, java.io.InputStream inputStream, String contentType) {
+        return createMock(Part.class, (proxy, method, args) -> {
+            String name = method.getName();
+            if ("getSubmittedFileName".equals(name)) {
+                return submittedFileName;
+            } else if ("getSize".equals(name)) {
+                return size;
+            } else if ("getInputStream".equals(name)) {
+                return inputStream;
+            } else if ("getContentType".equals(name)) {
+                return contentType;
+            }
+            return null;
+        });
     }
 
     @Test
@@ -403,5 +505,341 @@ public class CategoryControllerTest {
         assertTrue(ctx2.forwarded, "Thread 2 should have forwarded on duplicate error");
         assertEquals("/views/category-add.jsp", ctx2.forwardedPath);
         assertEquals("Category name already exists.", ctx2.attributes.get("error"));
+    }
+
+    @Test
+    public void testInsertCategoryWithUploadedImage() throws Exception {
+        CategoryController controller = new CategoryController(mockCategoryService);
+        MockHttpContext ctx = new MockHttpContext();
+        ctx.parameters.put("action", "insert");
+        ctx.parameters.put("categoryname", "Monitors");
+        ctx.parameters.put("status", "1");
+        ctx.parts.put("image", createMockPart("monitor.png", new byte[]{1, 2, 3}, "image/png"));
+
+        controller.doPost(ctx.request, ctx.response);
+
+        assertTrue(insertCalled);
+        assertEquals("/JPAExercise-next/categories?message=add_success", ctx.redirectUrl);
+        Category saved = categoriesDb.stream().filter(c -> "Monitors".equals(c.getCategoryname())).findFirst().orElse(null);
+        assertNotNull(saved);
+        assertTrue(saved.getImages().startsWith("categories/"));
+        assertTrue(saved.getImages().endsWith(".png"));
+    }
+
+    @Test
+    public void testUpdateCategoryWithImageReplacement() throws Exception {
+        CategoryController controller = new CategoryController(mockCategoryService);
+        MockHttpContext ctx = new MockHttpContext();
+        ctx.parameters.put("action", "update");
+        ctx.parameters.put("categoryid", "1");
+        ctx.parameters.put("categoryname", "Electronics");
+        ctx.parameters.put("status", "1");
+        ctx.parts.put("image", createMockPart("new-elec.jpg", new byte[]{4, 5, 6}, "image/jpeg"));
+
+        controller.doPost(ctx.request, ctx.response);
+
+        assertTrue(updateCalled);
+        assertEquals("/JPAExercise-next/categories?message=update_success", ctx.redirectUrl);
+        Category updated = categoriesDb.stream().filter(c -> c.getCategoryid() == 1).findFirst().orElse(null);
+        assertNotNull(updated);
+        assertTrue(updated.getImages().startsWith("categories/"));
+        assertTrue(updated.getImages().endsWith(".jpg"));
+    }
+
+    @Test
+    public void testUpdateCategoryWithoutNewImageRetainsOld() throws Exception {
+        CategoryController controller = new CategoryController(mockCategoryService);
+        MockHttpContext ctx = new MockHttpContext();
+        ctx.parameters.put("action", "update");
+        ctx.parameters.put("categoryid", "1");
+        ctx.parameters.put("categoryname", "Electronics Renamed");
+        ctx.parameters.put("status", "1");
+        // Neither image upload part nor images text parameter is provided
+
+        controller.doPost(ctx.request, ctx.response);
+
+        assertTrue(updateCalled);
+        assertEquals("/JPAExercise-next/categories?message=update_success", ctx.redirectUrl);
+        Category updated = categoriesDb.stream().filter(c -> c.getCategoryid() == 1).findFirst().orElse(null);
+        assertNotNull(updated);
+        assertEquals("laptop.jpg", updated.getImages());
+    }
+
+    @Test
+    public void testInsertCategoryWithoutImageDefaultsToBlank() throws Exception {
+        CategoryController controller = new CategoryController(mockCategoryService);
+        MockHttpContext ctx = new MockHttpContext();
+        ctx.parameters.put("action", "insert");
+        ctx.parameters.put("categoryname", "Laptop");
+        ctx.parameters.put("status", "1");
+        // No image upload
+
+        controller.doPost(ctx.request, ctx.response);
+
+        assertTrue(insertCalled);
+        Category saved = categoriesDb.stream().filter(c -> "Laptop".equals(c.getCategoryname())).findFirst().orElse(null);
+        assertNotNull(saved);
+        assertEquals("", saved.getImages());
+    }
+
+    @Test
+    public void testUpdateCategoryReplacingExternalUrlImageSucceeds() throws Exception {
+        CategoryController controller = new CategoryController(mockCategoryService);
+        MockHttpContext ctx = new MockHttpContext();
+        ctx.parameters.put("action", "update");
+        ctx.parameters.put("categoryid", "3");
+        ctx.parameters.put("categoryname", "ExternalCategory");
+        ctx.parameters.put("status", "1");
+        ctx.parts.put("image", createMockPart("replaced.png", new byte[]{10, 20, 30}, "image/png"));
+
+        controller.doPost(ctx.request, ctx.response);
+
+        assertTrue(updateCalled);
+        assertEquals("/JPAExercise-next/categories?message=update_success", ctx.redirectUrl);
+        Category updated = categoriesDb.stream().filter(c -> c.getCategoryid() == 3).findFirst().orElse(null);
+        assertNotNull(updated);
+        assertTrue(updated.getImages().startsWith("categories/"));
+        assertTrue(updated.getImages().endsWith(".png"));
+    }
+
+    @Test
+    public void testInsertCategoryPersistenceFailureCleansUpStoredImage() throws Exception {
+        mockCategoryService = createMock(ICategoryService.class, (proxy, method, args) -> {
+            String name = method.getName();
+            if ("findByName".equals(name)) return null;
+            if ("insert".equals(name)) throw new RuntimeException("Database error");
+            return null;
+        });
+        CategoryController controller = new CategoryController(mockCategoryService);
+        MockHttpContext ctx = new MockHttpContext();
+        ctx.parameters.put("action", "insert");
+        ctx.parameters.put("categoryname", "FailingCategory");
+        ctx.parameters.put("status", "1");
+        ctx.parts.put("image", createMockPart("orphan.png", new byte[]{1, 2, 3}, "image/png"));
+
+        controller.doPost(ctx.request, ctx.response);
+
+        assertTrue(ctx.forwarded);
+        assertEquals("/views/category-add.jsp", ctx.forwardedPath);
+        Path catFolder = tempUploadDir.resolve("categories");
+        if (Files.exists(catFolder)) {
+            try (Stream<Path> s = Files.list(catFolder)) {
+                assertEquals(0, s.count(), "Orphaned image must be deleted on persistence failure");
+            }
+        }
+    }
+
+    @Test
+    public void testUpdateCategoryPersistenceFailureCleansUpStoredImage() throws Exception {
+        Category existing = new Category("Existing", "old.jpg", 1);
+        existing.setCategoryid(10);
+        mockCategoryService = createMock(ICategoryService.class, (proxy, method, args) -> {
+            String name = method.getName();
+            if ("findById".equals(name)) return existing;
+            if ("findByName".equals(name)) return null;
+            if ("update".equals(name)) throw new RuntimeException("Database update error");
+            return null;
+        });
+        CategoryController controller = new CategoryController(mockCategoryService);
+        MockHttpContext ctx = new MockHttpContext();
+        ctx.parameters.put("action", "update");
+        ctx.parameters.put("categoryid", "10");
+        ctx.parameters.put("categoryname", "Existing");
+        ctx.parameters.put("status", "1");
+        ctx.parts.put("image", createMockPart("orphan-update.png", new byte[]{1, 2, 3}, "image/png"));
+
+        controller.doPost(ctx.request, ctx.response);
+
+        assertTrue(ctx.forwarded);
+        assertEquals("/views/category-edit.jsp", ctx.forwardedPath);
+        Path catFolder = tempUploadDir.resolve("categories");
+        if (Files.exists(catFolder)) {
+            try (Stream<Path> s = Files.list(catFolder)) {
+                assertEquals(0, s.count(), "Orphaned image must be deleted on update persistence failure");
+            }
+        }
+    }
+
+    @Test
+    public void testInsertCategoryUnsupportedFileTypeFails() throws Exception {
+        CategoryController controller = new CategoryController(mockCategoryService);
+        MockHttpContext ctx = new MockHttpContext();
+        ctx.parameters.put("action", "insert");
+        ctx.parameters.put("categoryname", "Hacking Tools");
+        ctx.parameters.put("status", "1");
+        ctx.parts.put("image", createMockPart("malware.exe", new byte[]{1, 2, 3}, "application/octet-stream"));
+
+        controller.doPost(ctx.request, ctx.response);
+
+        assertFalse(insertCalled);
+        assertTrue(ctx.forwarded);
+        assertEquals("/views/category-add.jsp", ctx.forwardedPath);
+        assertEquals("Only JPG, JPEG, PNG and WEBP images are allowed.", ctx.attributes.get("error"));
+    }
+
+    @Test
+    public void testInsertCategoryOversizedUploadFails() throws Exception {
+        CategoryController controller = new CategoryController(mockCategoryService);
+        MockHttpContext ctx = new MockHttpContext();
+        ctx.parameters.put("action", "insert");
+        ctx.parameters.put("categoryname", "Oversized Item");
+        ctx.parameters.put("status", "1");
+        ctx.throwOnGetPart = true;
+
+        controller.doPost(ctx.request, ctx.response);
+
+        assertFalse(insertCalled);
+        assertTrue(ctx.forwarded);
+        assertEquals("/views/category-add.jsp", ctx.forwardedPath);
+        assertEquals("Image file exceeds maximum allowed size of 5 MB.", ctx.attributes.get("error"));
+    }
+
+    @Test
+    public void testInsertCategoryPartialStreamWriteFailureCleansUpOrphanFile() throws Exception {
+        CategoryController controller = new CategoryController(mockCategoryService);
+        MockHttpContext ctx = new MockHttpContext();
+        ctx.parameters.put("action", "insert");
+        ctx.parameters.put("categoryname", "PartialStreamCategory");
+        ctx.parameters.put("status", "1");
+
+        java.io.InputStream failingStream = new java.io.InputStream() {
+            private int bytesRead = 0;
+
+            @Override
+            public int read() throws IOException {
+                if (bytesRead >= 16) {
+                    throw new IOException("Simulated network disconnection after partial read");
+                }
+                bytesRead++;
+                return 0x55;
+            }
+
+            @Override
+            public int read(byte[] b, int off, int len) throws IOException {
+                if (bytesRead >= 16) {
+                    throw new IOException("Simulated network disconnection after partial read");
+                }
+                int toRead = Math.min(len, 16 - bytesRead);
+                if (toRead <= 0) {
+                    throw new IOException("Simulated network disconnection after partial read");
+                }
+                Arrays.fill(b, off, off + toRead, (byte) 0x55);
+                bytesRead += toRead;
+                return toRead;
+            }
+        };
+
+        ctx.parts.put("image", createMockPartWithStream("partial.jpg", 1024L, failingStream, "image/jpeg"));
+
+        controller.doPost(ctx.request, ctx.response);
+
+        assertFalse(insertCalled);
+        assertTrue(ctx.forwarded);
+        assertEquals("/views/category-add.jsp", ctx.forwardedPath);
+        assertEquals("Unable to upload image file.", ctx.attributes.get("error"));
+
+        Path catFolder = tempUploadDir.resolve("categories");
+        if (Files.exists(catFolder)) {
+            try (Stream<Path> s = Files.list(catFolder)) {
+                assertEquals(0, s.count(), "Isolated categories directory must be empty after partial stream write failure");
+            }
+        }
+    }
+
+    @Test
+    public void testInsertCategoryGetPartIoExceptionFails() throws Exception {
+        assertAddParserFailureShowsError(new IOException("Multipart stream read failure"));
+    }
+
+    @Test
+    public void testInsertCategoryGetPartServletExceptionFails() throws Exception {
+        assertAddParserFailureShowsError(new ServletException("Multipart parser failure"));
+    }
+
+    @Test
+    public void testUpdateCategoryGetPartIoExceptionFails() throws Exception {
+        assertEditParserFailureShowsError(new IOException("Multipart stream read failure"));
+    }
+
+    @Test
+    public void testUpdateCategoryGetPartServletExceptionFails() throws Exception {
+        assertEditParserFailureShowsError(new ServletException("Multipart parser failure"));
+    }
+
+    @Test
+    public void testInsertCategoryNonMultipartUsesImagesParameter() throws Exception {
+        CategoryController controller = new CategoryController(mockCategoryService);
+        MockHttpContext ctx = new MockHttpContext();
+        ctx.contentType = "application/x-www-form-urlencoded";
+        ctx.parameters.put("action", "insert");
+        ctx.parameters.put("categoryname", "NonMultipartCat");
+        ctx.parameters.put("images", "phone.jpg");
+        ctx.parameters.put("status", "1");
+
+        controller.doPost(ctx.request, ctx.response);
+
+        assertTrue(insertCalled);
+        assertEquals("/JPAExercise-next/categories?message=add_success", ctx.redirectUrl);
+        Category saved = categoriesDb.stream().filter(c -> "NonMultipartCat".equals(c.getCategoryname())).findFirst().orElse(null);
+        assertNotNull(saved);
+        assertEquals("phone.jpg", saved.getImages());
+    }
+
+    @Test
+    public void testUpdateCategoryMultipartWithoutNewImageRetainsOld() throws Exception {
+        CategoryController controller = new CategoryController(mockCategoryService);
+        MockHttpContext ctx = new MockHttpContext();
+        ctx.contentType = "multipart/form-data; boundary=----WebKitFormBoundaryXYZ";
+        ctx.parameters.put("action", "update");
+        ctx.parameters.put("categoryid", "1");
+        ctx.parameters.put("categoryname", "Electronics Renamed");
+        ctx.parameters.put("status", "1");
+        // empty parts
+
+        controller.doPost(ctx.request, ctx.response);
+
+        assertTrue(updateCalled);
+        assertEquals("/JPAExercise-next/categories?message=update_success", ctx.redirectUrl);
+        Category updated = categoriesDb.stream().filter(c -> c.getCategoryid() == 1).findFirst().orElse(null);
+        assertNotNull(updated);
+        assertEquals("laptop.jpg", updated.getImages());
+    }
+
+    private void assertAddParserFailureShowsError(Throwable exception) throws Exception {
+        CategoryController controller = new CategoryController(mockCategoryService);
+        MockHttpContext ctx = new MockHttpContext();
+        ctx.contentType = "multipart/form-data; boundary=----WebKitFormBoundaryXYZ";
+        ctx.parameters.put("action", "insert");
+        ctx.parameters.put("categoryname", "ParserFailCat");
+        ctx.parameters.put("status", "1");
+        ctx.getPartException = exception;
+
+        controller.doPost(ctx.request, ctx.response);
+
+        assertFalse(insertCalled);
+        assertTrue(ctx.forwarded);
+        assertEquals("/views/category-add.jsp", ctx.forwardedPath);
+        assertEquals("Unable to upload image file.", ctx.attributes.get("error"));
+    }
+
+    private void assertEditParserFailureShowsError(Throwable exception) throws Exception {
+        CategoryController controller = new CategoryController(mockCategoryService);
+        MockHttpContext ctx = new MockHttpContext();
+        ctx.contentType = "multipart/form-data; boundary=----WebKitFormBoundaryXYZ";
+        ctx.parameters.put("action", "update");
+        ctx.parameters.put("categoryid", "1");
+        ctx.parameters.put("categoryname", "ParserFailEdit");
+        ctx.parameters.put("status", "1");
+        ctx.getPartException = exception;
+
+        controller.doPost(ctx.request, ctx.response);
+
+        assertFalse(updateCalled);
+        assertTrue(ctx.forwarded);
+        assertEquals("/views/category-edit.jsp", ctx.forwardedPath);
+        assertEquals("Unable to upload image file.", ctx.attributes.get("error"));
+        Category existing = categoriesDb.stream().filter(c -> c.getCategoryid() == 1).findFirst().orElse(null);
+        assertNotNull(existing);
+        assertEquals("laptop.jpg", existing.getImages());
     }
 }

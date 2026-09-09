@@ -338,7 +338,13 @@ GO
 IF NOT EXISTS (SELECT 1 FROM categories WHERE CategoryName = N'Electronics')
 BEGIN
     INSERT INTO categories (CategoryName, Images, Status)
-    VALUES (N'Electronics', N'', 1);
+    VALUES (N'Electronics', N'electronics.jpg', 1);
+END
+ELSE
+BEGIN
+    UPDATE categories
+    SET Images = N'electronics.jpg'
+    WHERE CategoryName = N'Electronics' AND (Images IS NULL OR LTRIM(RTRIM(Images)) = N'');
 END
 GO
 

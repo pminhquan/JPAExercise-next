@@ -54,7 +54,8 @@
 
                     <form
                             action="${pageContext.request.contextPath}/categories?action=insert"
-                            method="post">
+                            method="post"
+                            enctype="multipart/form-data">
 
                         <div class="form-field">
 
@@ -80,21 +81,19 @@
 
                         <div class="form-field">
 
-                            <label class="form-label" for="images">
-                                Image / Image URL
+                            <label class="form-label" for="image">
+                                Category Image
                             </label>
 
                             <input
-                                    type="text"
-                                    id="images"
-                                    name="images"
+                                    type="file"
+                                    id="image"
+                                    name="image"
                                     class="form-control"
-                                    value="${fn:escapeXml(param.images)}"
-                                    maxlength="500"
-                                    placeholder="e.g. laptop.jpg or https://images.unsplash.com/...">
+                                    accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
 
                             <span class="form-hint">
-                                Optional. File name located in /uploads/ (presets: laptop.jpg, smartphone.jpg, headphone.jpg, tablet.jpg, mouse.jpg, smartwatch.jpg) or a full web image URL (https://...).
+                                Optional. Supported formats: JPG, JPEG, PNG, WEBP (maximum size 5 MB).
                             </span>
 
                         </div>
