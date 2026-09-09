@@ -17,6 +17,12 @@
         <c:set var="activeNav" value="home" />
     </c:when>
 
+    <c:when test="${currentServletPath == '/admin/dashboard'
+                    or currentServletPath == '/WEB-INF/views/admin-dashboard.jsp'
+                    or fn:endsWith(currentRequestURI, '/admin/dashboard')}">
+        <c:set var="activeNav" value="dashboard" />
+    </c:when>
+
     <c:when test="${currentServletPath == '/views/product-list.jsp'}">
         <c:choose>
             <c:when test="${managementView}">
@@ -159,6 +165,18 @@
 
                         <li class="nav-item">
 
+                            <a class="nav-link ${activeNav == 'dashboard' ? 'active' : ''}"
+                               href="${pageContext.request.contextPath}/admin/dashboard"
+                               ${activeNav == 'dashboard' ? 'aria-current="page"' : ''}>
+
+                                Dashboard
+
+                            </a>
+
+                        </li>
+
+                        <li class="nav-item">
+
                             <a class="nav-link ${activeNav == 'products' ? 'active' : ''}"
                                href="${pageContext.request.contextPath}/products"
                                ${activeNav == 'products' ? 'aria-current="page"' : ''}>
@@ -194,6 +212,15 @@
                             <c:set var="account" value="${not empty sessionScope.account ? sessionScope.account : account}" />
                             <c:set var="displayUsername" value="${not empty account.username ? account.username : 'User'}" />
                             <c:set var="userInitial" value="${not empty displayUsername ? fn:toUpperCase(fn:substring(displayUsername, 0, 1)) : 'U'}" />
+                            <c:set var="userRole" value="${not empty sessionScope.authenticatedUserRole ? sessionScope.authenticatedUserRole : account.role}" />
+                            <c:choose>
+                                <c:when test="${not empty userRole}">
+                                    <c:set var="userMenuLabel" value="User account menu for ${displayUsername} (${userRole})" />
+                                </c:when>
+                                <c:otherwise>
+                                    <c:set var="userMenuLabel" value="User account menu for ${displayUsername}" />
+                                </c:otherwise>
+                            </c:choose>
 
                             <div class="dropdown site-nav__user-dropdown">
                                 <button class="btn btn-ghost btn-sm dropdown-toggle site-nav__user-toggle ${activeNav == 'profile' ? 'active' : ''}"
@@ -201,7 +228,7 @@
                                         id="navbarUserDropdown"
                                         data-bs-toggle="dropdown"
                                         aria-expanded="false"
-                                        aria-label="User account menu for ${fn:escapeXml(displayUsername)}">
+                                        aria-label="${fn:escapeXml(userMenuLabel)}">
                                     <span class="site-nav__avatar" aria-hidden="true">
                                         <c:choose>
                                             <c:when test="${not empty account.images}">
@@ -234,13 +261,18 @@
                                     <span class="site-nav__username">
                                         <c:out value="${displayUsername}" />
                                     </span>
+                                    <c:if test="${not empty userRole}">
+                                        <span class="badge ${userRole == 'ADMIN' ? 'bg-primary-subtle text-primary border border-primary-subtle' : 'bg-secondary'} site-nav__role-badge">
+                                            <c:out value="${userRole}" />
+                                        </span>
+                                    </c:if>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="navbarUserDropdown">
                                     <li>
                                         <a class="dropdown-item ${activeNav == 'profile' ? 'active' : ''}"
                                            href="${pageContext.request.contextPath}/profile"
                                            ${activeNav == 'profile' ? 'aria-current="page"' : ''}>
-                                            My Profile
+                                            Profile
                                         </a>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>

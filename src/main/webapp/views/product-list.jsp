@@ -2,6 +2,7 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+<fmt:setLocale value="vi_VN" scope="page"/>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -82,23 +83,23 @@
 
     <c:choose>
         <c:when test="${managementView}">
-            <div class="card shadow-sm card--flush">
+            <div class="card shadow-sm border-0 card--flush">
 
-                <div class="card-body table-wrap table-responsive">
+                <div class="card-body table-wrap table-responsive p-0">
 
-                    <table class="table table-hover table--data align-middle">
+                    <table class="table table-hover table--data align-middle mb-0">
 
-                        <thead>
+                        <thead class="table-light">
                         <tr>
-                            <th>ID</th>
-                            <th>Product Name</th>
-                            <th>Description</th>
-                            <th>Price</th>
-                            <th>Image</th>
-                            <th>Category</th>
-                            <th>Status</th>
+                            <th scope="col" style="width: 70px;">ID</th>
+                            <th scope="col">Product Name</th>
+                            <th scope="col" class="d-none d-md-table-cell">Description</th>
+                            <th scope="col" class="text-end" style="width: 130px;">Price</th>
+                            <th scope="col" style="width: 80px;">Image</th>
+                            <th scope="col">Category</th>
+                            <th scope="col" style="width: 100px;">Status</th>
                             <c:if test="${managementView}">
-                                <th class="col-actions">Action</th>
+                                <th scope="col" class="col-actions text-end" style="width: 140px;">Action</th>
                             </c:if>
                         </tr>
                         </thead>
@@ -122,7 +123,7 @@
                                     </a>
                                 </td>
 
-                                <td>
+                                <td class="d-none d-md-table-cell">
                                     <c:choose>
 
                                         <c:when test="${not empty product.description}">
@@ -142,10 +143,9 @@
                                     </c:choose>
                                 </td>
 
-                                <td>
+                                <td class="text-end">
                                     <span class="cell-price">
-                                        <fmt:formatNumber value="${product.price}" pattern="#,##0"/>
-                                        <span class="currency-symbol" aria-label="Vietnamese Dong">₫</span>
+                                        <fmt:formatNumber value="${product.price}" pattern="#,##0"/> <span class="currency-symbol" aria-label="Vietnamese Dong">₫</span>
                                     </span>
                                 </td>
 
@@ -159,27 +159,47 @@
                                                     <img src="${fn:escapeXml(product.images)}"
                                                          alt="${fn:escapeXml(product.productname)}"
                                                          class="thumb"
+                                                         width="48"
+                                                         height="48"
                                                          loading="lazy"
-                                                         onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='inline-block';"/>
-                                                    <span class="text-empty" style="display:none;">No image</span>
+                                                         onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='inline-flex';"/>
+                                                    <div class="thumb align-items-center justify-content-center text-muted" style="display:none;" aria-label="No image available" role="img">
+                                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                                            <polyline points="21 15 16 10 5 21"></polyline>
+                                                        </svg>
+                                                    </div>
                                                 </c:when>
 
                                                 <c:otherwise>
                                                     <img src="${pageContext.request.contextPath}/uploads/${fn:escapeXml(product.images)}"
                                                          alt="${fn:escapeXml(product.productname)}"
                                                          class="thumb"
+                                                         width="48"
+                                                         height="48"
                                                          loading="lazy"
-                                                         onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='inline-block';"/>
-                                                    <span class="text-empty" style="display:none;">No image</span>
+                                                         onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='inline-flex';"/>
+                                                    <div class="thumb align-items-center justify-content-center text-muted" style="display:none;" aria-label="No image available" role="img">
+                                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                                            <polyline points="21 15 16 10 5 21"></polyline>
+                                                        </svg>
+                                                    </div>
                                                 </c:otherwise>
 
                                             </c:choose>
                                         </c:when>
 
                                         <c:otherwise>
-                                            <span class="text-empty">
-                                                No image
-                                            </span>
+                                            <div class="thumb d-inline-flex align-items-center justify-content-center text-muted" aria-label="No image available" role="img">
+                                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                                    <polyline points="21 15 16 10 5 21"></polyline>
+                                                </svg>
+                                            </div>
                                         </c:otherwise>
 
                                     </c:choose>
@@ -220,7 +240,7 @@
 
                                 <c:if test="${managementView}">
                                     <td>
-                                        <div class="table-actions">
+                                        <div class="table-actions d-flex align-items-center justify-content-end gap-1">
                                             <a href="${pageContext.request.contextPath}/products/edit?id=${fn:escapeXml(product.productid)}"
                                                class="btn btn-secondary btn-sm"
                                                aria-label="Edit ${fn:escapeXml(product.productname)}">
@@ -228,7 +248,7 @@
                                             </a>
                                             <form action="${pageContext.request.contextPath}/products/delete"
                                                   method="post"
-                                                  class="form-inline"
+                                                  class="form-inline d-inline"
                                                   onsubmit="return confirm('Are you sure you want to delete this product?');">
                                                 <input type="hidden" name="id" value="${fn:escapeXml(product.productid)}"/>
                                                 <button type="submit" class="btn btn-danger btn-sm" aria-label="Delete ${fn:escapeXml(product.productname)}">Delete</button>

@@ -205,6 +205,8 @@
                                             <img src="${fn:escapeXml(product.images)}"
                                                  alt="Current product image"
                                                  class="thumb"
+                                                 width="48"
+                                                 height="48"
                                                  onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='inline-block';"/>
                                             <span class="text-empty small" style="display:none;">(Preview unavailable)</span>
                                         </c:when>
@@ -212,6 +214,8 @@
                                             <img src="${pageContext.request.contextPath}/uploads/${fn:escapeXml(product.images)}"
                                                  alt="Current product image"
                                                  class="thumb"
+                                                 width="48"
+                                                 height="48"
                                                  onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='inline-block';"/>
                                             <span class="text-empty small" style="display:none;">(Preview unavailable)</span>
                                         </c:otherwise>

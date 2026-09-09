@@ -2,6 +2,7 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+<fmt:setLocale value="vi_VN" scope="page"/>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -22,8 +23,8 @@
     <!-- Page Header & Quick Actions -->
     <div class="page-header d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
         <div class="page-header__text">
-            <h1 class="page-header__title mb-1">Admin Dashboard</h1>
-            <p class="page-header__subtitle text-muted mb-0">Overview of system users, product catalog, and categories.</p>
+            <h1 class="page-header__title h3 fw-bold mb-1">Admin Dashboard</h1>
+            <p class="page-header__subtitle text-secondary mb-0">Overview of system users, product catalog, and categories.</p>
         </div>
         <div class="page-header__actions d-flex flex-wrap gap-2">
             <a href="${pageContext.request.contextPath}/products/add" class="btn btn-primary d-inline-flex align-items-center gap-1">
@@ -45,12 +46,12 @@
 
     <!-- Summary Metrics Cards -->
     <div class="row g-3 g-md-4 mb-4 mb-md-5">
-        <div class="col-12 col-sm-6 col-md-4">
-            <div class="card shadow-sm h-100 card--metric">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center justify-content-between mb-2">
-                        <span class="text-uppercase small fw-semibold text-muted">Total Users</span>
-                        <div class="metric-icon text-primary" aria-hidden="true">
+        <div class="col-12 col-md-4">
+            <div class="card shadow-sm h-100 border-0 card--metric">
+                <div class="card-body p-4 d-flex flex-column justify-content-between">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="text-uppercase small fw-semibold text-secondary">Total Users</span>
+                        <div class="metric-icon rounded-3 p-2 bg-primary-subtle text-primary" aria-hidden="true">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                                 <circle cx="9" cy="7" r="4"></circle>
@@ -59,19 +60,22 @@
                             </svg>
                         </div>
                     </div>
-                    <div class="metric-value h2 fw-bold text-dark mb-0">
-                        <c:out value="${totalUsers}"/>
+                    <div>
+                        <div class="metric-value h2 fw-bold text-dark mb-1">
+                            <c:out value="${totalUsers}"/>
+                        </div>
+                        <p class="small text-muted mb-0">Registered system accounts</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-12 col-sm-6 col-md-4">
-            <div class="card shadow-sm h-100 card--metric">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center justify-content-between mb-2">
-                        <span class="text-uppercase small fw-semibold text-muted">Total Products</span>
-                        <div class="metric-icon text-success" aria-hidden="true">
+        <div class="col-12 col-md-4">
+            <div class="card shadow-sm h-100 border-0 card--metric">
+                <div class="card-body p-4 d-flex flex-column justify-content-between">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="text-uppercase small fw-semibold text-secondary">Total Products</span>
+                        <div class="metric-icon rounded-3 p-2 bg-success-subtle text-success" aria-hidden="true">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
                                 <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -79,26 +83,32 @@
                             </svg>
                         </div>
                     </div>
-                    <div class="metric-value h2 fw-bold text-dark mb-0">
-                        <c:out value="${totalProducts}"/>
+                    <div>
+                        <div class="metric-value h2 fw-bold text-dark mb-1">
+                            <c:out value="${totalProducts}"/>
+                        </div>
+                        <p class="small text-muted mb-0">Active catalog offerings</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-12 col-sm-6 col-md-4">
-            <div class="card shadow-sm h-100 card--metric">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center justify-content-between mb-2">
-                        <span class="text-uppercase small fw-semibold text-muted">Total Categories</span>
-                        <div class="metric-icon text-info" aria-hidden="true">
+        <div class="col-12 col-md-4">
+            <div class="card shadow-sm h-100 border-0 card--metric">
+                <div class="card-body p-4 d-flex flex-column justify-content-between">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="text-uppercase small fw-semibold text-secondary">Total Categories</span>
+                        <div class="metric-icon rounded-3 p-2 bg-info-subtle text-info" aria-hidden="true">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
                             </svg>
                         </div>
                     </div>
-                    <div class="metric-value h2 fw-bold text-dark mb-0">
-                        <c:out value="${totalCategories}"/>
+                    <div>
+                        <div class="metric-value h2 fw-bold text-dark mb-1">
+                            <c:out value="${totalCategories}"/>
+                        </div>
+                        <p class="small text-muted mb-0">Product classification groups</p>
                     </div>
                 </div>
             </div>
@@ -106,10 +116,10 @@
     </div>
 
     <!-- Recent Products Table Section -->
-    <div class="card shadow-sm card--flush">
+    <div class="card shadow-sm border-0 card--flush">
         <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
             <h2 class="h5 mb-0 fw-bold">Recent Products</h2>
-            <a href="${pageContext.request.contextPath}/products" class="btn btn-sm btn-ghost">
+            <a href="${pageContext.request.contextPath}/products" class="btn btn-sm btn-ghost text-primary">
                 View all products &rarr;
             </a>
         </div>
@@ -117,7 +127,7 @@
         <c:choose>
             <c:when test="${empty recentProducts}">
                 <div class="card-body">
-                    <div class="empty-state py-5" role="status" aria-live="polite">
+                    <div class="empty-state py-5 text-center" role="status" aria-live="polite">
                         <div class="empty-state__icon text-muted mb-2" aria-hidden="true">
                             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
@@ -138,8 +148,8 @@
                     <table class="table table-hover table--data align-middle mb-0">
                         <thead class="table-light">
                         <tr>
-                            <th scope="col" style="width: 80px;">Image</th>
-                            <th scope="col">Product Name</th>
+                            <th scope="col" style="width: 80px;">Product image</th>
+                            <th scope="col">Product name</th>
                             <th scope="col">Category</th>
                             <th scope="col" class="text-end">Price</th>
                         </tr>
@@ -156,21 +166,39 @@
                                                          alt="${fn:escapeXml(product.productname)}"
                                                          class="thumb"
                                                          loading="lazy"
-                                                         onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='inline-block';" />
-                                                    <span class="text-empty" style="display:none;">No image</span>
+                                                         onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='inline-flex';" />
+                                                    <div class="thumb align-items-center justify-content-center text-muted" style="display:none;" aria-label="No image available" role="img">
+                                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                                            <polyline points="21 15 16 10 5 21"></polyline>
+                                                        </svg>
+                                                    </div>
                                                 </c:when>
                                                 <c:otherwise>
                                                     <img src="${pageContext.request.contextPath}/uploads/${fn:escapeXml(product.images)}"
                                                          alt="${fn:escapeXml(product.productname)}"
                                                          class="thumb"
                                                          loading="lazy"
-                                                         onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='inline-block';" />
-                                                    <span class="text-empty" style="display:none;">No image</span>
+                                                         onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='inline-flex';" />
+                                                    <div class="thumb align-items-center justify-content-center text-muted" style="display:none;" aria-label="No image available" role="img">
+                                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                                            <polyline points="21 15 16 10 5 21"></polyline>
+                                                        </svg>
+                                                    </div>
                                                 </c:otherwise>
                                             </c:choose>
                                         </c:when>
                                         <c:otherwise>
-                                            <span class="text-empty">No image</span>
+                                            <div class="thumb d-inline-flex align-items-center justify-content-center text-muted" aria-label="No image available" role="img">
+                                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                                    <polyline points="21 15 16 10 5 21"></polyline>
+                                                </svg>
+                                            </div>
                                         </c:otherwise>
                                     </c:choose>
                                 </td>
@@ -196,8 +224,7 @@
                                 </td>
                                 <td class="text-end">
                                     <span class="cell-price">
-                                        <fmt:formatNumber value="${product.price}" pattern="#,##0"/>
-                                        <span class="currency-symbol" aria-label="Vietnamese Dong">₫</span>
+                                        <fmt:formatNumber value="${product.price}" pattern="#,##0"/> <span class="currency-symbol" aria-label="Vietnamese Dong">₫</span>
                                     </span>
                                 </td>
                             </tr>

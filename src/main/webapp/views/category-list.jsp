@@ -88,19 +88,19 @@
         </div>
     </c:if>
 
-    <div class="card shadow-sm card--flush">
+    <div class="card shadow-sm border-0 card--flush">
 
-        <div class="card-body table-wrap table-responsive">
+        <div class="card-body table-wrap table-responsive p-0">
 
-            <table class="table table-hover table--data align-middle">
+            <table class="table table-hover table--data align-middle mb-0">
 
-                <thead>
+                <thead class="table-light">
                 <tr>
-                    <th>ID</th>
-                    <th>Category Name</th>
-                    <th>Image</th>
-                    <th>Status</th>
-                    <th class="col-actions">Action</th>
+                    <th scope="col" style="width: 70px;">ID</th>
+                    <th scope="col">Category Name</th>
+                    <th scope="col" style="width: 80px;">Image</th>
+                    <th scope="col" style="width: 110px;">Status</th>
+                    <th scope="col" class="col-actions text-end" style="width: 140px;">Action</th>
                 </tr>
                 </thead>
 
@@ -131,60 +131,41 @@
                                             <img src="${fn:escapeXml(category.images)}"
                                                  alt="${fn:escapeXml(category.categoryname)}"
                                                  class="thumb"
-                                                 onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='inline-block';"/>
-                                            <span class="text-empty" style="display:none;">No image</span>
+                                                 width="48"
+                                                 height="48"
+                                                 loading="lazy"
+                                                 onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='inline-flex';"/>
+                                            <div class="thumb align-items-center justify-content-center text-muted" style="display:none;" aria-label="No image available" role="img">
+                                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                                    <polyline points="21 15 16 10 5 21"></polyline>
+                                                </svg>
+                                            </div>
                                         </c:when>
 
                                         <c:otherwise>
                                             <img src="${pageContext.request.contextPath}/uploads/${fn:escapeXml(category.images)}"
                                                  alt="${fn:escapeXml(category.categoryname)}"
                                                  class="thumb"
-                                                 onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='inline-block';"/>
-                                            <span class="text-empty" style="display:none;">No image</span>
+                                                 width="48"
+                                                 height="48"
+                                                 loading="lazy"
+                                                 onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='inline-flex';"/>
+                                            <div class="thumb align-items-center justify-content-center text-muted" style="display:none;" aria-label="No image available" role="img">
+                                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                                    <polyline points="21 15 16 10 5 21"></polyline>
+                                                </svg>
+                                            </div>
                                         </c:otherwise>
 
                                     </c:choose>
                                 </c:when>
 
                                 <c:otherwise>
-                                    <c:set var="cNameLower" value="${fn:toLowerCase(category.categoryname)}" />
-                                    <c:choose>
-                                        <c:when test="${fn:contains(cNameLower, 'laptop')}">
-                                            <img src="${pageContext.request.contextPath}/uploads/laptop.jpg"
-                                                 alt="${fn:escapeXml(category.categoryname)}"
-                                                 class="thumb"/>
-                                        </c:when>
-                                        <c:when test="${fn:contains(cNameLower, 'headphone') or fn:contains(cNameLower, 'audio')}">
-                                            <img src="${pageContext.request.contextPath}/uploads/headphone.jpg"
-                                                 alt="${fn:escapeXml(category.categoryname)}"
-                                                 class="thumb"/>
-                                        </c:when>
-                                        <c:when test="${fn:contains(cNameLower, 'phone')}">
-                                            <img src="${pageContext.request.contextPath}/uploads/smartphone.jpg"
-                                                 alt="${fn:escapeXml(category.categoryname)}"
-                                                 class="thumb"/>
-                                        </c:when>
-                                        <c:when test="${fn:contains(cNameLower, 'tablet') or fn:contains(cNameLower, 'pad')}">
-                                            <img src="${pageContext.request.contextPath}/uploads/tablet.jpg"
-                                                 alt="${fn:escapeXml(category.categoryname)}"
-                                                 class="thumb"/>
-                                        </c:when>
-                                        <c:when test="${fn:contains(cNameLower, 'mouse')}">
-                                            <img src="${pageContext.request.contextPath}/uploads/mouse.jpg"
-                                                 alt="${fn:escapeXml(category.categoryname)}"
-                                                 class="thumb"/>
-                                        </c:when>
-                                        <c:when test="${fn:contains(cNameLower, 'watch')}">
-                                            <img src="${pageContext.request.contextPath}/uploads/smartwatch.jpg"
-                                                 alt="${fn:escapeXml(category.categoryname)}"
-                                                 class="thumb"/>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <span class="text-empty">
-                                                No image
-                                            </span>
-                                        </c:otherwise>
-                                    </c:choose>
+                                    <span class="text-muted small">No image</span>
                                 </c:otherwise>
 
                             </c:choose>
@@ -210,7 +191,7 @@
 
                         <td>
 
-                            <div class="table-actions">
+                            <div class="table-actions d-flex align-items-center justify-content-end gap-1">
 
                                 <a
                                         href="${pageContext.request.contextPath}/categories?action=edit&amp;id=${fn:escapeXml(category.categoryid)}"
@@ -218,7 +199,7 @@
                                     Edit
                                 </a>
 
-                                <form action="${pageContext.request.contextPath}/categories" method="post" class="form-inline" onsubmit="return confirm('Are you sure you want to delete this category?');">
+                                <form action="${pageContext.request.contextPath}/categories" method="post" class="form-inline d-inline" onsubmit="return confirm('Are you sure you want to delete this category?');">
                                     <input type="hidden" name="action" value="delete">
                                     <input type="hidden" name="id" value="${fn:escapeXml(category.categoryid)}">
                                     <button type="submit" class="btn btn-danger btn-sm">Delete</button>
