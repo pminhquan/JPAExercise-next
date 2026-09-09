@@ -262,24 +262,37 @@
                                         <c:out value="${displayUsername}" />
                                     </span>
                                     <c:if test="${not empty userRole}">
-                                        <span class="badge ${userRole == 'ADMIN' ? 'bg-primary-subtle text-primary border border-primary-subtle' : 'bg-secondary'} site-nav__role-badge">
+                                        <span class="badge ${userRole == 'ADMIN' ? 'bg-primary-subtle text-primary border border-primary-subtle' : 'bg-secondary-subtle text-secondary border border-secondary-subtle'} site-nav__role-badge">
                                             <c:out value="${userRole}" />
                                         </span>
                                     </c:if>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="navbarUserDropdown">
+                                    <li class="dropdown-header text-center text-lg-start">
+                                        Signed in as <strong><c:out value="${displayUsername}" /></strong>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
                                     <li>
-                                        <a class="dropdown-item ${activeNav == 'profile' ? 'active' : ''}"
+                                        <a class="dropdown-item d-flex align-items-center justify-content-center justify-content-lg-start gap-2 ${activeNav == 'profile' ? 'active' : ''}"
                                            href="${pageContext.request.contextPath}/profile"
                                            ${activeNav == 'profile' ? 'aria-current="page"' : ''}>
-                                            Profile
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                                <circle cx="12" cy="7" r="4"/>
+                                            </svg>
+                                            <span>Profile</span>
                                         </a>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
-                                        <a class="dropdown-item"
+                                        <a class="dropdown-item d-flex align-items-center justify-content-center justify-content-lg-start gap-2 text-danger"
                                            href="${pageContext.request.contextPath}/logout">
-                                            Logout
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                                                <polyline points="16 17 21 12 16 7"/>
+                                                <line x1="21" y1="12" x2="9" y2="12"/>
+                                            </svg>
+                                            <span>Logout</span>
                                         </a>
                                     </li>
                                 </ul>
